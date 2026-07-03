@@ -1,0 +1,48 @@
+name: Deploy slides to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+# Quyền cần thiết để publish lên Pages
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Chỉ chạy 1 deploy tại một thời điểm; hủy lần cũ nếu có lần mới
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Build site
+        run: |
+          mkdir -p _site
+          # slides.html là trang chính -> phục vụ làm index.html
+          cp slides.html _site/index.html
+          # Kèm theo các tài nguyên khác (nếu tồn tại)
+          cp content.md _site/ 2>/dev/null || true
+          cp 2025.acl-long.32.pdf _site/ 2>/dev/null || true
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
