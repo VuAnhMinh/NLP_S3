@@ -72,6 +72,41 @@
     .win{ color:var(--good); font-weight:800; }
     .lose{ color:var(--bad); font-weight:700; }
     .rank1{ background:#dcfce7 !important; }
+
+    /* thanh tiến trình & số thứ tự slide */
+    .reveal .progress{ color:var(--accent); height:6px; }
+    .reveal .slide-number{
+      background-color: rgba(37,99,235,.9);
+      color:#fff; font-weight:700; font-size:14px;
+      border-radius:6px; padding:.15em .6em; right:12px; bottom:12px;
+    }
+
+    /* menu điều hướng nhanh */
+    #quick-nav-toggle{
+      position:fixed; top:14px; left:14px; z-index:40;
+      width:38px; height:38px; border-radius:50%; border:none;
+      background:var(--accent); color:#fff; font-size:18px; cursor:pointer;
+      box-shadow:0 2px 8px rgba(0,0,0,.25);
+    }
+    #quick-nav-toggle:hover{ background:var(--accent2); }
+    #quick-nav-panel{
+      position:fixed; top:0; left:0; bottom:0; width:260px; z-index:39;
+      background:#fff; box-shadow:2px 0 12px rgba(0,0,0,.2);
+      transform:translateX(-100%); transition:transform .25s ease;
+      padding:64px 18px 18px; overflow-y:auto; font-family:-apple-system,"Segoe UI",sans-serif;
+    }
+    #quick-nav-panel.open{ transform:translateX(0); }
+    #quick-nav-panel h4{ margin:0 0 .6em; color:var(--accent); font-size:14px; letter-spacing:.03em; text-transform:uppercase; }
+    #quick-nav-panel a{
+      display:block; padding:.5em .6em; margin:.15em 0; border-radius:8px;
+      color:var(--ink); text-decoration:none; font-size:14px; font-weight:600;
+    }
+    #quick-nav-panel a:hover{ background:#eff6ff; color:var(--accent); }
+    #quick-nav-overlay{
+      position:fixed; inset:0; background:rgba(15,23,42,.35); z-index:38;
+      opacity:0; pointer-events:none; transition:opacity .2s ease;
+    }
+    #quick-nav-overlay.open{ opacity:1; pointer-events:auto; }
   </style>
 </head>
 <body>
@@ -86,7 +121,7 @@
       <h3 style="color:var(--muted); font-weight:600;">Semantic Signal Separation<br>Phát hiện chủ đề (topic) tốc độ cao trong không gian embedding</h3>
       <p class="subtitle" style="margin-top:1.2em;">Kardos, Kostkan, Enevoldsen, Vermillet, Nielbo, Rocca · Aarhus University</p>
       <p class="subtitle">Proceedings of ACL 2025, tr. 633–666 · aclanthology.org/2025.acl-long.32</p>
-      <p style="margin-top:1em; font-size:.6em; color:#94a3b8;">← → chuyển slide · <b>S</b> speaker notes · <b>F</b> toàn màn hình · <b>ESC</b> tổng quan</p>
+      <p style="margin-top:1em; font-size:.6em; color:#94a3b8;">← → chuyển slide · <b>S</b> speaker notes · <b>F</b> toàn màn hình · <b>ESC</b> tổng quan · <b>M</b> menu nhanh</p>
     </div>
     <aside class="notes">Chào mọi người. Hôm nay mình trình bày bài báo S³ tại ACL 2025 — một phương pháp topic modeling mới, nhanh nhất trong nhóm dùng embedding. Ý tưởng cốt lõi chỉ một câu: coi mỗi chủ đề là một trục độc lập trong không gian ý nghĩa.</aside>
   </section>
@@ -530,6 +565,27 @@ model.print_topics()</code></pre>
   </div>
 </div>
 
+<!-- Menu điều hướng nhanh -->
+<button id="quick-nav-toggle" aria-label="Mở điều hướng nhanh" aria-expanded="false" title="Điều hướng nhanh (phím M)">☰</button>
+<div id="quick-nav-overlay"></div>
+<nav id="quick-nav-panel" aria-hidden="true">
+  <h4>Điều hướng nhanh</h4>
+  <a href="#/0">1 · Tiêu đề</a>
+  <a href="#/1">2 · Topic model là gì</a>
+  <a href="#/2">3 · Cách cổ điển (BoW)</a>
+  <a href="#/4">5 · Đóng góp</a>
+  <a href="#/5">6 · Baselines</a>
+  <a href="#/6">7 · Ý tưởng: topic = trục</a>
+  <a href="#/8">9 · Thuật toán S³</a>
+  <a href="#/11">12 · Thiết lập thí nghiệm</a>
+  <a href="#/12">13 · Kết quả tổng quát</a>
+  <a href="#/14">14 · Phát hiện phản trực giác</a>
+  <a href="#/16">16 · So sánh định tính</a>
+  <a href="#/17">17 · Kết luận</a>
+  <a href="#/18">18 · Hạn chế</a>
+  <a href="#/19">19 · Q&amp;A</a>
+</nav>
+
 <script src="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reveal.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/plugin/notes/notes.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/plugin/highlight/highlight.js"></script>
@@ -537,6 +593,7 @@ model.print_topics()</code></pre>
 <script>
   Reveal.initialize({
     hash: true,
+    progress: true,
     slideNumber: 'c/t',
     transition: 'slide',
     width: 1180,
@@ -548,6 +605,34 @@ model.print_topics()</code></pre>
       {left:'\\(', right:'\\)', display:false}
     ]}
   });
+
+  // Menu điều hướng nhanh: nhảy thẳng tới các phần chính
+  (function () {
+    var toggle = document.getElementById('quick-nav-toggle');
+    var panel = document.getElementById('quick-nav-panel');
+    var overlay = document.getElementById('quick-nav-overlay');
+
+    function setOpen(open) {
+      panel.classList.toggle('open', open);
+      overlay.classList.toggle('open', open);
+      panel.setAttribute('aria-hidden', String(!open));
+      toggle.setAttribute('aria-expanded', String(open));
+    }
+
+    toggle.addEventListener('click', function () {
+      setOpen(!panel.classList.contains('open'));
+    });
+    overlay.addEventListener('click', function () { setOpen(false); });
+    panel.querySelectorAll('a').forEach(function (a) {
+      a.addEventListener('click', function () { setOpen(false); });
+    });
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') { setOpen(false); return; }
+      var tag = (e.target && e.target.tagName) || '';
+      if (tag === 'INPUT' || tag === 'TEXTAREA') return;
+      if (e.key === 'm' || e.key === 'M') { setOpen(!panel.classList.contains('open')); }
+    });
+  })();
 </script>
 </body>
 </html>
