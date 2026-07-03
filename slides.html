@@ -1,0 +1,553 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>S³ — Tách Tín hiệu Ngữ nghĩa | Slide thuyết trình</title>
+
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reveal.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/theme/white.css" id="theme">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/plugin/highlight/monokai.css">
+
+  <style>
+    :root{
+      --accent:#2563eb;      /* xanh dương */
+      --accent2:#0891b2;     /* xanh cyan */
+      --good:#16a34a;
+      --warn:#d97706;
+      --bad:#dc2626;
+      --ink:#1e293b;
+      --muted:#64748b;
+    }
+    .reveal { font-family: -apple-system, "Segoe UI", "Helvetica Neue", "Noto Sans", Arial, sans-serif; color:var(--ink); --r-main-font-size:30px; font-size:30px; }
+    .reveal h1,.reveal h2,.reveal h3,.reveal h4 { color:var(--accent); font-weight:800; letter-spacing:-.01em; text-transform:none; }
+    .reveal h1{ font-size:2.1em; line-height:1.1; }
+    .reveal h2{ font-size:1.5em; }
+    .reveal h3{ font-size:1.15em; color:var(--accent2); }
+    .reveal section { text-align:left; }
+    .reveal .center { text-align:center; }
+    .reveal p, .reveal li { line-height:1.4; }
+    .reveal ul, .reveal ol { display:block; margin-left:.5em; }
+    .reveal li { margin:.28em 0; }
+    .reveal small { color:var(--muted); }
+
+    /* thẻ nhấn */
+    .tag{ display:inline-block; padding:.12em .6em; border-radius:999px; font-size:.5em; font-weight:700; vertical-align:middle; color:#fff; }
+    .tag.blue{background:var(--accent);} .tag.cyan{background:var(--accent2);}
+    .tag.green{background:var(--good);} .tag.amber{background:var(--warn);} .tag.red{background:var(--bad);}
+
+    .pill{ display:inline-block; padding:.1em .55em; border-radius:6px; background:#eff6ff; color:var(--accent); font-weight:700; font-size:.9em; }
+
+    /* các khối màu */
+    .box{ border-radius:12px; padding:.7em 1em; margin:.4em 0; font-size:.9em; }
+    .box.idea{ background:#eff6ff; border-left:5px solid var(--accent); }
+    .box.tech{ background:#f0fdfa; border-left:5px solid var(--accent2); }
+    .box.say { background:#fefce8; border-left:5px solid var(--warn); font-style:italic; }
+    .box.key { background:#f0fdf4; border-left:5px solid var(--good); }
+    .box.warnx{ background:#fef2f2; border-left:5px solid var(--bad); }
+    .box .lbl{ font-weight:800; font-size:.8em; letter-spacing:.03em; display:block; margin-bottom:.2em; }
+    .box.idea .lbl{color:var(--accent);} .box.tech .lbl{color:var(--accent2);}
+    .box.say .lbl{color:var(--warn);} .box.key .lbl{color:var(--good);} .box.warnx .lbl{color:var(--bad);}
+
+    .reveal table{ font-size:.62em; margin:.3em auto; }
+    .reveal table th{ background:var(--accent); color:#fff; padding:.35em .6em; }
+    .reveal table td{ padding:.3em .6em; }
+    .reveal table tr:nth-child(even) td{ background:#f8fafc; }
+    .num{ text-align:right; font-variant-numeric:tabular-nums; }
+
+    .cols{ display:flex; gap:1.2em; align-items:flex-start; }
+    .cols > div{ flex:1; }
+
+    .big-number{ font-size:2.6em; font-weight:900; color:var(--accent); line-height:1; }
+    .big-number small{ font-size:.28em; color:var(--muted); display:block; font-weight:600; }
+
+    .step{ background:#f8fafc; border:1px solid #e2e8f0; border-radius:10px; padding:.5em .8em; margin:.35em 0; }
+    .step b{ color:var(--accent); }
+
+    .reveal .footer{ position:fixed; bottom:8px; left:14px; font-size:12px; color:#cbd5e1; }
+    .reveal section img{ border:none; box-shadow:none; }
+    .kw{ color:var(--accent2); font-weight:700; }
+    .reveal .subtitle{ color:var(--muted); font-size:.7em; font-weight:500; }
+    .chip{ display:inline-block; background:#f1f5f9; border-radius:6px; padding:.15em .5em; margin:.1em; font-size:.8em; font-family:ui-monospace,Menlo,monospace; }
+    .win{ color:var(--good); font-weight:800; }
+    .lose{ color:var(--bad); font-weight:700; }
+    .rank1{ background:#dcfce7 !important; }
+  </style>
+</head>
+<body>
+<div class="reveal">
+  <div class="slides">
+
+  <!-- ============ 1. TIÊU ĐỀ ============ -->
+  <section data-background-gradient="linear-gradient(135deg,#eff6ff 0%,#f0fdfa 100%)">
+    <div class="center">
+      <span class="tag blue">ACL 2025 · Long Papers</span>
+      <h1 style="margin:.3em 0 .1em;">S³ — Tách Tín hiệu Ngữ nghĩa</h1>
+      <h3 style="color:var(--muted); font-weight:600;">Semantic Signal Separation<br>Phát hiện chủ đề (topic) tốc độ cao trong không gian embedding</h3>
+      <p class="subtitle" style="margin-top:1.2em;">Kardos, Kostkan, Enevoldsen, Vermillet, Nielbo, Rocca · Aarhus University</p>
+      <p class="subtitle">Proceedings of ACL 2025, tr. 633–666 · aclanthology.org/2025.acl-long.32</p>
+      <p style="margin-top:1em; font-size:.6em; color:#94a3b8;">← → chuyển slide · <b>S</b> speaker notes · <b>F</b> toàn màn hình · <b>ESC</b> tổng quan</p>
+    </div>
+    <aside class="notes">Chào mọi người. Hôm nay mình trình bày bài báo S³ tại ACL 2025 — một phương pháp topic modeling mới, nhanh nhất trong nhóm dùng embedding. Ý tưởng cốt lõi chỉ một câu: coi mỗi chủ đề là một trục độc lập trong không gian ý nghĩa.</aside>
+  </section>
+
+  <!-- ============ 2. TOPIC MODEL LÀ GÌ ============ -->
+  <section>
+    <h2>Topic model là gì?</h2>
+    <div class="box idea">
+      <span class="lbl">🧠 TRỰC GIÁC</span>
+      Nhóm phương pháp <b>thống kê</b> giúp <b>tự động khám phá chủ đề ẩn</b> trong kho văn bản lớn — <b>unsupervised</b>, không cần nhãn, không cần đọc từng bài.
+    </div>
+    <p>Kết quả trả về: mỗi <span class="pill">topic</span> = một tập <b>từ khoá quan trọng</b> đại diện.</p>
+    <div class="cols">
+      <div class="box key" style="flex:1"><b>Topic thể thao</b><br><span class="chip">bóng đá</span><span class="chip">cầu thủ</span><span class="chip">bàn thắng</span><span class="chip">HLV</span></div>
+      <div class="box key" style="flex:1"><b>Topic công nghệ</b><br><span class="chip">AI</span><span class="chip">chip</span><span class="chip">dữ liệu</span><span class="chip">phần mềm</span></div>
+    </div>
+    <div class="box say"><span class="lbl">🎤 NÓI</span>Có 100.000 bài báo, muốn biết chúng nói về gì? Topic model làm việc đó tự động và trả về vài chục nhóm từ khoá đại diện.</div>
+    <aside class="notes">Nhấn mạnh: đây là công cụ khám phá (exploratory) — dùng để tóm tắt "kho này nói về những gì" mà không cần lao động thủ công đọc hết.</aside>
+  </section>
+
+  <!-- ============ 3. CÁCH CỔ ĐIỂN & GIỚI HẠN ============ -->
+  <section>
+    <h2>Cách cổ điển: đếm từ (Bag-of-Words)</h2>
+    <p><b>LSI/LSA</b> (1988), <b>LDA</b> (2003) — đều dựa trên <span class="kw">bag-of-words (BoW)</span>: đếm tần suất từ, bỏ qua thứ tự & ngữ cảnh.</p>
+    <div class="box warnx">
+      <span class="lbl">⚠️ 3 GIỚI HẠN CỦA BoW (kẻ thù mà S³ muốn đánh bại)</span>
+      <ol style="margin:0;">
+        <li><b>Nhạy với từ thống kê bất thường</b> — nhất là <span class="kw">stop words / function words</span> ("the", "of", "và", "là") dễ lọt vào & làm topic vô nghĩa.</li>
+        <li><b>Buộc phải preprocessing nặng</b> → tạo nhiều <span class="kw">researcher degrees of freedom</span>, mỗi người làm sạch một kiểu → khó tái lập.</li>
+        <li><b>BoW thưa (sparse) & số chiều cao</b> → tính toán kém, mô hình khớp kém.</li>
+      </ol>
+    </div>
+    <div class="box say"><span class="lbl">🎤 NÓI</span>Cách cũ đếm từ — mà đếm thì "the", "is", "of" luôn nhiều nhất, nên bạn buộc phải làm sạch rất kỹ, và ai cũng làm một kiểu khác nhau.</div>
+    <aside class="notes">Điểm 2 là quan trọng nhất về mặt khoa học: preprocessing không chuẩn hoá làm kết quả topic modeling khó tái lập và dễ thiên lệch.</aside>
+  </section>
+
+  <!-- ============ 4. EMBEDDINGS MỞ CƠ HỘI ============ -->
+  <section>
+    <h2>Neural embeddings mở ra cơ hội</h2>
+    <p>Sentence embeddings (Reimers & Gurevych 2019) — biểu diễn <b>dày (dense)</b>, có <b>ngữ cảnh</b>.</p>
+    <div class="cols">
+      <div class="box key">
+        <span class="lbl">✅ Vì sao hợp topic modeling</span>
+        <ul style="font-size:.92em;margin:0;">
+          <li>Có ngữ cảnh, nhạy ngữ pháp → <b>không cần vứt bỏ thông tin</b></li>
+          <li>Bền với lỗi chính tả & từ ngoài từ điển</li>
+          <li>Không gian liên tục → giả định <span class="kw">Gaussianity</span></li>
+          <li>Cho phép <span class="kw">transfer learning</span></li>
+        </ul>
+      </div>
+      <div class="box warnx">
+        <span class="lbl">⚠️ Nhưng contextual model hiện tại vẫn</span>
+        <ul style="font-size:.92em;margin:0;">
+          <li><b>Chậm, không ổn định (volatile)</b></li>
+          <li><b>Vẫn cần preprocessing nặng</b></li>
+          <li>Không rõ có <b>thực sự dùng ngữ cảnh</b> — vì vẫn test trên dữ liệu đã làm sạch!</li>
+        </ul>
+      </div>
+    </div>
+    <div class="box say"><span class="lbl">🎤 NÓI</span>Embedding tốt hơn cách cũ, nhưng vẫn chậm, vẫn đòi tiền xử lý — và mỉa mai là ta không chắc chúng có dùng được "ngữ cảnh" không, vì người ta test chúng trên dữ liệu đã làm sạch mất ngữ cảnh.</div>
+    <aside class="notes">Ba gạch đầu dòng bên phải chính là 3 vấn đề mà toàn bộ bài báo nhắm giải quyết. Hãy dừng lại nhấn mạnh ở đây.</aside>
+  </section>
+
+  <!-- ============ 5. ĐÓNG GÓP ============ -->
+  <section>
+    <h2>Đóng góp của bài báo</h2>
+    <div class="box idea"><span class="lbl">Ý TƯỞNG MỘT CÂU</span>
+      Coi mỗi <b>topic là một trục ngữ nghĩa độc lập</b> (independent semantic axis) trong không gian embedding, tìm ra bằng <span class="kw">Independent Component Analysis (FastICA)</span>.</div>
+    <div class="cols">
+      <div>
+        <h3>4 tính chất then chốt</h3>
+        <div class="step"><b>(a)</b> Đơn giản, <b>theory-driven</b></div>
+        <div class="step"><b>(b)</b> Ngang ngửa về coherence, <b>diversity gần như hoàn hảo</b></div>
+        <div class="step"><b>(c)</b> <b>Hiệu quả tính toán cao nhất</b></div>
+        <div class="step"><b>(d)</b> Tận dụng hiệu quả <b>contextual information</b></div>
+      </div>
+      <div>
+        <h3>Kèm công cụ</h3>
+        <div class="box key" style="margin-top:.2em;">
+          <b>Turftopic</b> — thư viện Python, interface kiểu <b>scikit-learn</b>, gói cả S³ lẫn mọi contextual baseline.<br><br>
+          <b>topic-benchmark</b> — CLI tái lập toàn bộ thí nghiệm.<br>
+          <small>Cả hai giấy phép <b>MIT</b>.</small>
+        </div>
+      </div>
+    </div>
+    <aside class="notes">Đóng góp gồm hai phần: phương pháp mới S³, và một thư viện Turftopic gói tất cả mô hình dưới cùng một giao diện dễ dùng — điều này giúp cộng đồng dễ so sánh.</aside>
+  </section>
+
+  <!-- ============ 6. BASELINES ============ -->
+  <section>
+    <h2>Bối cảnh: các baseline để so sánh</h2>
+    <table>
+      <thead><tr><th>Nhóm</th><th>Mô hình</th><th>Cơ chế cốt lõi</th><th>Contextual?</th></tr></thead>
+      <tbody>
+        <tr><td>Classical</td><td>LDA</td><td>Xác suất trên BoW</td><td>❌</td></tr>
+        <tr><td>Classical</td><td>NMF</td><td>Phân rã ma trận BoW</td><td>❌</td></tr>
+        <tr><td>Neural/VAE</td><td>ZeroShotTM</td><td>VAE, input = embedding</td><td>✅</td></tr>
+        <tr><td>Neural/VAE</td><td>CombinedTM</td><td>VAE, embedding + BoW</td><td>✅</td></tr>
+        <tr><td>Neural</td><td>ECRTM</td><td>Embedding clustering regularization</td><td>❌</td></tr>
+        <tr><td>Neural</td><td>FASTopic</td><td>Optimal transport (dual-semantic)</td><td>✅</td></tr>
+        <tr><td>Clustering</td><td>Top2Vec</td><td>UMAP + HDBSCAN + cosine</td><td>✅</td></tr>
+        <tr><td>Clustering</td><td>BERTopic</td><td>UMAP + HDBSCAN + c-TF-IDF</td><td>✅</td></tr>
+        <tr class="rank1"><td><b>Đề xuất</b></td><td><b>S³</b></td><td><b>ICA trên embedding</b></td><td><b>✅</b></td></tr>
+      </tbody>
+    </table>
+    <div class="cols" style="font-size:.85em;">
+      <div class="box warnx" style="flex:1"><b>Clustering models</b> coi topic = <b>cụm</b> tài liệu; trọng số từ tính <i>post hoc</i>. Top2Vec giả định cụm hình cầu; số cụm có thể bùng nổ → cần topic reduction.</div>
+      <div class="box warnx" style="flex:1"><b>CTM</b> cần preprocessing nặng, giảm chất lượng khi vocab lớn. <b>ECRTM</b> không dùng contextual & chậm. Chung: nhạy hyperparameter, topic khó diễn giải.</div>
+    </div>
+    <aside class="notes">Không cần thuộc lòng bảng — chỉ cần nhớ 3 nhóm: cổ điển (BoW), neural (VAE/clustering-regularization), và clustering (UMAP+HDBSCAN). S³ không thuộc nhóm nào — nó là phân rã ma trận trên embedding.</aside>
+  </section>
+
+  <!-- ============ 7. CÚ LẬT CÁCH NGHĨ ============ -->
+  <section>
+    <h2>Cú lật cách nghĩ: topic = <span style="color:var(--accent2)">trục</span></h2>
+    <div class="cols">
+      <div class="step">BERTopic / Top2Vec<br>→ topic = <b>cụm (cluster)</b></div>
+      <div class="step">LDA / CTM<br>→ topic = <b>phân phối xác suất trên từ</b></div>
+      <div class="step rank1" style="border:2px solid var(--accent)">S³<br>→ topic = <b>TRỤC (axis) ngữ nghĩa</b></div>
+    </div>
+    <div class="box idea"><span class="lbl">🧠 TRỰC GIÁC</span>
+      Mỗi topic là một <b>hướng</b> giải thích phần <b>biến thiên (variance) riêng</b> của kho. Ta phân rã biểu diễn ngữ nghĩa thành:
+      <ul style="margin:.3em 0;">
+        <li><b>A</b> = các latent components → <b>chính là topic</b></li>
+        <li><b>S</b> = độ mạnh mỗi component trong từng tài liệu → <b>document-topic importance</b></li>
+      </ul>
+      Để topic thật sự khác biệt → dùng <b>ICA</b> tìm các thành phần <b>độc lập thống kê</b>.
+    </div>
+    <p class="center"><small>S³ có thể xem là <b>"hậu duệ contextual của LSA"</b> — LSA tìm factor trong đồng-xuất-hiện của từ, S³ tìm axis trong không gian embedding.</small></p>
+    <aside class="notes">Đây là slide bản lề. Thay vì hỏi "tài liệu này thuộc cụm nào", S³ hỏi "không gian ý nghĩa của kho có những trục độc lập nào" — và mỗi trục là một topic.</aside>
+  </section>
+
+  <!-- ============ 8. PCA vs ICA ============ -->
+  <section>
+    <h2>Vì sao dùng ICA, không phải PCA?</h2>
+    <div class="cols">
+      <div class="box tech" style="flex:1">
+        <span class="lbl">PCA</span>
+        Tìm trục <b>không tương quan (uncorrelated)</b>, giải thích variance lớn nhất.<br><small>→ điều kiện <b>yếu</b>.</small>
+      </div>
+      <div class="box key" style="flex:1">
+        <span class="lbl">ICA</span>
+        Tìm thành phần <b>độc lập thống kê (independent)</b>.<br><small>→ điều kiện <b>mạnh hơn nhiều</b>.</small>
+      </div>
+    </div>
+    <div class="box idea"><span class="lbl">🍸 ANALOGY: "Cocktail party"</span>
+      Nhiều giọng nói trộn lẫn trong phòng tiệc → ICA <b>tách ra từng giọng riêng</b> (blind source separation). Với topic modeling: mỗi "nguồn tín hiệu độc lập" = một <b>topic thuần khiết</b>, ít chồng lấn.</div>
+    <div class="box key"><span class="lbl">💡 HỆ QUẢ</span>Đây chính là lý do tên gọi <b>"Semantic Signal Separation"</b> — tách các tín hiệu ngữ nghĩa trộn lẫn thành topic độc lập → giải thích vì sao S³ cho <b>diversity gần như hoàn hảo</b>.</div>
+    <aside class="notes">Analogy cocktail party là cách dễ nhất để khán giả không chuyên hiểu ICA. Nhấn: PCA chỉ "không tương quan", ICA "độc lập" — mạnh hơn, và độc lập chính là điều ta muốn cho các topic tách bạch.</aside>
+  </section>
+
+  <!-- ============ 9. THUẬT TOÁN - overview ============ -->
+  <section>
+    <section>
+      <h2>Thuật toán S³ — 6 bước</h2>
+      <div class="box tech"><span class="lbl">🔢 CỐT LÕI</span>Toàn bộ phần "khó" chỉ là <b>một phép phân rã ma trận</b>: <br><span style="font-size:1.2em">tài liệu = topic × độ mạnh</span></div>
+      <div class="step"><b>1.</b> Encode tài liệu bằng sentence transformer → ma trận <b>X</b></div>
+      <div class="step"><b>2.</b> Phân rã bằng FastICA: <b>X = A·S</b> &nbsp;(A = topic, S = document-topic importance)</div>
+      <div class="step"><b>3.</b> Encode toàn bộ từ vựng bằng <b>cùng encoder</b> → ma trận <b>V</b></div>
+      <div class="step"><b>4.</b> Unmixing matrix = pseudo-inverse: <b>C = A⁺</b></div>
+      <div class="step"><b>5.</b> Chiếu từ lên trục: <b>W = V·Cᵀ</b></div>
+      <div class="step"><b>6.</b> Tính word importance cho mỗi topic <small>(slide sau)</small></div>
+      <p class="center"><small>↓ bấm xuống để xem công thức chi tiết</small></p>
+      <aside class="notes">Điểm bán hàng: không có mạng nơ-ron phải train, không vòng lặp tối ưu tốn kém — chỉ là phân rã ma trận. Đó là lý do nó nhanh. Dành nhiều thời gian ở khối này.</aside>
+    </section>
+
+    <section>
+      <h2>Chi tiết bước 1–2: phân rã</h2>
+      <p><b>X</b> = ma trận embedding tài liệu. Phân rã bằng <b>FastICA</b> (Hyvärinen & Oja 2000):</p>
+      <p class="center" style="font-size:1.3em;">\[ X = A \cdot S \]</p>
+      <div class="box warnx"><span class="lbl">⚠️ TINH TẾ: whitening + giảm chiều</span>
+        <ul style="margin:0;">
+          <li>FastICA là mô hình <b>không nhiễu (noiseless)</b> → phải <b>whitening</b> embedding trước.</li>
+          <li>ICA mặc định cho ra #components = #chiều embedding. Để lấy đúng <b>N topic</b>, khi whitening ta <b>giữ N principal components đầu</b>.</li>
+          <li>⇒ Bên trong S³ có một bước <b>giống PCA</b> (giảm chiều + whitening), <b>rồi ICA xoay các trục cho độc lập</b>.</li>
+        </ul>
+      </div>
+      <aside class="notes">Câu hỏi hay gặp: "vậy có phải chỉ là PCA?" — Không. PCA chỉ là bước whitening/giảm chiều bên trong; phần cốt lõi là ICA xoay trục để độc lập thống kê.</aside>
+    </section>
+
+    <section>
+      <h2>Chi tiết bước 3–5: chiếu từ lên trục</h2>
+      <div class="step"><b>3.</b> Encode từ vựng → <b>V</b> (ma trận embedding của từ)</div>
+      <div class="step"><b>4.</b> Unmixing matrix: <span style="font-size:1.1em">\( C = A^{+} \)</span> (pseudo-inverse của A)</div>
+      <div class="step"><b>5.</b> Chiếu từ lên trục ngữ nghĩa: <span style="font-size:1.1em">\( W = V \, C^{T} \)</span></div>
+      <div class="box idea"><span class="lbl">🧠 Ý NGHĨA</span><b>W₍ⱼₜ₎</b> = vị trí của từ <i>j</i> trên trục topic <i>t</i>. Đây là "toạ độ" để chọn từ mô tả mỗi topic.</div>
+      <div class="box tech"><span class="lbl">🔮 INFERENCE tài liệu mới</span>Chỉ cần một phép nhân ma trận: <span style="font-size:1.1em">\( \hat{S} = \hat{X}\, C^{T} \)</span> — cực nhanh.</div>
+      <aside class="notes">Nhấn: cùng một encoder cho cả tài liệu và từ vựng — đó là điều kiện để chiếu chúng vào cùng không gian trục.</aside>
+    </section>
+  </section>
+
+  <!-- ============ 10. WORD IMPORTANCE ============ -->
+  <section>
+    <h2>Bước 6: 3 cách tính word importance</h2>
+    <p>Từ <b>W₍ⱼₜ₎</b> (vị trí từ <i>j</i> trên trục <i>t</i>), có 3 công thức chọn từ mô tả topic:</p>
+    <div class="cols">
+      <div class="box tech" style="flex:1">
+        <span class="lbl">① AXIAL (theo trục)</span>
+        \[ \beta_{tj} = W_{jt} \]
+        <small>Từ <b>nổi bật (salient)</b> nhất.<br><span class="win">Coherence cao nhất.</span></small>
+      </div>
+      <div class="box tech" style="flex:1">
+        <span class="lbl">② ANGULAR (theo góc)</span>
+        \[ \beta_{tj} = \frac{W_{jt}}{\lVert W_j \rVert} \]
+        <small>Từ <b>đặc trưng (specific)</b> nhất.<br><span class="win">Diversity cao nhất.</span></small>
+      </div>
+      <div class="box key" style="flex:1">
+        <span class="lbl">③ COMBINED (kết hợp)</span>
+        \[ \beta_{tj} = \frac{(W_{jt})^{3}}{\lVert W_j \rVert} \]
+        <small>Mũ <b>lẻ (3)</b> để giữ dấu. Cân bằng ①②.</small>
+      </div>
+    </div>
+    <div class="box key"><span class="lbl">📌 KHUYẾN NGHỊ</span>Dùng <b>Combined mặc định</b> — ngăn một từ lọt vào nhiều topic cùng lúc khi nó ghi điểm cao trên nhiều trục.</div>
+    <aside class="notes">Ba biến thể ký hiệu trong bài: S³_axi, S³_ang, S³_com. Kết quả cho thấy chúng khác nhau chủ yếu ở đánh đổi coherence↔diversity, và Combined là lựa chọn an toàn.</aside>
+  </section>
+
+  <!-- ============ 11. NEGATIVE ============ -->
+  <section>
+    <h2>Điểm độc đáo: mô tả topic bằng từ <span class="lose">NEGATIVE</span></h2>
+    <div class="box idea"><span class="lbl">🧠 TRỰC GIÁC</span>Cả 3 công thức đều cho phép từ có <b>độ quan trọng âm</b> → ngoài "top từ dương", S³ liệt kê cả <b>top từ âm</b> = một <b>định nghĩa âm (negative definition)</b> của topic.</div>
+    <ul>
+      <li>LSA cũng có tính chất này về mặt toán, nhưng <b>chưa từng được khai thác</b> trong văn liệu trước.</li>
+      <li><b>Lợi ích:</b> hai topic có top-từ-dương giống nhau vẫn phân biệt được nhờ <b>từ âm</b>.</li>
+      <li><span class="tag amber">Lưu ý fair</span> So sánh định lượng <b>bỏ qua từ âm</b> (để công bằng với mô hình không có khái niệm này); từ âm chỉ dùng minh hoạ định tính.</li>
+    </ul>
+    <div class="box say"><span class="lbl">🎤 NÓI</span>Không mô hình nào khác cho bạn biết một topic <i>KHÔNG</i> nói về cái gì — S³ thì có.</div>
+    <aside class="notes">Ví dụ cụ thể ở slide ArXiv phía sau: Topic 0 và Topic 4 có từ dương gần giống nhau (đều "clustering"), chỉ nhờ từ âm mới thấy khác biệt.</aside>
+  </section>
+
+  <!-- ============ 12. SETUP ============ -->
+  <section>
+    <section>
+      <h2>Thiết lập thí nghiệm: Dữ liệu</h2>
+      <table>
+        <thead><tr><th>Dataset</th><th class="num"># Tài liệu</th><th class="num">Vocab</th></tr></thead>
+        <tbody>
+          <tr><td>ArXiv ML Papers</td><td class="num">2.048</td><td class="num">2.849</td></tr>
+          <tr><td>BBC News</td><td class="num">1.225</td><td class="num">3.851</td></tr>
+          <tr><td>20 Newsgroups <b>Preprocessed</b></td><td class="num">16.310</td><td class="num">1.612</td></tr>
+          <tr class="rank1"><td>20 Newsgroups <b>Raw (thô)</b></td><td class="num">18.846</td><td class="num">21.668</td></tr>
+          <tr><td>StackExchange</td><td class="num">75.000</td><td class="num">17.884</td></tr>
+          <tr><td>Wiki Medical</td><td class="num">6.861</td><td class="num">22.145</td></tr>
+        </tbody>
+      </table>
+      <div class="box idea"><span class="lbl">💡 THIẾT KẾ TINH TẾ</span>Dùng <b>cả 20NG thô lẫn đã tiền xử lý</b> để đo riêng <b>ảnh hưởng của preprocessing</b> — một thí nghiệm then chốt.</div>
+      <aside class="notes">Chú ý chênh lệch vocab: 20NG raw có vocab 21.668 so với preprocessed 1.612 — nghĩa là preprocessing vứt bỏ ~93% từ vựng. Câu hỏi: thông tin bị vứt đó có giá trị không?</aside>
+    </section>
+    <section>
+      <h2>Embedding models & cấu hình</h2>
+      <table>
+        <thead><tr><th>Embedding</th><th class="num">#Params</th><th class="num">Size</th><th>Loại</th></tr></thead>
+        <tbody>
+          <tr><td>Averaged GloVe</td><td class="num">120M</td><td class="num">300</td><td>Static (phi ngữ cảnh)</td></tr>
+          <tr><td>all-MiniLM-L6-v2</td><td class="num">22.7M</td><td class="num">384</td><td>SBERT (nhỏ)</td></tr>
+          <tr><td>all-mpnet-base-v2</td><td class="num">109M</td><td class="num">768</td><td>SBERT (vừa)</td></tr>
+          <tr><td>E5-large-v2</td><td class="num">335M</td><td class="num">1024</td><td>E5 (lớn, chất lượng cao)</td></tr>
+        </tbody>
+      </table>
+      <div class="cols" style="font-size:.9em;">
+        <div class="step" style="flex:1"><b>Số topic:</b> 10, 20, 30, 40, 50</div>
+        <div class="step" style="flex:1"><b>Đánh giá:</b> top 10 từ / topic</div>
+      </div>
+      <div class="box warnx"><span class="lbl">⚠️ CÔNG BẰNG</span><b>Không tune hyperparameter</b> (dùng mặc định package) — tránh p-hacking & tránh tối ưu chính metric đang đo. Mỗi cấu hình chạy <b>1 lần</b> do chi phí khổng lồ.</div>
+      <aside class="notes">Việc không tune hyperparameter là chủ ý về mặt phương pháp luận, không phải lười. Sẽ nhắc lại ở phần Limitations.</aside>
+    </section>
+    <section>
+      <h2>Metrics đánh giá chất lượng</h2>
+      <div class="cols">
+        <div class="box tech" style="flex:1">
+          <span class="lbl">DIVERSITY (d)</span>Topic khác nhau đến đâu (dựa trên số từ dùng chung). Thấp = topic trùng lặp = khó phân biệt.</div>
+        <div class="box tech" style="flex:1">
+          <span class="lbl">COHERENCE (C)</span>Topic mạch lạc đến đâu (word embedding coherence = độ tương đồng trung bình từng cặp từ).</div>
+      </div>
+      <div class="step">External <b>C<sub>ex</sub></b>: Word2Vec train trên kho ngoài lớn → nghĩa <b>tổng quát</b></div>
+      <div class="step">Internal <b>C<sub>in</sub></b>: Word2Vec train trên chính kho → nghĩa <b>đặc thù kho</b></div>
+      <p class="center" style="font-size:1.05em;">\[ \bar{C} = \sqrt{C_{ex}\cdot C_{in}} \qquad\qquad \text{Interpretability} = \sqrt{\bar{C}\cdot d} \]</p>
+      <div class="box key"><span class="lbl">Vì sao GEOMETRIC mean?</span>Phạt nặng trường hợp lệch: coherence 1.0 nhưng diversity 0.0 <b>không nên</b> được 0.5 → buộc mô hình phải tốt <b>cả hai mặt</b>.</div>
+      <aside class="notes">Bổ sung robustness: đo tần suất stop words và ký tự phi chữ cái trong topic — proxy cho "junk terms" mà coherence/diversity chuẩn không bắt được.</aside>
+    </section>
+  </section>
+
+  <!-- ============ 13. KẾT QUẢ TỔNG QUÁT ============ -->
+  <section data-background-gradient="linear-gradient(135deg,#f0fdf4 0%,#eff6ff 100%)">
+    <h2>Kết quả: các con số biết nói</h2>
+    <div class="cols center" style="margin:.5em 0;">
+      <div><div class="big-number">4.5×<small>nhanh hơn á quân BERTopic (median)</small></div></div>
+      <div><div class="big-number">27.5×<small>nhanh hơn baselines trung bình</small></div></div>
+      <div><div class="big-number">#1<small>hiệu năng tổng hợp & (ổn định) runtime</small></div></div>
+    </div>
+    <div class="box key"><span class="lbl">CÂN BẰNG TỐI ƯU</span>
+      <ul style="margin:0;">
+        <li><b>ECRTM, FASTopic:</b> đa dạng hơn nhưng <span class="lose">kém mạch lạc</span></li>
+        <li><b>Top2Vec:</b> rất mạch lạc nhưng <span class="lose">kém đa dạng</span></li>
+        <li><b>S³:</b> <span class="win">cân bằng tối ưu coherence ↔ diversity</span></li>
+      </ul>
+    </div>
+    <aside class="notes">Đây là slide "đắt giá" số 1. Nếu có Figure 2 của bài (coherence-diversity + rank tốc độ) thì chèn vào đây. Nhấn: các mô hình khác giỏi một mặt, S³ giỏi cả hai.</aside>
+  </section>
+
+  <!-- ============ 13b. HỒI QUY ============ -->
+  <section>
+    <h2>Kiểm định thống kê (rất mạnh)</h2>
+    <p><b>Linear regression</b> dự đoán interpretability \( \sqrt{\bar{C}\cdot d} \): mô hình là fixed effect (mốc = S³_com); số topic, encoder, dataset là random intercepts.</p>
+    <div class="box key center"><b>F = 167.4 · p &lt; 0.001 · R² = 0.673</b> → loại mô hình dự đoán interpretability có ý nghĩa; <b>S³ vượt trội có ý nghĩa thống kê</b> so với mọi baseline.</div>
+    <div class="cols">
+      <div>
+        <table>
+          <thead><tr><th>Mô hình</th><th class="num">Hệ số</th><th class="num">p</th></tr></thead>
+          <tbody>
+            <tr class="rank1"><td><b>S³_com (mốc)</b></td><td class="num"><b>0.606</b></td><td class="num">—</td></tr>
+            <tr class="rank1"><td>S³_axi</td><td class="num">−0.001</td><td class="num">0.96</td></tr>
+            <tr class="rank1"><td>S³_ang</td><td class="num">−0.015</td><td class="num">0.18</td></tr>
+            <tr><td>ECRTM</td><td class="num lose">−0.031</td><td class="num">.004</td></tr>
+            <tr><td>FASTopic</td><td class="num lose">−0.043</td><td class="num">&lt;.001</td></tr>
+            <tr><td>Top2Vec</td><td class="num lose">−0.046</td><td class="num">&lt;.001</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div>
+        <table>
+          <thead><tr><th>Mô hình</th><th class="num">Hệ số</th><th class="num">p</th></tr></thead>
+          <tbody>
+            <tr><td>ZeroShotTM</td><td class="num lose">−0.117</td><td class="num">&lt;.001</td></tr>
+            <tr><td>CombinedTM</td><td class="num lose">−0.120</td><td class="num">&lt;.001</td></tr>
+            <tr><td>BERTopic</td><td class="num lose">−0.214</td><td class="num">&lt;.001</td></tr>
+            <tr><td>NMF</td><td class="num lose">−0.222</td><td class="num">&lt;.001</td></tr>
+            <tr><td>LDA</td><td class="num lose">−0.272</td><td class="num">&lt;.001</td></tr>
+          </tbody>
+        </table>
+        <p><small>Càng âm = càng kém S³. 3 biến thể S³ đứng đầu; LDA/NMF/BERTopic ở đáy interpretability.</small></p>
+      </div>
+    </div>
+    <aside class="notes">Điểm mạnh khoa học: không chỉ báo cáo trung bình, mà dùng mixed-effects regression để chứng minh khác biệt CÓ Ý NGHĨA thống kê sau khi kiểm soát encoder/dataset/số topic.</aside>
+  </section>
+
+  <!-- ============ 14. PREPROCESSING ============ -->
+  <section data-background-gradient="linear-gradient(135deg,#fefce8 0%,#f0fdf4 100%)">
+    <h2>🌟 Phát hiện phản trực giác nhất</h2>
+    <div class="box key center" style="font-size:1.15em;">
+      <b>S³ là mô hình DUY NHẤT liên tục chạy TỐT HƠN trên văn bản thô</b><br>(natural text) so với dữ liệu đã tiền xử lý.
+    </div>
+    <ul>
+      <li>Vài baseline cải thiện coherence khi có kho thô, nhưng nhìn chung <b>ngang hoặc kém đi</b> khi bỏ preprocessing.</li>
+      <li>S³ <b>hưởng lợi nhiều nhất</b> → chứng tỏ nó <b>thực sự khai thác được thông tin thêm</b> trong văn bản thô.</li>
+      <li>Khi preprocessing nặng, S³ đôi khi bị vượt; <b>nhưng trên kho thô, S³ cao hơn TẤT CẢ</b> — kể cả mô hình được train trên dữ liệu đã làm sạch.</li>
+    </ul>
+    <div class="box say"><span class="lbl">🎤 NÓI</span>Mọi mô hình khác cần bạn làm sạch dữ liệu; S³ thì ngược lại — càng để nguyên văn bản, nó càng chạy tốt. Đây là bằng chứng mạnh nhất rằng S³ thật sự "dùng ngữ cảnh".</div>
+    <aside class="notes">Chèn Figure 4 của bài nếu được. Đây là câu trả lời cho vấn đề nêu ở đầu: "liệu contextual model có thật sự dùng ngữ cảnh?" — S³ trả lời: có, và đây là bằng chứng.</aside>
+  </section>
+
+  <!-- ============ 15. STOP WORDS / EMBEDDING / VARIANT ============ -->
+  <section>
+    <h2>Ba quan sát bổ sung</h2>
+    <div class="box tech"><span class="lbl">① STOP WORDS (trên kho thô)</span>
+      BoW models & <b>BERTopic</b> nhét đầy stop words — đôi khi <span class="lose">100% mô tả topic</span>! CTM & FASTopic khá hơn. <b>ECRTM, Top2Vec, mọi S³</b> <span class="win">hầu như không có stop words</span>.</div>
+    <div class="box tech"><span class="lbl">② ẢNH HƯỞNG EMBEDDING</span>
+      <b>S³</b> ổn định, <span class="win">tốt nhất với E5 (lớn nhất)</span> → tận dụng được embedding chất lượng cao. <b>Top2Vec</b> bị E5 & GloVe làm hại nặng. <b>FASTopic</b> tốt nhất với GloVe, <span class="lose">càng embedding lớn càng kém</span> (curse of dimensionality).</div>
+    <div class="box tech"><span class="lbl">③ BIẾN THỂ TERM IMPORTANCE</span>
+      Angular → đa dạng hơn; Axial → mạch lạc nhất; Combined → ở giữa (thường chỉ khác Axial vài từ). 📌 <b>Combined mặc định.</b></div>
+    <aside class="notes">Điểm ② rất đáng nói: nhiều mô hình khác CÀNG dùng embedding xịn CÀNG kém — S³ thì ngược lại, nó scale tốt theo chất lượng embedding. Đây là tính chất quý cho tương lai khi embedding ngày càng mạnh.</aside>
+  </section>
+
+  <!-- ============ 16. ĐỊNH TÍNH ============ -->
+  <section>
+    <section>
+      <h2>So sánh chất lượng topic (20NG, 20 topics)</h2>
+      <div class="box warnx"><span class="lbl">❌ KÉM — LDA, NMF, BERTopic</span>
+        <span class="chip">that</span><span class="chip">to</span><span class="chip">you</span><span class="chip">of</span><span class="chip">the</span><span class="chip">and</span> <small>(LDA — toàn function words)</small><br>
+        <span class="chip">the</span><span class="chip">of</span><span class="chip">to</span><span class="chip">in</span><span class="chip">space</span><span class="chip">edu</span><span class="chip">is</span> <small>(BERTopic/e5)</small></div>
+      <div class="box" style="background:#fff7ed;border-left:5px solid var(--warn)"><span class="lbl" style="color:var(--warn)">⚠️ NHIỄU — CTM, ECRTM</span>
+        <span class="chip">145</span><span class="chip">ax</span><span class="chip">0d</span><span class="chip">_o</span><span class="chip">a86</span><span class="chip">mk</span> <small>(CombinedTM/MiniLM)</small><br>
+        <span class="chip">verbeek</span><span class="chip">billington</span><span class="chip">cassels</span><span class="chip">nyr</span> <small>(ECRTM)</small></div>
+      <div class="box key"><span class="lbl">✅ TỐT NHẤT — Top2Vec & S³ (sạch, đặc trưng)</span>
+        <span class="chip">epilepsy</span><span class="chip">medical</span><span class="chip">toxins</span><span class="chip">malpractice</span><span class="chip">homeopathy</span> <small>(S³/mpnet — y khoa)</small><br>
+        <span class="chip">zionists</span><span class="chip">israeli</span><span class="chip">intifada</span><span class="chip">palestinians</span><span class="chip">likud</span> <small>(S³/e5 — Trung Đông)</small></div>
+      <aside class="notes">FASTopic ở giữa — ít nhiễu nhưng đôi khi trộn 2 topic vào 1 (vd "moon, launch, bike, medical, car, orbit" trộn không gian + xe + y tế). Top2Vec bị E5 làm hại, còn S³ cho chất lượng cao nhất với E5.</aside>
+    </section>
+    <section>
+      <h2>Sức mạnh: Semantic Axes trên ArXiv ML</h2>
+      <p><small>Mỗi topic có <b>top từ dương + âm</b>. Topic 0 & 4 có từ dương gần giống (đều "clustering") — chỉ từ <b>âm</b> mới phân biệt được.</small></p>
+      <table>
+        <thead><tr><th>#</th><th style="color:#dcfce7">Positive</th><th style="color:#fecaca">Negative</th></tr></thead>
+        <tbody>
+          <tr><td>0</td><td>clustering, histograms, classifying</td><td class="lose">reinforcement, exploration, planning</td></tr>
+          <tr><td>1</td><td>textual, pagerank, entailment</td><td class="lose">matlab, waveforms, microcontroller</td></tr>
+          <tr><td>3</td><td>subgraph, graphsage, graph</td><td class="lose">adversarial, adversary, security</td></tr>
+          <tr><td>4</td><td>clustering, algorithm, dbscan</td><td class="lose">cnn, deepmind, convnet</td></tr>
+        </tbody>
+      </table>
+      <div class="box idea"><span class="lbl">🧭 CONCEPT COMPASS</span>Đặt 2 trục lên mặt phẳng 2D: <b>Ngôn ngữ↔Vật lý/Thị giác</b> × <b>Thuật toán↔Deep Learning</b>. Phát hiện: giao (ngôn ngữ × ML cổ điển) = <b>probability</b>; (ngôn ngữ × DL) = <b>embeddings, attention</b>; điểm cao cả hai trục = <b>pagerank</b>.</div>
+      <div class="box say"><span class="lbl">🎤 NÓI</span>S³ không chỉ liệt kê topic — nó cho bạn một "bản đồ ngữ nghĩa" để đặt bất kỳ từ nào lên và xem nó nằm đâu giữa các trục ý nghĩa. Không mô hình nào khác làm được.</div>
+      <aside class="notes">Slide "đắt giá" số 3. Nếu có Figure 7 (concept compass) thì chèn vào — hình này gây ấn tượng mạnh vì nó cho thấy khả năng diễn giải sâu mà các mô hình cluster/xác suất không có.</aside>
+    </section>
+  </section>
+
+  <!-- ============ 17. KẾT LUẬN ============ -->
+  <section data-background-gradient="linear-gradient(135deg,#eff6ff 0%,#f0fdfa 100%)">
+    <h2>Kết luận</h2>
+    <p>S³ — topic modeling trong không gian ngữ nghĩa liên tục, cảm hứng từ <b>LSA</b>, coi topic là <b>trục ngữ nghĩa</b> tìm bằng <b>ICA</b>.</p>
+    <div class="cols center">
+      <div class="box key" style="flex:1"><b>✅ Chất lượng</b><br>Topic vừa mạch lạc vừa đa dạng, sạch, dễ hiểu</div>
+      <div class="box key" style="flex:1"><b>⚡ Tốc độ</b><br>Nhanh nhất trong contextual topic models</div>
+      <div class="box key" style="flex:1"><b>🧹 Không preprocessing</b><br>Chạy tốt hơn khi giữ văn bản thô</div>
+    </div>
+    <div class="box idea"><span class="lbl">💡 ĐÓNG GÓP ĐỌNG LẠI</span>Một phương pháp <b>đơn giản, theory-driven</b> + thư viện <b>Turftopic</b> (MIT) để cộng đồng dễ dùng và so sánh.</div>
+    <aside class="notes">Chốt lại 3 trụ: chất lượng, tốc độ, không cần preprocessing — và điểm độc đáo là mô tả topic bằng cả từ âm + concept compass.</aside>
+  </section>
+
+  <!-- ============ 18. HẠN CHẾ ============ -->
+  <section>
+    <h2>Hạn chế (tính khách quan)</h2>
+    <ol style="font-size:.85em;">
+      <li><b>Metric định lượng</b> dựa trên giả định mạnh, có hạn chế đã biết — phân tích bổ sung chỉ bù một phần.</li>
+      <li><b>Cài lại mô hình</b> trong Turftopic → CTM có khác biệt kiến trúc nhỏ, runtime/topic có thể lệch chút so với bản gốc.</li>
+      <li><b>Không tune hyperparameter</b> — baseline (BERTopic, LDA) có thể tốt hơn nếu tối ưu; nhưng cố ý tránh <b>p-hacking</b>.</li>
+      <li><b>Chỉ 1 random seed</b> (pipeline quá tốn thời gian); bù bằng nhiều embedding model.</li>
+      <li><b>Preprocessing chỉ thử trên 1 kho</b> (20NG) — cần mở rộng nhiều kho.</li>
+      <li><b>Chưa đánh giá document-topic proportions</b> cho downstream task — dành cho tương lai.</li>
+    </ol>
+    <div class="box tech" style="font-size:.85em;"><span class="lbl">📎 CHI TIẾT Q&A</span>Runtime KHÔNG tính thời gian embedding (để công bằng). NPMI coherence bị tác giả cảnh báo không đáng tin. Lỗi baseline: BERTopic đôi khi chỉ ra 1 topic, Top2Vec chỉ 2 topic trên ArXiv → không dùng được.</div>
+    <aside class="notes">Nếu bị hỏi "sao không so trên downstream task?": tác giả cho rằng trong thực tế người ta dùng thẳng sentence embedding cho classification/clustering, nên document-topic proportion không phải use-case chính của topic model.</aside>
+  </section>
+
+  <!-- ============ 19. Q&A ============ -->
+  <section data-background-gradient="linear-gradient(135deg,#f0fdfa 0%,#eff6ff 100%)">
+    <div class="center">
+      <h1>Cảm ơn & Q&A</h1>
+      <div class="box idea" style="display:inline-block;text-align:left;margin-top:1em;">
+        <b>Dùng thử — Turftopic (pip install turftopic)</b>
+        <pre style="font-size:.5em;background:#fff;border-radius:8px;padding:.6em;margin:.5em 0;"><code>from turftopic import SemanticSignalSeparation
+model = SemanticSignalSeparation(n_components=10)
+topics = model.fit_transform(documents)
+model.print_topics()</code></pre>
+      </div>
+      <p class="subtitle" style="margin-top:1em;">github.com/x-tabdeveloping/turftopic · github.com/x-tabdeveloping/topic-benchmark</p>
+      <p><small>S³ — Semantic Signal Separation · ACL 2025 · Aarhus University</small></p>
+    </div>
+    <aside class="notes">Chuẩn bị sẵn: (1) demo Turftopic nếu có máy, (2) 3 câu hỏi dự phòng thường gặp — "khác gì PCA/LSA?", "chọn số topic thế nào?", "áp dụng cho tiếng Việt được không?" (được — chỉ cần một sentence transformer đa ngữ).</aside>
+  </section>
+
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reveal.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/plugin/notes/notes.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/plugin/highlight/highlight.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/plugin/math/math.js"></script>
+<script>
+  Reveal.initialize({
+    hash: true,
+    slideNumber: 'c/t',
+    transition: 'slide',
+    width: 1180,
+    height: 740,
+    margin: 0.06,
+    plugins: [ RevealNotes, RevealHighlight, RevealMath.KaTeX ],
+    katex: { delimiters: [
+      {left:'\\[', right:'\\]', display:true},
+      {left:'\\(', right:'\\)', display:false}
+    ]}
+  });
+</script>
+</body>
+</html>
