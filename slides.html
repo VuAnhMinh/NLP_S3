@@ -260,27 +260,39 @@
 
     <!-- 4. Uncorrelated vs Independent -->
     <section>
-      <h2>4 · Không tương quan ≠ Độc lập <span class="learn-badge">HỌC</span></h2>
-      <p>Đây là mấu chốt phân biệt PCA và ICA.</p>
-      <div class="two-col-tight">
-        <div class="box tech"><span class="lbl">KHÔNG TƯƠNG QUAN (uncorrelated)</span>Không có quan hệ <b>tuyến tính</b> (đường thẳng). Điều kiện <b>YẾU</b>. → PCA chỉ đạt mức này.</div>
-        <div class="box key"><span class="lbl">ĐỘC LẬP THỐNG KÊ (independent)</span>Biết biến này <b>không cho biết gì</b> về biến kia (tuyến tính <i>lẫn</i> phi tuyến). Điều kiện <b>MẠNH</b>. → ICA đòi mức này.</div>
+      <h2>4 · "Không tương quan" khác "Độc lập" ra sao? <span class="learn-badge">HỌC</span></h2>
+      <p>Mẹo phân biệt: hỏi một câu — <b>"Biết cái này, tôi có đoán được gì về cái kia không?"</b></p>
+      <div class="two-col-tight" style="font-size:.8em;">
+        <div class="box tech"><span class="lbl">TƯƠNG QUAN — chỉ soi 1 kiểu quan hệ</span>
+          Chỉ đo quan hệ kiểu <b>đường thẳng</b>: "cái này tăng thì cái kia có tăng/giảm <i>đều đặn</i> không". Nếu quan hệ <b>cong</b>, tương quan không thấy → báo = 0.</div>
+        <div class="box key"><span class="lbl">ĐỘC LẬP — soi MỌI kiểu quan hệ</span>
+          Chặt hơn nhiều: biết cái này <b>chẳng cho biết gì</b> về cái kia — không thẳng, không cong, không kiểu nào hết.</div>
       </div>
-      <svg class="diagram" viewBox="0 0 760 210" style="width:min(620px,74%)" role="img" aria-label="Điểm nằm trên vòng tròn: không tương quan nhưng phụ thuộc">
-        <line x1="380" y1="20" x2="380" y2="190" stroke="#cbd5e1" stroke-width="1.5"/>
-        <line x1="250" y1="105" x2="510" y2="105" stroke="#cbd5e1" stroke-width="1.5"/>
-        <circle cx="380" cy="105" r="78" fill="none" stroke="#d97706" stroke-width="2" stroke-dasharray="4 4"/>
-        <g fill="#d97706">
-          <circle cx="380" cy="27" r="5"/><circle cx="440" cy="50" r="5"/><circle cx="458" cy="105" r="5"/>
-          <circle cx="440" cy="160" r="5"/><circle cx="380" cy="183" r="5"/><circle cx="320" cy="160" r="5"/>
-          <circle cx="302" cy="105" r="5"/><circle cx="320" cy="50" r="5"/>
-        </g>
-        <text x="530" y="110" font-size="13" fill="#64748b">tương quan tuyến tính = 0</text>
-        <text x="530" y="130" font-size="13" fill="#dc2626" font-weight="700">nhưng biết x → đoán được |y|</text>
-        <text x="530" y="150" font-size="13" fill="#dc2626" font-weight="700">⇒ KHÔNG độc lập</text>
-      </svg>
-      <p class="cap">Điểm trải đều trên vòng tròn: hệ số tương quan = 0, nhưng x và y rõ ràng phụ thuộc nhau.</p>
-      <aside class="notes">Đây là ví dụ kinh điển. Ghi nhớ: độc lập ⇒ không tương quan, nhưng chiều ngược lại SAI. Vì thế ICA (độc lập) mạnh hơn PCA (không tương quan) và tách được topic tách bạch.</aside>
+      <div class="two-col-tight" style="align-items:center;">
+        <div style="flex:1.1">
+          <div class="box warnx" style="font-size:.78em;margin:0;"><span class="lbl">VÍ DỤ "ĐẮT": y = x²</span>
+            y tính <b>thẳng</b> từ x → biết x là biết chắc y = <b>phụ thuộc hoàn toàn</b>. Nhưng đồ thị là chữ U: nửa trái x tăng thì y <b>giảm</b>, nửa phải x tăng thì y <b>tăng</b> → hai xu hướng <b>triệt tiêu</b> → <b>tương quan = 0</b>.</div>
+          <table style="font-size:.72em;margin:.4em 0 0;">
+            <thead><tr><th>x</th><td class="num">−2</td><td class="num">−1</td><td class="num">0</td><td class="num">1</td><td class="num">2</td></tr></thead>
+            <tbody><tr><th>y = x²</th><td class="num">4</td><td class="num">1</td><td class="num">0</td><td class="num">1</td><td class="num">4</td></tr></tbody>
+          </table>
+        </div>
+        <svg class="diagram" viewBox="0 0 400 230" style="width:min(360px,42%);flex-shrink:0" role="img" aria-label="Đồ thị chữ U của y bằng x bình phương">
+          <line x1="200" y1="20" x2="200" y2="205" stroke="#cbd5e1" stroke-width="1.5"/>
+          <line x1="60" y1="195" x2="360" y2="195" stroke="#cbd5e1" stroke-width="1.5"/>
+          <text x="366" y="199" font-size="13" fill="#64748b">x</text><text x="206" y="28" font-size="13" fill="#64748b">y</text>
+          <path d="M95,55 Q200,255 305,55" fill="none" stroke="#d97706" stroke-width="2.5"/>
+          <g fill="#d97706">
+            <circle cx="100" cy="60" r="5"/><circle cx="140" cy="115" r="5"/><circle cx="175" cy="160" r="5"/>
+            <circle cx="200" cy="172" r="5"/><circle cx="225" cy="160" r="5"/><circle cx="260" cy="115" r="5"/><circle cx="300" cy="60" r="5"/>
+          </g>
+          <text x="105" y="100" font-size="11" fill="#dc2626" font-weight="700">x↑ ⇒ y↓</text>
+          <text x="245" y="100" font-size="11" fill="#16a34a" font-weight="700">x↑ ⇒ y↑</text>
+        </svg>
+      </div>
+      <div class="box idea" style="font-size:.78em;"><span class="lbl">CHỐT</span>
+        y=x²: <b>tương quan = 0</b> (không tương quan) nhưng <b>phụ thuộc hoàn toàn</b> (không độc lập). Nên "độc lập" là điều kiện <b>khó/chặt hơn</b>. Áp vào S³: <b>PCA</b> chỉ đạt "không tương quan" → trục vẫn có thể <b>dính nội dung</b> nhau; <b>ICA</b> đòi "độc lập" → mỗi trục thành một topic <b>tách bạch, không chồng lên nhau</b>.</div>
+      <aside class="notes">Ý cốt lõi: tương quan chỉ bắt quan hệ đường thẳng; y=x² là quan hệ cong nên tương quan mù. Độc lập thì luôn kéo theo không tương quan, nhưng chiều ngược lại sai. Đó là lý do ICA (đòi độc lập) mạnh hơn PCA (chỉ không tương quan) trong việc tách topic.</aside>
     </section>
 
     <!-- 5. PCA vs ICA -->
@@ -325,6 +337,32 @@
         <div class="box key"><b>ICA:</b> trục <b>độc lập thống kê</b> (tối đa hoá tính phi-Gaussian). Bám đúng cấu trúc sinh dữ liệu → mỗi trục = 1 topic thuần.</div>
       </div>
       <aside class="notes">Cùng đám mây, PCA cho trục "toán học vuông góc", ICA cho trục "trùng nguồn thật". S³ chọn ICA vì topic cần độc lập/tách bạch — đó là gốc rễ của diversity gần hoàn hảo.</aside>
+    </section>
+
+    <!-- 5b. PCA vs ICA: dùng khi nào, mạnh ở đâu -->
+    <section>
+      <h2>PCA và ICA — ai dùng, mạnh ở đâu? <span class="learn-badge">HỌC</span></h2>
+      <div class="two-col-tight" style="font-size:.76em;">
+        <div class="box tech">
+          <span class="lbl">PCA — nén &amp; giữ thông tin</span>
+          <b>Dùng khi:</b> muốn <b>giảm chiều / nén</b> dữ liệu, khử nhiễu, trực quan hoá, hoặc <b>tiền xử lý</b>. Ví dụ: nén ảnh, nhận diện khuôn mặt (eigenfaces), phân tích tài chính. <i>Trong S³: chính là bước whitening.</i>
+          <hr style="border:none;border-top:1px solid #cbd5e1;margin:.4em 0">
+          <b class="win">Mạnh:</b> tìm hướng <b>giữ nhiều thông tin (variance) nhất</b> → nén tối ưu; <b>nhanh, ổn định</b>, có nghiệm chính xác (SVD); trục được <b>xếp hạng</b> theo tầm quan trọng.
+          <hr style="border:none;border-top:1px solid #cbd5e1;margin:.4em 0">
+          <b class="lose">Yếu:</b> chỉ đạt "không tương quan" + ép trục <b>vuông góc</b> → <b>không tách</b> được các nguồn bị trộn.
+        </div>
+        <div class="box key">
+          <span class="lbl">ICA — tách nguồn trộn lẫn</span>
+          <b>Dùng khi:</b> muốn <b>tách các tín hiệu bị trộn</b> thành nguồn gốc. Ví dụ: tách giọng nói (cocktail party), tách sóng não EEG, tách nhịp tim thai khỏi điện tim của mẹ. <i>Trong S³: tách kho văn bản thành từng topic.</i>
+          <hr style="border:none;border-top:1px solid #bbf7d0;margin:.4em 0">
+          <b class="win">Mạnh:</b> tìm thành phần <b>độc lập thống kê</b> → tách bạch nguồn thật; trục <b>không bị ép vuông góc</b> nên bám đúng cấu trúc dữ liệu → topic <b>ít chồng lấn</b> (diversity cao).
+          <hr style="border:none;border-top:1px solid #bbf7d0;margin:.4em 0">
+          <b class="lose">Yếu:</b> cần <b>whitening trước</b>; giả định nguồn <b>độc lập &amp; phi-Gaussian</b>; <b>không xếp hạng</b> trục theo tầm quan trọng.
+        </div>
+      </div>
+      <div class="box idea" style="font-size:.8em;"><span class="lbl">QUAN HỆ GIỮA HAI CÁI</span>
+        Chúng <b>bổ trợ</b>, không loại trừ: thường chạy <b>PCA trước để dọn dẹp</b> (giảm chiều + whitening), rồi <b>ICA xoay trục cho độc lập</b>. Đây đúng là những gì diễn ra bên trong S³.</div>
+      <aside class="notes">Điểm cần nhớ: PCA = "nén, giữ variance" (dùng khắp nơi để giảm chiều); ICA = "tách nguồn" (dùng khi tin rằng dữ liệu là trộn của các nguồn độc lập). S³ tin rằng tài liệu là trộn của các topic độc lập → chọn ICA, và dùng PCA làm bước chuẩn bị.</aside>
     </section>
 
     <!-- 6. Whitening -->
