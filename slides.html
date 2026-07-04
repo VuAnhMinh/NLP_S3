@@ -73,6 +73,15 @@
     .lose{ color:var(--bad); font-weight:700; }
     .rank1{ background:#dcfce7 !important; }
 
+    /* sơ đồ SVG học tập */
+    .reveal .diagram{ display:block; margin:.3em auto; max-width:100%; height:auto; }
+    .reveal .diagram text{ font-family:-apple-system,"Segoe UI","Noto Sans",sans-serif; }
+    .reveal .cap{ text-align:center; color:var(--muted); font-size:.62em; margin:.15em 0 0; }
+    .learn-badge{ display:inline-block; background:var(--accent2); color:#fff; font-size:.42em;
+      font-weight:700; padding:.15em .7em; border-radius:999px; vertical-align:middle; letter-spacing:.03em; }
+    .reveal .two-col-tight{ display:flex; gap:1em; align-items:stretch; }
+    .reveal .two-col-tight > div{ flex:1; }
+
     /* thanh tiến trình & số thứ tự slide */
     .reveal .progress{ color:var(--accent); height:6px; }
     .reveal .slide-number{
@@ -124,6 +133,334 @@
       <p style="margin-top:1em; font-size:.6em; color:#94a3b8;">← → chuyển slide · <b>S</b> speaker notes · <b>F</b> toàn màn hình · <b>ESC</b> tổng quan · <b>M</b> menu nhanh</p>
     </div>
     <aside class="notes">Chào mọi người. Hôm nay mình trình bày bài báo S³ tại ACL 2025 — một phương pháp topic modeling mới, nhanh nhất trong nhóm dùng embedding. Ý tưởng cốt lõi chỉ một câu: coi mỗi chủ đề là một trục độc lập trong không gian ý nghĩa.</aside>
+  </section>
+
+  <!-- ============ KIẾN THỨC NỀN (CHẾ ĐỘ HỌC) ============ -->
+  <section>
+
+    <!-- Bìa của section học -->
+    <section data-background-gradient="linear-gradient(135deg,#ecfeff 0%,#eff6ff 100%)">
+      <div class="center">
+        <span class="learn-badge">CHẾ ĐỘ HỌC · dùng để hiểu, có thể ẩn khi thuyết trình</span>
+        <h2 style="margin-top:.4em;">🎓 Kiến thức nền</h2>
+        <p>Giải nghĩa chặt chẽ các thuật ngữ khó — có sơ đồ trực quan cho từng khái niệm.</p>
+      </div>
+      <div class="cols" style="font-size:.8em;">
+        <div class="step">1 · Embedding &amp; không gian vector</div>
+        <div class="step">2 · Dense vs Sparse (BoW)</div>
+        <div class="step">3 · Ma trận &amp; phân rã X=A·S</div>
+      </div>
+      <div class="cols" style="font-size:.8em;">
+        <div class="step">4 · Không tương quan vs Độc lập</div>
+        <div class="step">5 · PCA vs ICA</div>
+        <div class="step">6 · Whitening</div>
+      </div>
+      <div class="cols" style="font-size:.8em;">
+        <div class="step">7 · Cocktail party (tách nguồn)</div>
+        <div class="step">8 · Pipeline S³ tổng thể</div>
+        <div class="step">9 · Coherence vs Diversity</div>
+      </div>
+      <p class="center"><small>↓ bấm xuống để học từng khái niệm</small></p>
+      <aside class="notes">Section này là "sách giáo khoa mini". Khi chuyển sang bản thuyết trình, có thể ẩn cả khối này hoặc chỉ giữ vài slide chốt (PCA vs ICA, pipeline).</aside>
+    </section>
+
+    <!-- 1. Embedding & vector space -->
+    <section>
+      <h2>1 · Embedding &amp; không gian vector <span class="learn-badge">HỌC</span></h2>
+      <p><b>Embedding</b> = biến từ/câu/tài liệu thành một <b>vector số</b>, sao cho <b>gần nhau trong không gian = giống nhau về nghĩa</b>.</p>
+      <svg class="diagram" viewBox="0 0 760 320" style="width:min(760px,84%)" role="img" aria-label="Không gian embedding: từ cùng chủ đề nằm gần nhau">
+        <!-- axes -->
+        <line x1="60" y1="280" x2="720" y2="280" stroke="#94a3b8" stroke-width="2"/>
+        <line x1="60" y1="280" x2="60" y2="30" stroke="#94a3b8" stroke-width="2"/>
+        <text x="726" y="285" font-size="13" fill="#64748b">chiều 1</text>
+        <text x="30" y="28" font-size="13" fill="#64748b">chiều 2</text>
+        <!-- animals cluster (blue) -->
+        <circle cx="170" cy="110" r="8" fill="#2563eb"/><text x="182" y="114" font-size="15" fill="#1e293b">mèo</text>
+        <circle cx="215" cy="140" r="8" fill="#2563eb"/><text x="227" y="144" font-size="15" fill="#1e293b">chó</text>
+        <circle cx="150" cy="160" r="8" fill="#2563eb"/><text x="90" y="164" font-size="15" fill="#1e293b">hổ</text>
+        <ellipse cx="185" cy="135" rx="95" ry="70" fill="none" stroke="#2563eb" stroke-dasharray="5 4" opacity=".5"/>
+        <text x="120" y="60" font-size="13" fill="#2563eb" font-weight="700">động vật</text>
+        <!-- vehicles cluster (cyan) -->
+        <circle cx="560" cy="120" r="8" fill="#0891b2"/><text x="572" y="124" font-size="15" fill="#1e293b">ô tô</text>
+        <circle cx="600" cy="150" r="8" fill="#0891b2"/><text x="612" y="154" font-size="15" fill="#1e293b">xe máy</text>
+        <circle cx="540" cy="165" r="8" fill="#0891b2"/><text x="470" y="169" font-size="15" fill="#1e293b">tàu</text>
+        <ellipse cx="575" cy="145" rx="95" ry="70" fill="none" stroke="#0891b2" stroke-dasharray="5 4" opacity=".5"/>
+        <text x="540" y="65" font-size="13" fill="#0891b2" font-weight="700">phương tiện</text>
+        <!-- food cluster (green) -->
+        <circle cx="360" cy="240" r="8" fill="#16a34a"/><text x="372" y="244" font-size="15" fill="#1e293b">phở</text>
+        <circle cx="400" cy="215" r="8" fill="#16a34a"/><text x="412" y="219" font-size="15" fill="#1e293b">cơm</text>
+        <ellipse cx="380" cy="230" rx="75" ry="48" fill="none" stroke="#16a34a" stroke-dasharray="5 4" opacity=".5"/>
+        <text x="330" y="290" font-size="13" fill="#16a34a" font-weight="700">món ăn</text>
+      </svg>
+      <div class="box tech" style="font-size:.82em;"><span class="lbl">🔢 CHÍNH XÁC</span>Vector = danh sách số (vd 384 số). Đo "giống nghĩa" bằng <b>cosine</b> \( \cos\theta = \frac{u\cdot v}{\lVert u\rVert\lVert v\rVert} \): =1 cùng hướng (rất giống), =0 vuông góc (không liên quan).</div>
+      <aside class="notes">Nhấn: không gian thật có hàng trăm chiều, ta không vẽ được nhưng toán giống hệt 2D. "Gần = giống nghĩa" là nền tảng để mọi bước sau (chiếu từ lên trục topic) có ý nghĩa.</aside>
+    </section>
+
+    <!-- 2. Dense vs Sparse -->
+    <section>
+      <h2>2 · Dense vs Sparse — vì sao bỏ BoW <span class="learn-badge">HỌC</span></h2>
+      <svg class="diagram" viewBox="0 0 760 250" style="width:min(760px,88%)" role="img" aria-label="So sánh vector thưa BoW và vector dày embedding">
+        <text x="20" y="40" font-size="15" fill="#dc2626" font-weight="700">Sparse — BoW (≈20.000 chiều)</text>
+        <!-- sparse row: mostly zeros -->
+        <g font-size="13" fill="#94a3b8" text-anchor="middle">
+          <rect x="20" y="55" width="700" height="34" fill="#fef2f2" stroke="#fecaca"/>
+          <text x="45" y="77">0</text><text x="85" y="77">0</text><text x="125" y="77">0</text>
+          <text x="165" y="77" fill="#dc2626" font-weight="700">2</text><text x="205" y="77">0</text>
+          <text x="245" y="77">0</text><text x="285" y="77">0</text><text x="325" y="77">0</text>
+          <text x="365" y="77" fill="#dc2626" font-weight="700">1</text><text x="405" y="77">0</text>
+          <text x="445" y="77">0</text><text x="485" y="77">0</text><text x="525" y="77">0</text>
+          <text x="565" y="77">0</text><text x="605" y="77" fill="#dc2626" font-weight="700">1</text>
+          <text x="645" y="77">0</text><text x="685" y="77">0</text>
+        </g>
+        <text x="20" y="112" font-size="12" fill="#64748b">→ 99.9% là số 0; mỗi ô = "một từ cụ thể". Dài, phí, thiếu ngữ cảnh.</text>
+
+        <text x="20" y="160" font-size="15" fill="#16a34a" font-weight="700">Dense — embedding (≈384 chiều)</text>
+        <g font-size="13" fill="#0f172a" text-anchor="middle">
+          <rect x="20" y="175" width="380" height="34" fill="#f0fdf4" stroke="#bbf7d0"/>
+          <text x="55" y="197">0.11</text><text x="115" y="197">-0.83</text><text x="175" y="197">0.42</text>
+          <text x="235" y="197">0.05</text><text x="295" y="197">-0.19</text><text x="355" y="197">0.7</text>
+        </g>
+        <text x="20" y="232" font-size="12" fill="#64748b">→ Ngắn, ô nào cũng có nghĩa; mỗi chiều = một "nét nghĩa" trừu tượng, có ngữ cảnh.</text>
+      </svg>
+      <div class="box warnx" style="font-size:.8em;"><span class="lbl">Vì sao bỏ BoW?</span>Sparse + số chiều cao → tính kém, dễ nhét stop words; không mã hoá ngữ cảnh. Dense cho phép giả định Gaussian → thuận cho PCA/ICA.</div>
+      <aside class="notes">Con số 20.000 vs 384 minh hoạ chênh lệch. Điểm cốt lõi: BoW ô = "từ cụ thể"; embedding ô = "nét nghĩa trừu tượng học được".</aside>
+    </section>
+
+    <!-- 3. Ma trận & phân rã -->
+    <section>
+      <h2>3 · Ma trận &amp; phân rã <span style="font-family:monospace">X = A·S</span> <span class="learn-badge">HỌC</span></h2>
+      <p><b>Phân rã ma trận</b> = tách bảng số lớn thành tích các bảng nhỏ dễ hiểu hơn (giống 12 = 3×4). Ở đây: <b>tài liệu = topic × độ mạnh topic</b>.</p>
+      <svg class="diagram" viewBox="0 0 760 260" style="width:min(760px,86%)" role="img" aria-label="Phân rã ma trận X = A nhân S">
+        <!-- X -->
+        <rect x="40" y="50" width="150" height="170" fill="#eff6ff" stroke="#2563eb" stroke-width="2"/>
+        <text x="115" y="35" font-size="20" fill="#2563eb" font-weight="800" text-anchor="middle">X</text>
+        <text x="115" y="130" font-size="13" fill="#1e293b" text-anchor="middle">N × D</text>
+        <text x="115" y="150" font-size="11" fill="#64748b" text-anchor="middle">tài liệu × chiều</text>
+        <text x="230" y="145" font-size="30" fill="#64748b" text-anchor="middle">=</text>
+        <!-- A -->
+        <rect x="290" y="50" width="90" height="170" fill="#f0fdf4" stroke="#16a34a" stroke-width="2"/>
+        <text x="335" y="35" font-size="20" fill="#16a34a" font-weight="800" text-anchor="middle">A</text>
+        <text x="335" y="125" font-size="13" fill="#1e293b" text-anchor="middle">N × K</text>
+        <text x="335" y="145" font-size="11" fill="#64748b" text-anchor="middle">độ mạnh</text>
+        <text x="335" y="160" font-size="11" fill="#64748b" text-anchor="middle">topic/tài liệu</text>
+        <text x="405" y="145" font-size="26" fill="#64748b" text-anchor="middle">·</text>
+        <!-- S -->
+        <rect x="430" y="90" width="290" height="90" fill="#f0fdfa" stroke="#0891b2" stroke-width="2"/>
+        <text x="575" y="78" font-size="20" fill="#0891b2" font-weight="800" text-anchor="middle">S</text>
+        <text x="575" y="132" font-size="13" fill="#1e293b" text-anchor="middle">K × D</text>
+        <text x="575" y="152" font-size="11" fill="#64748b" text-anchor="middle">K topic × chiều  →  ĐỊNH NGHĨA TOPIC</text>
+      </svg>
+      <div class="two-col-tight" style="font-size:.78em;">
+        <div class="box key"><b>A</b> (mixing matrix) → giữ "tài liệu này mạnh ở topic nào" = <b>document-topic importance</b>.</div>
+        <div class="box key"><b>S</b> (source) → giữ "mỗi topic là hướng nào trong không gian" = <b>topic</b>.</div>
+      </div>
+      <aside class="notes">Cảnh báo ký hiệu: bài dùng A=mixing=topic, S=source=doc-topic. Nhiều người quen ICA hay nhầm — bám đúng bài. Điểm cốt lõi: mọi thứ "khó" của S³ chỉ là phép nhân/phân rã ma trận này.</aside>
+    </section>
+
+    <!-- 4. Uncorrelated vs Independent -->
+    <section>
+      <h2>4 · Không tương quan ≠ Độc lập <span class="learn-badge">HỌC</span></h2>
+      <p>Đây là mấu chốt phân biệt PCA và ICA.</p>
+      <div class="two-col-tight">
+        <div class="box tech"><span class="lbl">KHÔNG TƯƠNG QUAN (uncorrelated)</span>Không có quan hệ <b>tuyến tính</b> (đường thẳng). Điều kiện <b>YẾU</b>. → PCA chỉ đạt mức này.</div>
+        <div class="box key"><span class="lbl">ĐỘC LẬP THỐNG KÊ (independent)</span>Biết biến này <b>không cho biết gì</b> về biến kia (tuyến tính <i>lẫn</i> phi tuyến). Điều kiện <b>MẠNH</b>. → ICA đòi mức này.</div>
+      </div>
+      <svg class="diagram" viewBox="0 0 760 210" style="width:min(620px,74%)" role="img" aria-label="Điểm nằm trên vòng tròn: không tương quan nhưng phụ thuộc">
+        <line x1="380" y1="20" x2="380" y2="190" stroke="#cbd5e1" stroke-width="1.5"/>
+        <line x1="250" y1="105" x2="510" y2="105" stroke="#cbd5e1" stroke-width="1.5"/>
+        <circle cx="380" cy="105" r="78" fill="none" stroke="#d97706" stroke-width="2" stroke-dasharray="4 4"/>
+        <g fill="#d97706">
+          <circle cx="380" cy="27" r="5"/><circle cx="440" cy="50" r="5"/><circle cx="458" cy="105" r="5"/>
+          <circle cx="440" cy="160" r="5"/><circle cx="380" cy="183" r="5"/><circle cx="320" cy="160" r="5"/>
+          <circle cx="302" cy="105" r="5"/><circle cx="320" cy="50" r="5"/>
+        </g>
+        <text x="530" y="110" font-size="13" fill="#64748b">tương quan tuyến tính = 0</text>
+        <text x="530" y="130" font-size="13" fill="#dc2626" font-weight="700">nhưng biết x → đoán được |y|</text>
+        <text x="530" y="150" font-size="13" fill="#dc2626" font-weight="700">⇒ KHÔNG độc lập</text>
+      </svg>
+      <p class="cap">Điểm trải đều trên vòng tròn: hệ số tương quan = 0, nhưng x và y rõ ràng phụ thuộc nhau.</p>
+      <aside class="notes">Đây là ví dụ kinh điển. Ghi nhớ: độc lập ⇒ không tương quan, nhưng chiều ngược lại SAI. Vì thế ICA (độc lập) mạnh hơn PCA (không tương quan) và tách được topic tách bạch.</aside>
+    </section>
+
+    <!-- 5. PCA vs ICA -->
+    <section>
+      <h2>5 · PCA vs ICA — trái tim của S³ <span class="learn-badge">HỌC</span></h2>
+      <svg class="diagram" viewBox="0 0 760 300" style="width:min(760px,88%)" role="img" aria-label="So sánh trục PCA và trục ICA trên cùng đám mây dữ liệu hình thoi">
+        <!-- data cloud (diamond/parallelogram) helper points, both panels -->
+        <!-- PCA panel -->
+        <text x="185" y="30" font-size="16" fill="#2563eb" font-weight="800" text-anchor="middle">PCA — theo VARIANCE</text>
+        <g fill="#93c5fd">
+          <circle cx="120" cy="200" r="4"/><circle cx="150" cy="170" r="4"/><circle cx="180" cy="140" r="4"/>
+          <circle cx="210" cy="110" r="4"/><circle cx="240" cy="150" r="4"/><circle cx="200" cy="180" r="4"/>
+          <circle cx="160" cy="210" r="4"/><circle cx="230" cy="120" r="4"/><circle cx="175" cy="175" r="4"/>
+          <circle cx="205" cy="145" r="4"/>
+        </g>
+        <!-- PCA axes: orthogonal, one along max variance -->
+        <line x1="110" y1="215" x2="255" y2="95" stroke="#2563eb" stroke-width="3"/>
+        <line x1="150" y1="120" x2="225" y2="200" stroke="#2563eb" stroke-width="3"/>
+        <text x="258" y="92" font-size="12" fill="#2563eb">PC1</text>
+        <text x="228" y="212" font-size="12" fill="#2563eb">PC2 (⊥)</text>
+        <text x="185" y="255" font-size="12" fill="#64748b" text-anchor="middle">vuông góc, nhưng lệch nguồn thật</text>
+
+        <line x1="380" y1="40" x2="380" y2="260" stroke="#e2e8f0" stroke-width="1"/>
+
+        <!-- ICA panel -->
+        <text x="575" y="30" font-size="16" fill="#16a34a" font-weight="800" text-anchor="middle">ICA — theo ĐỘC LẬP</text>
+        <g fill="#86efac">
+          <circle cx="510" cy="200" r="4"/><circle cx="540" cy="170" r="4"/><circle cx="570" cy="140" r="4"/>
+          <circle cx="600" cy="110" r="4"/><circle cx="630" cy="150" r="4"/><circle cx="590" cy="180" r="4"/>
+          <circle cx="550" cy="210" r="4"/><circle cx="620" cy="120" r="4"/><circle cx="565" cy="175" r="4"/>
+          <circle cx="595" cy="145" r="4"/>
+        </g>
+        <!-- ICA axes: aligned to the two generating edges (not orthogonal) -->
+        <line x1="500" y1="215" x2="645" y2="95" stroke="#16a34a" stroke-width="3"/>
+        <line x1="505" y1="205" x2="640" y2="215" stroke="#16a34a" stroke-width="3"/>
+        <text x="648" y="92" font-size="12" fill="#16a34a">IC1</text>
+        <text x="645" y="222" font-size="12" fill="#16a34a">IC2</text>
+        <text x="575" y="255" font-size="12" fill="#64748b" text-anchor="middle">bám đúng 2 cạnh sinh dữ liệu</text>
+      </svg>
+      <div class="two-col-tight" style="font-size:.76em;">
+        <div class="box tech"><b>PCA:</b> trục <b>không tương quan</b> + variance lớn nhất, luôn vuông góc. Điều kiện yếu → có thể trộn nguồn.</div>
+        <div class="box key"><b>ICA:</b> trục <b>độc lập thống kê</b> (tối đa hoá tính phi-Gaussian). Bám đúng cấu trúc sinh dữ liệu → mỗi trục = 1 topic thuần.</div>
+      </div>
+      <aside class="notes">Cùng đám mây, PCA cho trục "toán học vuông góc", ICA cho trục "trùng nguồn thật". S³ chọn ICA vì topic cần độc lập/tách bạch — đó là gốc rễ của diversity gần hoàn hảo.</aside>
+    </section>
+
+    <!-- 6. Whitening -->
+    <section>
+      <h2>6 · Whitening (làm trắng) <span class="learn-badge">HỌC</span></h2>
+      <p>Bước dọn dẹp <b>bắt buộc trước ICA</b>: xoay + co giãn đám mây điểm cho mọi chiều có variance = 1 và không tương quan (thành hình cầu). Chính tại đây S³ <b>giảm chiều còn K</b> (số topic).</p>
+      <svg class="diagram" viewBox="0 0 760 240" style="width:min(760px,90%)" role="img" aria-label="Ba giai đoạn: dữ liệu gốc, sau whitening thành cầu, sau ICA xoay về trục độc lập">
+        <!-- stage 1: tilted ellipse cloud -->
+        <text x="120" y="30" font-size="14" fill="#64748b" text-anchor="middle" font-weight="700">① Gốc (elip nghiêng)</text>
+        <g transform="translate(120,130) rotate(-30)">
+          <ellipse cx="0" cy="0" rx="80" ry="30" fill="#dbeafe" stroke="#2563eb"/>
+          <g fill="#2563eb"><circle cx="-50" cy="-8" r="3"/><circle cx="-20" cy="5" r="3"/><circle cx="10" cy="-6" r="3"/><circle cx="40" cy="8" r="3"/><circle cx="60" cy="-4" r="3"/><circle cx="-35" cy="10" r="3"/></g>
+        </g>
+        <text x="255" y="135" font-size="26" fill="#94a3b8" text-anchor="middle">→</text>
+        <!-- stage 2: circle (whitened) -->
+        <text x="390" y="30" font-size="14" fill="#64748b" text-anchor="middle" font-weight="700">② Whitened (cầu đều)</text>
+        <circle cx="390" cy="130" r="55" fill="#f0fdf4" stroke="#16a34a"/>
+        <g fill="#16a34a"><circle cx="360" cy="115" r="3"/><circle cx="405" cy="110" r="3"/><circle cx="380" cy="140" r="3"/><circle cx="415" cy="150" r="3"/><circle cx="360" cy="155" r="3"/><circle cx="400" cy="130" r="3"/></g>
+        <text x="525" y="135" font-size="26" fill="#94a3b8" text-anchor="middle">→</text>
+        <!-- stage 3: rotated to independent axes -->
+        <text x="650" y="30" font-size="14" fill="#64748b" text-anchor="middle" font-weight="700">③ ICA xoay trục</text>
+        <circle cx="650" cy="130" r="55" fill="#ecfeff" stroke="#0891b2" opacity=".6"/>
+        <line x1="600" y1="165" x2="700" y2="95" stroke="#0891b2" stroke-width="3"/>
+        <line x1="608" y1="100" x2="695" y2="165" stroke="#0891b2" stroke-width="3"/>
+        <text x="704" y="92" font-size="11" fill="#0891b2">IC1</text>
+        <text x="698" y="175" font-size="11" fill="#0891b2">IC2</text>
+      </svg>
+      <div class="box warnx" style="font-size:.8em;"><span class="lbl">⚠️ Vì sao "có PCA bên trong S³"?</span>Whitening dùng SVD/PCA để làm cầu + giữ K components đầu. Nhưng PCA chỉ là bước <b>dọn dẹp</b>; ICA mới <b>xoay</b> để các trục độc lập. → S³ ≠ PCA.</div>
+      <aside class="notes">Trả lời câu hỏi kinh điển "S³ có phải chỉ là PCA không?": không — PCA là preprocessing (whitening + giảm chiều), phần quyết định là ICA xoay trục cho độc lập.</aside>
+    </section>
+
+    <!-- 7. Cocktail party -->
+    <section>
+      <h2>7 · Cocktail party = tách nguồn mù <span class="learn-badge">HỌC</span></h2>
+      <p>Ẩn dụ giúp hiểu ICA: nhiều giọng nói trộn lẫn → tách lại từng giọng gốc, chỉ dựa vào giả định chúng <b>độc lập</b>. Đây là <b>blind source separation</b>.</p>
+      <svg class="diagram" viewBox="0 0 760 260" style="width:min(760px,90%)" role="img" aria-label="Ba nguồn độc lập bị trộn rồi được ICA tách lại">
+        <!-- sources -->
+        <text x="90" y="30" font-size="14" fill="#2563eb" font-weight="700" text-anchor="middle">3 nguồn độc lập</text>
+        <g font-size="15" fill="#1e293b">
+          <rect x="30" y="50" width="120" height="40" rx="8" fill="#eff6ff" stroke="#2563eb"/><text x="90" y="75" text-anchor="middle">🎙️ giọng A</text>
+          <rect x="30" y="110" width="120" height="40" rx="8" fill="#eff6ff" stroke="#2563eb"/><text x="90" y="135" text-anchor="middle">🎙️ giọng B</text>
+          <rect x="30" y="170" width="120" height="40" rx="8" fill="#eff6ff" stroke="#2563eb"/><text x="90" y="195" text-anchor="middle">🎙️ giọng C</text>
+        </g>
+        <!-- arrows to mixer -->
+        <line x1="150" y1="70" x2="300" y2="120" stroke="#94a3b8" stroke-width="2" marker-end="url(#ar)"/>
+        <line x1="150" y1="130" x2="300" y2="130" stroke="#94a3b8" stroke-width="2" marker-end="url(#ar)"/>
+        <line x1="150" y1="190" x2="300" y2="140" stroke="#94a3b8" stroke-width="2" marker-end="url(#ar)"/>
+        <!-- mixer -->
+        <rect x="300" y="95" width="130" height="70" rx="10" fill="#fef2f2" stroke="#dc2626"/>
+        <text x="365" y="125" font-size="14" fill="#dc2626" text-anchor="middle" font-weight="700">🔊 TRỘN</text>
+        <text x="365" y="145" font-size="11" fill="#64748b" text-anchor="middle">mix1,2,3 (micro)</text>
+        <!-- ICA box -->
+        <line x1="430" y1="130" x2="500" y2="130" stroke="#94a3b8" stroke-width="2" marker-end="url(#ar)"/>
+        <rect x="500" y="95" width="90" height="70" rx="10" fill="#f0fdf4" stroke="#16a34a"/>
+        <text x="545" y="128" font-size="15" fill="#16a34a" text-anchor="middle" font-weight="800">ICA</text>
+        <text x="545" y="146" font-size="10" fill="#64748b" text-anchor="middle">gỡ trộn</text>
+        <!-- recovered -->
+        <g font-size="13" fill="#16a34a" font-weight="700">
+          <line x1="590" y1="115" x2="650" y2="75" stroke="#16a34a" stroke-width="2" marker-end="url(#arg)"/>
+          <line x1="590" y1="130" x2="650" y2="130" stroke="#16a34a" stroke-width="2" marker-end="url(#arg)"/>
+          <line x1="590" y1="145" x2="650" y2="185" stroke="#16a34a" stroke-width="2" marker-end="url(#arg)"/>
+          <text x="655" y="80">→ A</text><text x="655" y="135">→ B</text><text x="655" y="190">→ C</text>
+        </g>
+        <defs>
+          <marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#94a3b8"/></marker>
+          <marker id="arg" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#16a34a"/></marker>
+        </defs>
+      </svg>
+      <div class="box key" style="font-size:.82em;"><span class="lbl">💡 Ánh xạ sang topic</span><b>Nguồn độc lập = topic thuần</b>; <b>bản ghi trộn = tài liệu</b> (trộn nhiều topic). ICA tách kho tài liệu thành topic ít chồng lấn → tên gọi <b>"Semantic Signal Separation"</b>.</div>
+      <aside class="notes">Đây là slide "đắt giá" để khán giả không chuyên hiểu ICA. Nói chậm phần ánh xạ: tài liệu giống bản thu trộn, topic giống giọng gốc.</aside>
+    </section>
+
+    <!-- 8. Pipeline tổng thể -->
+    <section>
+      <h2>8 · Pipeline S³ tổng thể <span class="learn-badge">HỌC</span></h2>
+      <svg class="diagram" viewBox="0 0 800 320" style="width:min(800px,94%)" role="img" aria-label="Sơ đồ luồng toàn bộ thuật toán S³">
+        <defs>
+          <marker id="fa" markerWidth="9" markerHeight="9" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#64748b"/></marker>
+        </defs>
+        <!-- top row: documents path -->
+        <rect x="10" y="40" width="110" height="46" rx="8" fill="#eff6ff" stroke="#2563eb"/><text x="65" y="68" font-size="13" text-anchor="middle" fill="#1e293b">Tài liệu</text>
+        <line x1="120" y1="63" x2="150" y2="63" stroke="#64748b" stroke-width="2" marker-end="url(#fa)"/>
+        <rect x="150" y="40" width="110" height="46" rx="8" fill="#f0fdfa" stroke="#0891b2"/><text x="205" y="62" font-size="12" text-anchor="middle" fill="#1e293b">Encoder</text><text x="205" y="78" font-size="10" text-anchor="middle" fill="#64748b">(sentence tf)</text>
+        <line x1="260" y1="63" x2="290" y2="63" stroke="#64748b" stroke-width="2" marker-end="url(#fa)"/>
+        <rect x="290" y="40" width="70" height="46" rx="8" fill="#eff6ff" stroke="#2563eb"/><text x="325" y="68" font-size="15" text-anchor="middle" fill="#2563eb" font-weight="800">X</text>
+        <line x1="360" y1="63" x2="390" y2="63" stroke="#64748b" stroke-width="2" marker-end="url(#fa)"/>
+        <rect x="390" y="35" width="130" height="56" rx="8" fill="#fef9c3" stroke="#d97706"/><text x="455" y="58" font-size="12" text-anchor="middle" fill="#1e293b">Whiten + PCA</text><text x="455" y="76" font-size="10" text-anchor="middle" fill="#64748b">giảm chiều → K</text>
+        <line x1="520" y1="63" x2="550" y2="63" stroke="#64748b" stroke-width="2" marker-end="url(#fa)"/>
+        <rect x="550" y="35" width="110" height="56" rx="8" fill="#f0fdf4" stroke="#16a34a"/><text x="605" y="58" font-size="14" text-anchor="middle" fill="#16a34a" font-weight="800">FastICA</text><text x="605" y="76" font-size="10" text-anchor="middle" fill="#64748b">xoay → độc lập</text>
+        <!-- outputs A, S -->
+        <line x1="660" y1="55" x2="700" y2="45" stroke="#64748b" stroke-width="2" marker-end="url(#fa)"/>
+        <line x1="660" y1="72" x2="700" y2="90" stroke="#64748b" stroke-width="2" marker-end="url(#fa)"/>
+        <rect x="700" y="25" width="90" height="40" rx="8" fill="#f0fdf4" stroke="#16a34a"/><text x="745" y="42" font-size="12" text-anchor="middle" fill="#1e293b" font-weight="700">A = topic</text><text x="745" y="58" font-size="9" text-anchor="middle" fill="#64748b">(doc-topic)</text>
+        <rect x="700" y="75" width="90" height="40" rx="8" fill="#f0fdfa" stroke="#0891b2"/><text x="745" y="92" font-size="11" text-anchor="middle" fill="#1e293b" font-weight="700">S = source</text><text x="745" y="107" font-size="9" text-anchor="middle" fill="#64748b">(hướng topic)</text>
+
+        <!-- bottom row: vocabulary path -->
+        <rect x="10" y="200" width="110" height="46" rx="8" fill="#eff6ff" stroke="#2563eb"/><text x="65" y="228" font-size="13" text-anchor="middle" fill="#1e293b">Từ vựng</text>
+        <line x1="120" y1="223" x2="150" y2="223" stroke="#64748b" stroke-width="2" marker-end="url(#fa)"/>
+        <rect x="150" y="200" width="110" height="46" rx="8" fill="#f0fdfa" stroke="#0891b2"/><text x="205" y="222" font-size="12" text-anchor="middle" fill="#1e293b">cùng Encoder</text><text x="205" y="238" font-size="10" text-anchor="middle" fill="#64748b">→ V</text>
+        <line x1="260" y1="223" x2="290" y2="223" stroke="#64748b" stroke-width="2" marker-end="url(#fa)"/>
+        <rect x="290" y="200" width="150" height="46" rx="8" fill="#fff7ed" stroke="#d97706"/><text x="365" y="222" font-size="12" text-anchor="middle" fill="#1e293b">C = A⁺ ; W = V·Cᵀ</text><text x="365" y="238" font-size="10" text-anchor="middle" fill="#64748b">chiếu từ lên trục</text>
+        <line x1="440" y1="223" x2="470" y2="223" stroke="#64748b" stroke-width="2" marker-end="url(#fa)"/>
+        <rect x="470" y="200" width="140" height="46" rx="8" fill="#fef2f2" stroke="#dc2626"/><text x="540" y="222" font-size="12" text-anchor="middle" fill="#1e293b">β: axial/ang/comb</text><text x="540" y="238" font-size="10" text-anchor="middle" fill="#64748b">word importance</text>
+        <line x1="610" y1="223" x2="640" y2="223" stroke="#64748b" stroke-width="2" marker-end="url(#fa)"/>
+        <rect x="640" y="200" width="150" height="46" rx="8" fill="#f0fdf4" stroke="#16a34a"/><text x="715" y="222" font-size="12" text-anchor="middle" fill="#16a34a" font-weight="700">Từ mô tả topic</text><text x="715" y="238" font-size="10" text-anchor="middle" fill="#64748b">(+ từ negative)</text>
+        <!-- link A to projection -->
+        <line x1="745" y1="65" x2="745" y2="120" stroke="#16a34a" stroke-width="1.5" stroke-dasharray="4 3"/>
+        <path d="M745,120 C745,150 365,150 365,198" fill="none" stroke="#16a34a" stroke-width="1.5" stroke-dasharray="4 3" marker-end="url(#fa)"/>
+        <text x="500" y="145" font-size="10" fill="#16a34a">A dùng để tính C = A⁺</text>
+      </svg>
+      <p class="cap">Hàng trên: tài liệu → embedding X → whitening/PCA → FastICA → topic (A) &amp; hướng (S). Hàng dưới: từ vựng → V → chiếu lên trục (W) → word importance → từ mô tả topic.</p>
+      <aside class="notes">Đây là "bản đồ" để không lạc khi vào phần công thức. Nhấn: cùng một encoder cho cả tài liệu và từ vựng — điều kiện để chiếu chung không gian. Không có bước train mạng → nhanh.</aside>
+    </section>
+
+    <!-- 9. Coherence vs Diversity -->
+    <section>
+      <h2>9 · Coherence vs Diversity <span class="learn-badge">HỌC</span></h2>
+      <svg class="diagram" viewBox="0 0 760 320" style="width:min(560px,66%)" role="img" aria-label="Mặt phẳng coherence-diversity với vị trí các mô hình">
+        <line x1="90" y1="290" x2="720" y2="290" stroke="#94a3b8" stroke-width="2"/>
+        <line x1="90" y1="290" x2="90" y2="20" stroke="#94a3b8" stroke-width="2"/>
+        <text x="400" y="315" font-size="14" fill="#64748b" text-anchor="middle">Diversity (đa dạng) →</text>
+        <text x="30" y="160" font-size="14" fill="#64748b" text-anchor="middle" transform="rotate(-90 30 160)">Coherence (mạch lạc) →</text>
+        <!-- models -->
+        <circle cx="180" cy="110" r="7" fill="#0891b2"/><text x="150" y="100" font-size="13" fill="#0891b2" font-weight="700">Top2Vec</text>
+        <text x="150" y="128" font-size="10" fill="#64748b">mạch lạc, kém đa dạng</text>
+        <circle cx="560" cy="230" r="7" fill="#d97706"/><text x="500" y="255" font-size="13" fill="#d97706" font-weight="700">ECRTM/FASTopic</text>
+        <text x="500" y="270" font-size="10" fill="#64748b">đa dạng, kém mạch lạc</text>
+        <circle cx="230" cy="240" r="7" fill="#dc2626"/><text x="200" y="262" font-size="13" fill="#dc2626" font-weight="700">LDA/BERTopic</text>
+        <circle cx="600" cy="90" r="10" fill="#16a34a"/><text x="560" y="70" font-size="15" fill="#16a34a" font-weight="800">S³ ★</text>
+        <text x="545" y="112" font-size="10" fill="#16a34a">cân bằng tối ưu</text>
+        <rect x="470" y="40" width="250" height="120" fill="#16a34a" opacity=".06"/>
+        <text x="595" y="35" font-size="11" fill="#16a34a" text-anchor="middle">vùng lý tưởng (cao cả hai)</text>
+      </svg>
+      <div class="box key" style="font-size:.8em;"><span class="lbl">Vì sao gộp bằng GEOMETRIC mean?</span>\( \sqrt{\bar C\cdot d} \) — phạt nặng lệch: coherence 1.0 &amp; diversity 0.0 → trung bình cộng cho 0.5 (sai), <b>trung bình nhân cho 0</b> (đúng: thiếu hẳn một mặt = vô dụng). Buộc mô hình tốt <b>cả hai</b>.</div>
+      <aside class="notes">Đây là khung để đọc Figure 2 của bài. Các mô hình khác giỏi một trục; S³ nằm ở góc trên-phải (giỏi cả hai). Metric geometric mean chính là công cụ ép buộc điều đó.</aside>
+    </section>
+
   </section>
 
   <!-- ============ 2. TOPIC MODEL LÀ GÌ ============ -->
@@ -570,20 +907,22 @@ model.print_topics()</code></pre>
 <div id="quick-nav-overlay"></div>
 <nav id="quick-nav-panel" aria-hidden="true">
   <h4>Điều hướng nhanh</h4>
-  <a href="#/0">1 · Tiêu đề</a>
-  <a href="#/1">2 · Topic model là gì</a>
-  <a href="#/2">3 · Cách cổ điển (BoW)</a>
-  <a href="#/4">5 · Đóng góp</a>
-  <a href="#/5">6 · Baselines</a>
-  <a href="#/6">7 · Ý tưởng: topic = trục</a>
-  <a href="#/8">9 · Thuật toán S³</a>
-  <a href="#/11">12 · Thiết lập thí nghiệm</a>
-  <a href="#/12">13 · Kết quả tổng quát</a>
-  <a href="#/14">14 · Phát hiện phản trực giác</a>
-  <a href="#/16">16 · So sánh định tính</a>
-  <a href="#/17">17 · Kết luận</a>
-  <a href="#/18">18 · Hạn chế</a>
-  <a href="#/19">19 · Q&amp;A</a>
+  <a href="#/0">Tiêu đề</a>
+  <a href="#/1" style="color:var(--accent2);font-weight:700;">🎓 Kiến thức nền (Học)</a>
+  <a href="#/2">Topic model là gì</a>
+  <a href="#/3">Cách cổ điển (BoW)</a>
+  <a href="#/5">Đóng góp</a>
+  <a href="#/6">Baselines</a>
+  <a href="#/7">Ý tưởng: topic = trục</a>
+  <a href="#/8">PCA vs ICA</a>
+  <a href="#/9">Thuật toán S³</a>
+  <a href="#/12">Thiết lập thí nghiệm</a>
+  <a href="#/13">Kết quả tổng quát</a>
+  <a href="#/15">Phát hiện phản trực giác</a>
+  <a href="#/17">So sánh định tính</a>
+  <a href="#/18">Kết luận</a>
+  <a href="#/19">Hạn chế</a>
+  <a href="#/20">Q&amp;A</a>
 </nav>
 
 <script src="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reveal.js"></script>
