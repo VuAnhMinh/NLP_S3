@@ -1,0 +1,738 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>S³ - Phần 1 & 2: Introduction & Related Work | Slide Học Tập</title>
+
+  <!-- Reveal.js CSS -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reveal.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/theme/white.css" id="theme">
+  <!-- Theme highlight cho code -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/plugin/highlight/monokai.css">
+
+  <!-- Google Fonts: Outfit & Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --accent: #1a73e8; /* Google Blue */
+      --accent-light: #eff6ff;
+      --teal: #0f9d58; /* Google Green */
+      --teal-light: #e6f4ea;
+      --warn: #f4b400; /* Google Yellow */
+      --warn-light: #fef7e0;
+      --bad: #d93025; /* Google Red */
+      --bad-light: #fce8e6;
+      --ink: #202124;
+      --muted: #5f6368;
+      --purple: #ab47bc;
+      --purple-light: #f3e5f5;
+    }
+
+    .reveal {
+      font-family: 'Inter', -apple-system, sans-serif;
+      color: var(--ink);
+      --r-main-font-size: 26px;
+      font-size: 26px;
+    }
+
+    .reveal h1, .reveal h2, .reveal h3, .reveal h4 {
+      font-family: 'Outfit', sans-serif;
+      text-transform: none;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+    }
+
+    .reveal h1 {
+      color: var(--accent);
+      font-size: 2.1em;
+      line-height: 1.1;
+    }
+
+    .reveal h2 {
+      color: var(--accent);
+      font-size: 1.4em;
+      border-bottom: 3px solid var(--accent);
+      padding-bottom: 0.2em;
+      margin-bottom: 0.5em;
+      display: inline-block;
+    }
+
+    .reveal h3 {
+      font-size: 1.15em;
+      color: var(--teal);
+      margin-bottom: 0.4em;
+    }
+
+    .reveal section {
+      text-align: left;
+    }
+
+    .reveal .center {
+      text-align: center;
+    }
+
+    .reveal p, .reveal li {
+      line-height: 1.5;
+    }
+
+    .reveal ul, .reveal ol {
+      display: block;
+      margin-left: 0.8em;
+    }
+
+    .reveal li {
+      margin: 0.3em 0;
+    }
+
+    /* Cards / Boxes */
+    .box {
+      border-radius: 12px;
+      padding: 0.6em 1em;
+      margin: 0.4em 0;
+      font-size: 0.86em;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+      border: 1px solid rgba(0,0,0,0.05);
+    }
+    
+    .box.idea {
+      background: var(--accent-light);
+      border-left: 6px solid var(--accent);
+    }
+    
+    .box.tech {
+      background: var(--teal-light);
+      border-left: 6px solid var(--teal);
+    }
+    
+    .box.say {
+      background: var(--warn-light);
+      border-left: 6px solid var(--warn);
+    }
+    
+    .box.warnx {
+      background: var(--bad-light);
+      border-left: 6px solid var(--bad);
+    }
+    
+    .box.trans {
+      background: var(--purple-light);
+      border-left: 6px solid var(--purple);
+    }
+
+    .box .lbl {
+      font-family: 'Outfit', sans-serif;
+      font-weight: 800;
+      font-size: 0.76em;
+      letter-spacing: 0.05em;
+      display: block;
+      margin-bottom: 0.2em;
+      text-transform: uppercase;
+    }
+
+    .box.idea .lbl { color: var(--accent); }
+    .box.tech .lbl { color: var(--teal); }
+    .box.say .lbl { color: #b06000; }
+    .box.warnx .lbl { color: var(--bad); }
+    .box.trans .lbl { color: var(--purple); }
+
+    /* Tables */
+    .reveal table {
+      font-size: 0.62em;
+      margin: 0.4em auto;
+      border-collapse: collapse;
+      width: 100%;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    .reveal th {
+      background: var(--accent);
+      color: #fff;
+      padding: 0.5em 0.8em;
+      font-weight: 700;
+      border: none;
+    }
+
+    .reveal td {
+      padding: 0.4em 0.8em;
+      border-bottom: 1px solid #e2e8f0;
+      vertical-align: middle;
+      background: #fff;
+    }
+
+    .reveal tr:nth-child(even) td {
+      background: #f8fafc;
+    }
+
+    .badge {
+      display: inline-block;
+      background: var(--accent);
+      color: #fff;
+      font-family: 'Outfit', sans-serif;
+      font-size: 0.45em;
+      font-weight: 700;
+      padding: 0.25em 0.8em;
+      border-radius: 999px;
+      vertical-align: middle;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .badge.green { background: var(--teal); }
+    .badge.purple { background: var(--purple); }
+    .badge.red { background: var(--bad); }
+    .badge.yellow { background: var(--warn); color: #3c4043; }
+
+    .sym {
+      font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+      background: #f1f5f9;
+      padding: 0.1em 0.35em;
+      border-radius: 6px;
+      font-size: 0.85em;
+      color: var(--bad);
+      font-weight: 600;
+    }
+
+    .reveal .slide-number {
+      background: var(--accent);
+      color: #fff;
+      font-family: 'Outfit', sans-serif;
+      font-weight: 700;
+      font-size: 13px;
+      border-radius: 6px;
+      padding: 0.2em 0.7em;
+    }
+
+    .reveal pre {
+      box-shadow: none;
+      width: 100%;
+      margin: 0.3em 0;
+    }
+
+    .reveal pre code {
+      border-radius: 10px;
+      font-size: 0.58em;
+      line-height: 1.4;
+      padding: 0.8em;
+    }
+
+    .formula-display {
+      font-size: 1.25em;
+      text-align: center;
+      margin: 0.3em 0;
+      padding: 0.3em;
+      background: #f8fafc;
+      border-radius: 8px;
+      border: 1px dashed #cbd5e1;
+    }
+
+    .hint {
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.65em;
+      margin-top: 0.5em;
+    }
+
+    .cols {
+      display: flex;
+      gap: 1em;
+      align-items: stretch;
+    }
+    .cols > div {
+      flex: 1;
+    }
+  </style>
+</head>
+<body>
+<div class="reveal">
+  <div class="slides">
+
+    <!-- SLIDE 1: Trang Bìa -->
+    <section data-background-gradient="linear-gradient(135deg, #eff6ff 0%, #f3e5f5 100%)">
+      <div class="center">
+        <span class="badge">S³ - Semantic Signal Separation</span>
+        <h1 style="margin: 0.3em 0 0.1em; font-family: 'Outfit', sans-serif; font-size: 1.8em;">Phần 1 & 2: Mở Đầu & Nghiên Cứu Liên Quan</h1>
+        <h3 style="color: var(--muted); font-weight: 600; font-size: 0.85em; margin-bottom: 1em;">
+          Dịch trọn vẹn §1 + §2 & Khám phá sâu các baseline (BERTopic, CTM, Top2Vec, ECRTM, FASTopic)
+        </h3>
+        
+        <div class="box idea" style="display: inline-block; text-align: left; max-width: 900px; font-size: 0.72em;">
+          <span class="lbl">Nội dung học tập trong deck này:</span>
+          • <b>Khối A:</b> Bản dịch đầy đủ Mục 1 (Introduction) & 1.1 (Contributions)<br>
+          • <b>Khối B:</b> Bản dịch đầy đủ Mục 2 (Related Work) bao gồm Semantic Axes & Baselines<br>
+          • <b>Khối C:</b> So sánh trường phái: Neural Topic Models vs. Clustering Topic Models<br>
+          • <b>Khối D:</b> Mổ xẻ chi tiết công thức toán học và siêu tham số của các mô hình baseline
+        </div>
+        <p style="font-size: 0.55em; color: var(--muted); margin-top: 1.5em;">
+          Nguồn: Kardos et al., <i>S³ — Semantic Signal Separation</i>, ACL 2025 (p.633–635)
+        </p>
+      </div>
+      <aside class="notes">Chào mừng bạn! Slide deck này được xây dựng để giúp bạn hiểu sâu sắc bối cảnh học thuật của bài báo và các mô hình cơ sở trước khi nghiên cứu sâu vào S3.</aside>
+    </section>
+
+    <!-- ===================== KHỐI A: BẢN DỊCH PHẦN 1 ===================== -->
+    <section>
+      <section data-background-gradient="linear-gradient(135deg, #eff6ff 0%, #e6f4ea 100%)">
+        <div class="center">
+          <span class="badge">Khối A</span>
+          <h2 style="border-bottom: none; margin: 0.2em 0;">Mục 1: Introduction & Đóng Góp</h2>
+          <p style="font-size: 0.9em; color: var(--muted);">Dịch đầy đủ và phân tích hạn chế của các phương pháp mô hình hóa chủ đề truyền thống.</p>
+          <div class="box idea" style="display: inline-block; text-align: left; max-width: 800px; font-size: 0.8em;">
+            <span class="lbl">Trọng tâm:</span>
+            Tìm hiểu lý do tại sao mô hình đếm từ cổ điển (BoW) và mô hình embedding hiện tại vẫn chưa hoàn thiện, tạo tiền đề cho sự ra đời của S³.
+          </div>
+          <p class="hint">↓ Bấm phím mũi tên Xuống để đọc nội dung dịch chi tiết</p>
+        </div>
+      </section>
+
+      <section>
+        <h3>§1. Introduction (Dịch)</h3>
+        <div class="box trans" style="font-size: 0.74em; line-height: 1.5;">
+          "Mô hình chủ đề" (<b>Topic models</b>) là một thuật ngữ bao trùm (umbrella term) chỉ các phương pháp tiếp cận thống kê cho phép khám phá chủ đề không giám sát (<b>unsupervised topic discovery</b>) trong các kho ngữ liệu văn bản lớn (Blei, 2012). Chúng thường được áp dụng trong phân tích dữ liệu khám phá (<b>exploratory data analysis</b>) đối với dữ liệu văn bản, bởi vì chúng cho phép các nhà thực hành khai quật và cô đọng thông tin về nội dung ngữ nghĩa của một kho ngữ liệu mà không cần phải đọc kỹ từng văn bản và tốn nhiều công sức thủ công. Theo cách truyền thống, các chủ đề được trình bày cho người dùng dưới dạng một tập hợp các thuật ngữ quan trọng (từ khóa - <b>keywords</b>) nhằm cung cấp các hiểu biết sâu sắc về các cách diễn giải có thể có của chủ đề đó.
+          <br><br>
+          Các phương pháp tiếp cận cổ điển đối với việc mô hình hóa chủ đề, chẳng hạn như Phân tích Ngữ nghĩa Ẩn (LSI / LSA - <b>Latent Semantic Indexing / Latent Semantic Analysis</b>) (Deerwester và cộng sự, 1988; Dumais, 2004) và Phân bổ Dirichlet Ẩn (LDA - <b>Latent Dirichlet Allocation</b>) (Blei và cộng sự, 2003; Blei, 2012), đã dựa trên các biểu diễn tài liệu dạng túi từ (BoW - <b>bag-of-words</b>) dựa trên tần suất. Mặc dù các mô hình này đã được sử dụng thành công trong nhiều thập kỷ nghiên cứu xử lý ngôn ngữ tự nhiên (NLP) (Jelodar và cộng sự, 2018), tất cả chúng đều chia sẻ một số hạn chế thực tế và lý thuyết.
+        </div>
+        <aside class="notes">Giới thiệu định nghĩa tổng quan về topic model và phân nhóm cổ điển (LSA, LDA) dựa trên Bag-of-Words.</aside>
+      </section>
+
+      <section>
+        <h3>§1. Giới hạn của Bag-of-Words (BoW) (Dịch tiếp)</h3>
+        <div class="box trans" style="font-size: 0.74em; line-height: 1.5;">
+          Ví dụ, các mô hình BoW nhạy cảm với các từ có tính chất thống kê không điển hình (chẳng hạn như các từ chức năng - <b>function words/stop words</b>), những từ này có thể làm ô nhiễm các mô tả chủ đề dựa trên từ khóa trừ khi các đường ống tiền xử lý nặng (heavy preprocessing pipelines) được áp dụng. Các đường ống như vậy tạo ra nhiều bậc tự do cho nhà nghiên cứu (<b>researcher degrees of freedom</b>). Hơn nữa, tính thưa thớt (sparsity) và số chiều cao của biểu diễn BoW thường dẫn đến hiệu quả tính toán thấp hơn và độ khớp mô hình kém hơn (poorer model fit).
+        </div>
+        <div class="box warnx" style="font-size: 0.76em; margin-top: 1em;">
+          <span class="lbl">Giải nghĩa "Bậc tự do của nhà nghiên cứu":</span>
+          Khi tiền xử lý văn bản, mỗi nhà nghiên cứu tự quyết định bỏ stop words nào, cắt từ thế nào (stemming/lemmatization), giữ tần suất bao nhiêu... Điều này dẫn tới việc kết quả mô hình bị thay đổi tùy ý, thiếu nhất quán và khó tái lập. S³ nhắm tới mục tiêu **không cần tiền xử lý văn bản** nhằm triệt tiêu hoàn toàn sự thiếu nhất quán này.
+        </div>
+        <aside class="notes">Hạn chế của BoW gồm 3 điểm: nhạy với stop words, tốn nhiều công sức tiền xử lý bất nhất, và ma trận thưa thớt gây hiệu năng kém.</aside>
+      </section>
+
+      <section>
+        <h3>§1. Cơ hội từ Dense Embeddings (Dịch tiếp)</h3>
+        <div class="box trans" style="font-size: 0.74em; line-height: 1.55;">
+          Với sự ra đời của các biểu diễn ngôn ngữ dạng nơ-ron dày đặc (dense neural language representations) (Vaswani và cộng sự, 2017; Le và Mikolov, 2014; Pennington và cộng sự, 2014; Mikolov và cộng sự, 2013), những cơ hội mới đã mở ra cho nghiên cứu mô hình hóa chủ đề. Embedding câu (<b>Sentence embeddings</b>) (Reimers và Gurevych, 2019) hứa hẹn rất lớn cho mô hình hóa chủ đề, vì chúng cung cấp các biểu diễn ngôn ngữ mang tính ngữ cảnh, nhạy bén với ngữ pháp (contextual, grammar-sensitive), và mạnh mẽ hơn trước các lỗi chính tả và các từ ngoài từ điển (out-of-vocabulary terms), giảm bớt nhu cầu tiền xử lý vốn loại bỏ đi các thông tin ngôn ngữ có giá trị. 
+          <br><br>
+          Ngoài ra, chúng tạo ra các biểu diễn dày đặc trong một không gian liên tục (dense representations in a continuous space), cho phép thực hiện các giả định về phân phối chuẩn (Gaussianity). Chúng cũng cho phép học chuyển giao (<b>transfer learning</b>) (Ruder và cộng sự, 2019) trong mô hình hóa chủ đề, tận dụng thông tin đã học được từ các kho ngữ liệu bên ngoài lớn hơn để trích xuất chủ đề.
+        </div>
+        <aside class="notes">Dense embeddings (như BERT/SBERT) mang lại ưu thế tuyệt vời: có ngữ cảnh, bền với lỗi, hỗ trợ transfer learning và có phân phối chuẩn.</aside>
+      </section>
+
+      <section>
+        <h3>§1. Hạn chế của Contextual Model hiện tại (Dịch tiếp)</h3>
+        <div class="box trans" style="font-size: 0.74em; line-height: 1.55;">
+          Một số phương pháp tiếp cận do đó đã được đề xuất bằng cách sử dụng các biểu diễn nơ-ron dày đặc cho việc mô hình hóa chủ đề ngữ cảnh, và các phương pháp này đã được chứng minh là vượt trội so với các đối thủ phi ngữ cảnh của chúng (Bianchi và cộng sự, 2021a; Bianchi và cộng sự, 2021b; Grootendorst, 2022; Angelov, 2020; Wu và cộng sự, 2024b). 
+          <br><br>
+          Tuy nhiên, nhiều phương pháp tiếp cận trong số này vẫn yêu cầu tiền xử lý để đạt hiệu năng tối ưu. Đây là một hạn chế đáng kể của lĩnh vực này, vì các đường ống tiền xử lý không được chuẩn hóa và có thể loại bỏ thông tin có giá trị, điều này đặc biệt có tác động lớn đối với các văn bản ngắn (Wu và cộng sự, 2020).
+        </div>
+        <div class="box warnx" style="font-size: 0.75em; margin-top: 0.6em;">
+          <span class="lbl">Hạn chế cốt lõi cần giải quyết:</span>
+          Các mô hình dựa trên embedding hiện nay (như CTM, BERTopic) tuy tốt nhưng vẫn phụ thuộc vào làm sạch dữ liệu. Hơn nữa, vì bị test trên dữ liệu đã làm sạch (mất ngữ cảnh), ta không biết chúng có thực sự tận dụng được ngữ nghĩa hay không.
+        </div>
+        <aside class="notes">Mặc dù dùng embedding, các phương pháp hiện hành vẫn vấp phải lối mòn: đòi tiền xử lý dữ liệu.</aside>
+      </section>
+
+      <section>
+        <h3>§1.1. Contributions — Đóng góp của bài báo (Dịch)</h3>
+        <div class="box trans" style="font-size: 0.76em; line-height: 1.55;">
+          Chúng tôi giới thiệu **Semantic Signal Separation** (hoặc **S³**), một kỹ thuật mô hình hóa chủ đề ngữ cảnh hóa mới quan niệm việc mô hình hóa chủ đề như là sự khám phá ra các trục ngữ nghĩa ẩn (latent semantic axes) trong một kho ngữ liệu. Các trục này được phát hiện bằng cách phân rã ma trận embedding của tài liệu bằng cách sử dụng thuật toán FastICA (Hyvärinen và Oja, 2000).
+          <br><br>
+          Phương pháp tiếp cận được đề xuất có các đặc điểm:
+          <ul>
+            <li><b>(a) Conceptually simple & theory-driven:</b> Đơn giản về mặt khái niệm và được dẫn dắt bởi lý thuyết vững chắc.</li>
+            <li><b>(b) High quality:</b> Hoạt động ngang ngửa các mô hình hiện tại về độ mạch lạc ngữ nghĩa và cho độ đa dạng chủ đề gần như hoàn hảo.</li>
+            <li><b>(c) Efficient:</b> Hiệu quả tính toán vượt trội hơn các phương pháp hiện có.</li>
+            <li><b>(d) Contextual:</b> Khai thác thông tin ngữ cảnh vô cùng hiệu quả (tự động loại bỏ nhiễu stop words).</li>
+          </ul>
+          Bên cạnh việc giới thiệu một phương pháp mới, chúng tôi cung cấp một giao diện thống nhất đơn giản dựa trên thư viện scikit-learn cho cả S³ và các phương pháp tiếp cận mô hình hóa chủ đề ngữ cảnh khác trong gói thư viện Python mang tên **Turftopic**.
+        </div>
+        <aside class="notes">Tác giả giới thiệu S3 và Turftopic - một gói thư viện giúp chuẩn hóa giao diện lập trình cho cả S3 và các baselines.</aside>
+      </section>
+    </section>
+
+    <!-- ===================== KHỐI B: BẢN DỊCH PHẦN 2 ===================== -->
+    <section>
+      <section data-background-gradient="linear-gradient(135deg, #f3e5f5 0%, #eff6ff 100%)">
+        <div class="center">
+          <span class="badge purple">Khối B</span>
+          <h2 style="border-bottom: none; margin: 0.2em 0;">Mục 2: Related Work & Baselines</h2>
+          <p style="font-size: 0.9em; color: var(--muted);">Bản dịch chi tiết phần tổng quan lịch sử nghiên cứu các mô hình chủ đề dựa trên embedding.</p>
+          <div class="box trans" style="display: inline-block; text-align: left; max-width: 800px; font-size: 0.8em;">
+            <span class="lbl">Trọng tâm:</span>
+            Tìm hiểu về nghiên cứu Trục ngữ nghĩa (Semantic Axes) trước đây, và cách tác giả phân chia các mô hình baseline làm cơ sở so sánh.
+          </div>
+          <p class="hint">↓ Bấm phím mũi tên Xuống để đọc nội dung dịch chi tiết</p>
+        </div>
+      </section>
+
+      <section>
+        <h3>§2.1. Semantic Axes (Dịch)</h3>
+        <div class="box trans" style="font-size: 0.76em; line-height: 1.55;">
+          Phân tích Thành phần Độc lập (ICA - <b>Independent Component Analysis</b>) (Jutten và Herault, 1991) trước đây đã từng được áp dụng vào các không gian embedding để khám phá các trục ngữ nghĩa (Musil và Mareček, 2024; Yamagiwa và cộng sự, 2023). Tuy nhiên, các cuộc điều tra này chủ yếu định hướng vào việc tìm kiếm các chiều ngữ nghĩa phổ quát (universal dimensions of semantics) trong embedding từ và ảnh. 
+          <br><br>
+          Họ đã chứng minh rằng các trục được phát hiện bởi ICA có thể diễn giải được và thường trùng khớp giữa các không gian embedding và các phương thức (modalities) khác nhau. 
+          <br><br>
+          Ngược lại, nghiên cứu của chúng tôi định hướng vào việc sử dụng các trục ngữ nghĩa để khám phá các chủ đề có tính diễn giải cao trong một kho ngữ liệu cụ thể được quan tâm, chứ không phải nhằm khám phá các chiều ngữ nghĩa phổ quát. Thêm vào đó, không có mô tả chủ đề nào được tính toán hoặc đánh giá trong các nghiên cứu trước đó.
+        </div>
+        <div class="box idea" style="font-size: 0.75em; margin-top: 0.5em;">
+          <span class="lbl">Điểm khác biệt của S³:</span>
+          Các nghiên cứu trước dùng ICA để tìm các chiều ngữ nghĩa chung (như giống đực/giống cái, động vật/thực vật) mang tính phổ quát; S³ dùng ICA để phát hiện các chủ đề cụ thể của một tập tài liệu cụ thể và tính toán trọng số từ tương ứng.
+        </div>
+        <aside class="notes">Đây là cơ sở lý thuyết vì sao tác giả chọn thuật toán ICA để tách trục ngữ nghĩa cho tài liệu.</aside>
+      </section>
+
+      <section>
+        <h3>§2.2. Embedding-based Topic Models (Dịch)</h3>
+        <div class="box trans" style="font-size: 0.74em; line-height: 1.5;">
+          Nhiều phương pháp tiếp cận mô hình hóa chủ đề sử dụng biểu diễn ngôn ngữ nơ-ron đã được đề xuất trong vài năm qua.
+          <br><br>
+          <b>Neural Topic Models</b> (Các mô hình chủ đề dạng nơ-ron) (Wu và cộng sự, 2024a) dựa vào mạng nơ-ron sâu để ước lượng tham số. Các mô hình chủ đề ngữ cảnh hóa (CTMs - <b>Contextualized Topic Models</b>) (Bianchi và cộng sự, 2021a) là các mô hình sinh (generative models) của biểu diễn BoW, nhưng sử dụng hệ tiên đề mạng tự mã hóa biến phân (VAE - <b>variational autoencoding</b>) để suy luận (inference) (Srivastava và Sutton, 2017). Embedding ngữ cảnh được sử dụng làm đầu vào cho mạng mã hóa (encoder) trong <b>ZeroShotTM</b>, và đôi khi được nối (concatenate) với các vector BoW trong <b>CombinedTM</b>. CTMs thông thường yêu cầu tiền xử lý nặng, và hiệu quả tính toán cũng như chất lượng khớp mô hình giảm mạnh với các từ vựng lớn hơn (Bianchi và cộng sự, 2020).
+          <br><br>
+          <b>ECRTM</b> (Wu và cộng sự, 2023) là một mô hình nơ-ron dựa vào phép điều hòa gom cụm embedding (embedding clustering regularization) để tạo ra các chủ đề đủ khác biệt và ngăn các mô tả chủ đề hội tụ về phía nhau. Tuy nhiên, phương pháp tiếp cận này không sử dụng các biểu diễn ngữ cảnh và chậm hơn đáng kể so với hầu hết các mô hình chủ đề khác (Wu và cộng sự, 2024b).
+        </div>
+        <aside class="notes">Tác giả phân tích các neural baselines bao gồm CTM (ZeroShot, Combined) dựa trên VAE và ECRTM dựa trên clustering regularization.</aside>
+      </section>
+
+      <section>
+        <h3>§2.2. FASTopic & Clustering Topic Models (Dịch tiếp)</h3>
+        <div class="box trans" style="font-size: 0.74em; line-height: 1.5;">
+          <b>FASTopic</b> (Wu và cộng sự, 2024b) giới thiệu một hệ tiên đề quan hệ ngữ nghĩa kép (dual-semantic-relation paradigm), nơi các mối quan hệ giữa tài liệu, chủ đề và từ được khái niệm hóa dưới dạng các kế hoạch vận chuyển tối ưu (optimal transport plans). Như họ chứng minh, phương pháp tiếp cận của họ hiệu quả hơn và tạo ra các chủ đề chất lượng cao hơn so với các phương pháp tiếp cận nơ-ron trước đó.
+          <br><br>
+          <b>Clustering Topic Models</b> (Các mô hình chủ đề gom cụm) khám phá các chủ đề trong kho ngữ liệu bằng cách gom cụm các biểu diễn tài liệu trong không gian embedding. Trọng số độ quan trọng của từ cho một chủ đề cho trước được ước lượng <i>post hoc</i> (sau khi gom cụm).
+          <br><br>
+          <b>Top2Vec</b> (Angelov, 2020) ước lượng các trọng số này bằng cách tính toán độ tương đồng cosine (cosine similarity) giữa mã hóa từ và các tâm cụm (cluster centroids). Điều này giả định các cụm có hình cầu và lồi (spherical, convex), và các mô tả chủ đề có thể bị đại diện sai lệch tùy thuộc vào hình dạng của cụm.
+        </div>
+        <aside class="notes">Mô tả FASTopic (dựa trên optimal transport) và bắt đầu phân loại nhóm Clustering Models với Top2Vec.</aside>
+      </section>
+
+      <section>
+        <h3>§2.2. BERTopic & Hạn chế chung (Dịch tiếp)</h3>
+        <div class="box trans" style="font-size: 0.73em; line-height: 1.55;">
+          <b>BERTopic</b> (Grootendorst, 2022) ước lượng độ quan trọng của từ đối với các cụm bằng cách sử dụng lược đồ gán trọng số tf-idf dựa trên lớp (c-TF-IDF - <b>class-based tf-idf</b>). Cả hai phương pháp tiếp cận đều sử dụng <b>UMAP</b> (McInnes và Healy, 2018) để giảm chiều dữ liệu và <b>HDBSCAN</b> (Campello và cộng sự, 2013) để gom cụm. Cả BERTopic và Top2Vec đều đi kèm với một phương pháp giảm số lượng chủ đề (topic reduction). Điều này là cần thiết, vì HDBSCAN tự động học số lượng cụm từ dữ liệu và số lượng cụm có thể tăng lên rất lớn, điều này có thể chứng minh là phi thực tế.
+          <br><br>
+          <b>Các thách thức</b> của các mô hình chủ đề ngữ cảnh hiện có sẵn, tuy nhiên, vẫn còn rất nhiều. Nhiều mô hình trong số đó nhạy cảm với các lựa chọn siêu tham số (hyperparameters), tạo ra các chủ đề có khả năng diễn giải đáng ngờ, và phụ thuộc vào các đường ống tiền xử lý có cấu trúc không được chuẩn hóa (Wu và cộng sự, 2024a). Thêm vào đó, hiện vẫn chưa rõ liệu các mô hình này có thực sự hiệu quả trong việc sử dụng thông tin ngữ cảnh và cú pháp hay không, vì chúng thường được đánh giá trên các kho ngữ liệu đã được tiền xử lý.
+        </div>
+        <aside class="notes">Mô tả BERTopic (dựa trên c-TF-IDF, UMAP, HDBSCAN) và đưa ra kết luận về các thách thức lớn của toàn bộ các baseline hiện tại.</aside>
+      </section>
+    </section>
+
+    <!-- ===================== KHỐI C: SO SÁNH TRƯỜNG PHÁI ===================== -->
+    <section>
+      <section data-background-gradient="linear-gradient(135deg, #e6f4ea 0%, #eff6ff 100%)">
+        <div class="center">
+          <span class="badge green">Khối C</span>
+          <h2 style="border-bottom: none; margin: 0.2em 0;">Neural vs. Clustering Topic Models</h2>
+          <p style="font-size: 0.9em; color: var(--muted);">Phân tích sự khác biệt bản chất kỹ thuật và kiến trúc giữa hai trường phái.</p>
+          <div class="box tech" style="display: inline-block; text-align: left; max-width: 800px; font-size: 0.8em;">
+            <span class="lbl">Trọng tâm đối chiếu:</span>
+            • Bản chất định nghĩa toán học (Xác suất sinh vs. Hình học gom cụm)<br>
+            • Thời điểm tính trọng số từ (Trong lúc train vs. Sau khi gom cụm)<br>
+            • Độ phức tạp tính toán và các ưu/nhược điểm thực tế
+          </div>
+          <p class="hint">↓ Bấm phím mũi tên Xuống để bắt đầu so sánh</p>
+        </div>
+      </section>
+
+      <section>
+        <h3>Sự Khác Biệt Bản Chất</h3>
+        <div class="cols">
+          <div>
+            <div class="box idea" style="font-size: 0.76em; height: 100%;">
+              <span class="lbl">Neural Topic Models (Mô hình nơ-ron):</span>
+              • <b>Định nghĩa:</b> Xem chủ đề là các biến ngẫu nhiên ẩn trong một <b>mô hình sinh xác suất</b>.<br>
+              • <b>Cơ chế học:</b> Dùng mạng nơ-ron (như VAE) để xấp xỉ phân phối xác suất phức tạp.<br>
+              • <b>Trọng số từ:</b> Được học **đồng thời** cùng quá trình tối ưu hóa trọng số mạng (end-to-end).<br>
+              • <b>Đại diện:</b> CTM, ECRTM, FASTopic.
+            </div>
+          </div>
+          <div>
+            <div class="box tech" style="font-size: 0.76em; height: 100%;">
+              <span class="lbl">Clustering Topic Models (Mô hình gom cụm):</span>
+              • <b>Định nghĩa:</b> Xem chủ đề là các **vùng mật độ cao** của vector tài liệu trong không gian hình học.<br>
+              • <b>Cơ chế học:</b> Dùng thuật toán gom cụm mật độ (HDBSCAN) trên không gian đã giảm chiều (UMAP).<br>
+              • <b>Trọng số từ:</b> Được tính toán **post hoc** (sau khi đã phân cụm tài liệu xong).<br>
+              • <b>Đại diện:</b> BERTopic, Top2Vec.
+            </div>
+          </div>
+        </div>
+        <aside class="notes">Mô hình nơ-ron học phân phối xác suất phức tạp từ dữ liệu, trong khi mô hình gom cụm định nghĩa chủ đề trực quan bằng hình học cụm vector.</aside>
+      </section>
+
+      <section>
+        <h3>Đánh Đổi Thực Tế (Trade-off)</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>Đặc tính</th>
+              <th>Neural Topic Models (CTM, ECRTM)</th>
+              <th>Clustering Topic Models (BERTopic, Top2Vec)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><b>Tốc độ chạy</b></td>
+              <td class="lose">Khá chậm (cần lặp tối ưu qua nhiều epochs).</td>
+              <td class="win">Nhanh hơn (phụ thuộc vào thuật toán gom cụm).</td>
+            </tr>
+            <tr>
+              <td><b>Khả năng sinh</b></td>
+              <td class="win">Có thể sinh dữ liệu (Generative Model).</td>
+              <td class="lose">Không thể sinh dữ liệu trực tiếp.</td>
+            </tr>
+            <tr>
+              <td><b>Độ ổn định</b></td>
+              <td class="lose">Kém ổn định (dễ sụp đổ phân bố hoặc sụp chế độ).</td>
+              <td class="win">Khá ổn định và dễ dự đoán kết quả hình học.</td>
+            </tr>
+            <tr>
+              <td><b>Số lượng chủ đề</b></td>
+              <td class="win">Định sẵn số chủ đề $N$ trong mạng nơ-ron.</td>
+              <td class="lose">HDBSCAN tự tìm số cụm (dễ ra số lượng cụm quá lớn).</td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="box warnx" style="font-size: 0.74em; margin-top: 0.5em;">
+          <span class="lbl">S³ đứng ở đâu?</span>
+          S³ vượt lên trên cả hai trường phái này: Nó kế thừa ưu điểm **định sẵn số chủ đề $N$** của Neural Model nhờ phép giảm chiều SVD, đồng thời đạt **tốc độ nhanh vượt trội** hơn hẳn Clustering Model nhờ phép phân rã ma trận FastICA trực tiếp, không lặp gradient.
+        </div>
+        <aside class="notes">S3 giải quyết được bài toán trung hòa: định trước số topic nhưng tốc độ chạy cực kỳ nhanh và ổn định cao.</aside>
+      </section>
+    </section>
+
+    <!-- ===================== KHỐI D: MỔ XẺ BASELINE ===================== -->
+    <section>
+      <section data-background-gradient="linear-gradient(135deg, #fef7e0 0%, #fce8e6 100%)">
+        <div class="center">
+          <span class="badge yellow">Khối D</span>
+          <h2 style="border-bottom: none; margin: 0.2em 0; color: #b06000;">Mổ Xẻ Chi Tiết Kỹ Thuật Các Baseline</h2>
+          <p style="font-size: 0.9em; color: var(--muted);">Công thức toán học, tham số và cách thu thập dữ liệu cho các mô hình cơ sở.</p>
+          <div class="box say" style="display: inline-block; text-align: left; max-width: 800px; font-size: 0.8em;">
+            <span class="lbl">Các mô hình được mổ xẻ:</span>
+            • BERTopic (Công thức c-TF-IDF)<br>
+            • Top2Vec (Công thức Cosine Similarity)<br>
+            • CTM (Hàm lỗi tối ưu ELBO trong mạng VAE)<br>
+            • ECRTM & FASTopic
+          </div>
+          <p class="hint">↓ Bấm phím mũi tên Xuống để xem chi tiết</p>
+        </div>
+      </section>
+
+      <section>
+        <h3>BERTopic: Công thức c-TF-IDF</h3>
+        <div class="formula-display">
+          $$W_{x, c} = \text{TF}_{x, c} \cdot \log\left(1 + \frac{A}{f_x}\right)$$
+        </div>
+        <div class="box idea" style="font-size: 0.78em;">
+          <span class="lbl">Giải nghĩa tham số:</span>
+          • <b>$W_{x, c}$ (W sub x, c)</b>: Trọng số của từ $x$ cho chủ đề/lớp $c$ (điểm càng cao, từ càng đại diện tốt).<br>
+          • <b>$\text{TF}_{x, c}$ (TF sub x, c)</b>: Tần suất từ $x$ trong lớp $c$ (tổng số lần từ xuất hiện trong cụm tài liệu $c$).<br>
+          • <b>$f_x$ (f sub x)</b>: Tần suất từ $x$ trên toàn bộ các lớp (số lần xuất hiện trong kho ngữ liệu).<br>
+          • <b>$A$ (A)</b>: Số từ trung bình của mỗi lớp (tổng số từ của kho chia cho số lớp).<br>
+          • <b>$\log(1 + \dots)$</b>: Hàm logarit tự nhiên cộng 1 giúp làm mịn và giảm tốc độ tăng trưởng.
+        </div>
+        <div class="box tech" style="font-size: 0.78em;">
+          <span class="lbl">Cách collect dữ liệu:</span>
+          1. Gom cụm embedding tài liệu bằng HDBSCAN để lấy nhãn lớp $c$ cho mỗi tài liệu.<br>
+          2. Dùng bộ đếm từ (như `CountVectorizer`) để thống kê tần suất từ $x$ theo từng nhãn lớp.
+        </div>
+        <aside class="notes">c-TF-IDF là trái tim của BERTopic, giúp trích xuất từ mô tả chủ đề từ kết quả gom cụm tài liệu.</aside>
+      </section>
+
+      <section>
+        <h3>Top2Vec: Cosine Similarity</h3>
+        <div class="formula-display">
+          $$\text{Similarity}(v_j, c_t) = \cos(\Theta) = \frac{v_j \cdot c_t}{\lVert v_j \rVert \cdot \lVert c_t \rVert}$$
+        </div>
+        <div class="box idea" style="font-size: 0.8em;">
+          <span class="lbl">Giải nghĩa tham số:</span>
+          • <b>$v_j$ (v sub j)</b>: Vector embedding của từ $j$ (kích thước $d \times 1$).<br>
+          • <b>$c_t$ (c sub t)</b>: Vector tâm cụm (centroid) của chủ đề $t$ (trung bình cộng vector các tài liệu thuộc cụm $t$).<br>
+          • <b>$v_j \cdot c_t$</b>: Tích vô hướng của hai vector (nhân từng phần tử rồi cộng lại).<br>
+          • <b>$\lVert v_j \rVert$ và $\lVert c_t \rVert$</b>: Độ dài hình học (chuẩn $L_2$) của vector từ và vector tâm.<br>
+          • <b>$\cos(\Theta)$ (Cos thê-ta)</b>: Cosine của góc giữa vector từ và vector tâm cụm.
+        </div>
+        <div class="box tech" style="font-size: 0.78em;">
+          <span class="lbl">Cách collect dữ liệu:</span>
+          1. Chạy thuật toán học vector (như Doc2Vec) để nhúng từ và tài liệu chung không gian vector $d$ chiều.<br>
+          2. Gom cụm tài liệu và tính trung bình cộng vector của các tài liệu trong cụm để tạo tâm cụm $c_t$.
+        </div>
+        <aside class="notes">Top2Vec tính điểm từ vựng trực tiếp bằng khoảng cách cosine trong không gian vector chung mà không qua tần suất từ.</aside>
+      </section>
+
+      <section>
+        <h3>CTM: Hàm Lỗi ELBO của Mạng VAE</h3>
+        <div class="formula-display">
+          $$\mathcal{L}_{ELBO}(\theta, \phi) = \mathbb{E}_{q_\phi(z|x)}[\log p_\theta(x|z)] - D_{KL}(q_\phi(z|x) \parallel p(z))$$
+        </div>
+        <div class="box trans" style="font-size: 0.75em; line-height: 1.45;">
+          <span class="lbl">Giải nghĩa tham số:</span>
+          • <b>$x$ (x)</b>: Vector đếm túi từ (BoW) của tài liệu đầu vào.<br>
+          • <b>$z$ (z)</b>: Biến ẩn đại diện cho phân bố chủ đề trong tài liệu.<br>
+          • <b>$q_\phi(z|x)$ (q phi của z với điều kiện x)</b>: Mạng mã hóa (Encoder) parameterized bằng $\phi$, nhận vào embedding ngữ cảnh và ước lượng phân bố của $z$.<br>
+          • <b>$p_\theta(x|z)$ (p thê-ta của x với điều kiện z)</b>: Mạng giải mã (Decoder) parameterized bằng $\theta$, cố tái cấu trúc lại vector BoW gốc $x$ từ biến ẩn $z$.<br>
+          • <b>$\mathbb{E}_{q}[\log p]$</b>: Kỳ vọng log xác suất tái cấu trúc (đo lường độ chính xác khi decoder dựng lại BoW gốc).<br>
+          • <b>$D_{KL}(\cdot \parallel \cdot)$</b>: Khoảng cách Kullback-Leibler để điều hòa không gian ẩn theo phân phối tiên nghiệm.
+        </div>
+        <div class="box tech" style="font-size: 0.75em;">
+          <span class="lbl">Cách collect dữ liệu:</span>
+          Cần 2 luồng dữ liệu song song: Ma trận BoW thô làm đầu vào tái cấu trúc và Ma trận dense embedding làm đầu vào cho mạng mã hóa Encoder.
+        </div>
+        <aside class="notes">CTM huấn luyện mạng nơ-ron cực kỳ phức tạp để xấp xỉ biến ẩn chủ đề z, dẫn tới tốc độ chạy chậm khi từ vựng lớn.</aside>
+      </section>
+
+      <section>
+        <h3>ECRTM & FASTopic</h3>
+        <div class="cols">
+          <div>
+            <div class="box warnx" style="font-size: 0.8em; height: 100%;">
+              <span class="lbl">ECRTM:</span>
+              • <b>Ý tưởng chính:</b> Bổ sung số hạng điều hòa phân cụm (Clustering Regularization) vào mạng nơ-ron.<br>
+              • <b>Mục tiêu:</b> Đẩy các vector chủ đề ra xa nhau để tránh sinh ra các mô tả chủ đề giống hệt nhau.<br>
+              • <b>Hạn chế:</b> Không trực tiếp dùng embedding ngữ cảnh làm đầu vào, huấn luyện chậm và hội tụ phức tạp.
+            </div>
+          </div>
+          <div>
+            <div class="box idea" style="font-size: 0.8em; height: 100%;">
+              <span class="lbl">FASTopic:</span>
+              • <b>Ý tưởng chính:</b> Không dùng mạng VAE phức tạp. FASTopic mô hình hóa mối quan hệ tài liệu-chủ đề và chủ đề-từ bằng bài toán <b>Vận chuyển tối ưu (Optimal Transport)</b>.<br>
+              • <b>Mục tiêu:</b> Dùng khoảng cách Wasserstein để khớp phân phối tài liệu và từ vựng trong không gian ngữ nghĩa.<br>
+              • <b>Ưu thế:</b> Nhanh và cho chất lượng tốt hơn các mô hình nơ-ron (VAE) trước đó.
+            </div>
+          </div>
+        </div>
+        <aside class="notes">FASTopic là đại diện hiện đại nhất của Neural Model dùng Optimal Transport, trong khi ECRTM dùng kỹ thuật điều hòa gom cụm.</aside>
+      </section>
+
+      <section>
+        <h3>Thư Viện Turftopic Có Sẵn Trong Python?</h3>
+        <div class="box warnx" style="font-size: 0.8em;">
+          <span class="lbl">Câu trả lời:</span>
+          <b>Không có sẵn mặc định trong thư viện chuẩn của Python</b> (như thư viện `math`, `sys` hay `os`). Đây là một gói thư viện bên thứ ba **do chính nhóm tác giả bài báo S³ phát triển** và phát hành mã nguồn mở.
+        </div>
+        <div class="box tech" style="font-size: 0.8em;">
+          <span class="lbl">Đặc điểm thiết kế của Turftopic:</span>
+          • <b>Thiết kế chuẩn hóa:</b> Tuân theo giao diện API chuẩn của thư viện <b>scikit-learn</b> nổi tiếng, sử dụng các hàm quen thuộc như `.fit()`, `.transform()`, `.fit_transform()`.<br>
+          • <b>Tính tích hợp:</b> Gói gọn cả thuật toán S³ lẫn các baseline ngữ cảnh phổ biến khác (như KeyNMF, CTM) giúp lập trình viên dễ dàng gọi và so sánh đối chiếu chỉ trong vài dòng code.
+        </div>
+        <div class="box idea" style="font-size: 0.8em;">
+          <span class="lbl">Cách cài đặt:</span>
+          Chạy lệnh: <span class="sym">pip install turftopic</span> trong terminal để tải từ kho lưu trữ PyPI của Python.
+        </div>
+        <aside class="notes">Nhấn mạnh rằng Turftopic là thư viện chuyên dụng do tác giả bài báo viết ra để hiện thực hóa nghiên cứu này và giúp cộng đồng sử dụng dễ dàng.</aside>
+      </section>
+      
+      <section>
+        <h3>Checklist Tự Ôn Tập Phần 1 & 2</h3>
+        <div class="box tech" style="font-size: 0.82em; margin-top: 1em;">
+          <span class="lbl">Hãy chắc chắn bạn tự trả lời được các câu hỏi sau:</span>
+          <ul style="margin: 0.2em 0;">
+            <li>[ ] Tại sao mô hình Bag-of-Words (BoW) cổ điển lại nhạy cảm với stop words nếu không tiền xử lý?</li>
+            <li>[ ] "Bậc tự do của nhà nghiên cứu" (researcher degrees of freedom) gây hại gì cho tính khoa học?</li>
+            <li>[ ] Sự khác biệt lớn nhất giữa Neural Topic Models và Clustering Topic Models là gì?</li>
+            <li>[ ] Giải thích công thức c-TF-IDF của BERTopic và cách thu thập tham số của nó?</li>
+            <li>[ ] Top2Vec tính độ quan trọng của từ khác gì với BERTopic?</li>
+            <li>[ ] Ý nghĩa của hàm lỗi ELBO và các mạng Encoder/Decoder trong mô hình CTM?</li>
+            <li>[ ] Thư viện `turftopic` do ai viết và cài đặt thế nào?</li>
+          </ul>
+        </div>
+        <p class="hint">Hoàn thành checklist này giúp bạn tự tin nắm vững toàn bộ nền tảng học thuật của bài báo!</p>
+        <aside class="notes">Đây là công cụ ôn tập hoàn hảo cho bạn trước khi bước vào các thảo luận chuyên sâu.</aside>
+      </section>
+    </section>
+
+  </div>
+</div>
+
+<!-- Nút mở Menu nhanh cho Slide (Phím tắt M) -->
+<button id="qnav" title="Menu (M)" style="position: fixed; top: 16px; left: 16px; z-index: 40; width: 42px; height: 42px; border-radius: 50%; border: none; background: var(--accent); color: #fff; font-size: 20px; cursor: pointer; box-shadow: 0 4px 10px rgba(26,115,232,0.3); display: flex; align-items: center; justify-content: center; transition: all 0.2s;">☰</button>
+<div id="qov" style="position: fixed; inset: 0; background: rgba(32,33,36,0.4); z-index: 38; opacity: 0; pointer-events: none; transition: opacity 0.25s;"></div>
+<nav id="qpan" aria-hidden="true" style="position: fixed; top: 0; left: 0; bottom: 0; width: 280px; z-index: 39; background: #fff; box-shadow: 4px 0 20px rgba(0,0,0,0.1); transform: translateX(-100%); transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); padding: 70px 20px 20px; overflow-y: auto; font-family: 'Outfit', sans-serif;">
+  <h4 style="margin: 0 0 1em; color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 800;">Mục lục Slide</h4>
+  <a href="#/0">Trang bìa mở đầu</a>
+  <a href="#/1">Khối A: Bản dịch Mục 1 & Đóng góp</a>
+  <a href="#/2">Khối B: Bản dịch Mục 2 & Baselines</a>
+  <a href="#/3">Khối C: Neural vs. Clustering Models</a>
+  <a href="#/4">Khối D: Mổ xẻ chi tiết kỹ thuật Baselines</a>
+</nav>
+
+<style>
+  #qpan.open { transform: translateX(0) !important; }
+  #qov.open { opacity: 1 !important; pointer-events: auto !important; }
+  #qpan a { display: block; padding: 0.6em 0.8em; margin: 0.2em 0; border-radius: 8px; color: var(--ink); text-decoration: none; font-size: 14px; font-weight: 600; transition: all 0.2s; }
+  #qpan a:hover { background: var(--accent-light); color: var(--accent); }
+  #qnav:hover { transform: scale(1.08); background: #1557b0; }
+</style>
+
+<!-- Reveal.js và Plugins qua CDN -->
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reveal.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/plugin/notes/notes.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/plugin/highlight/highlight.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/plugin/math/math.js"></script>
+
+<script>
+  // Khởi tạo Reveal.js với các Plugin hỗ trợ
+  Reveal.initialize({
+    hash: true,
+    progress: true,
+    slideNumber: 'c/t',
+    transition: 'slide',
+    width: 1100,
+    height: 740,
+    margin: 0.06,
+    plugins: [ RevealNotes, RevealHighlight, RevealMath.KaTeX ],
+    katex: {
+      delimiters: [
+        { left: '$$', right: '$$', display: true },
+        { left: '$', right: '$', display: false },
+        { left: '\\[', right: '\\]', display: true },
+        { left: '\\(', right: '\\)', display: false }
+      ]
+    }
+  });
+
+  // Code điều khiển thanh Menu nhanh
+  (function() {
+    var btn = document.getElementById('qnav');
+    var pan = document.getElementById('qpan');
+    var ov = document.getElementById('qov');
+    
+    function toggleMenu(show) {
+      pan.classList.toggle('open', show);
+      ov.classList.toggle('open', show);
+      pan.setAttribute('aria-hidden', String(!show));
+    }
+    
+    btn.addEventListener('click', function() {
+      toggleMenu(!pan.classList.contains('open'));
+    });
+    
+    ov.addEventListener('click', function() {
+      toggleMenu(false);
+    });
+    
+    pan.querySelectorAll('a').forEach(function(link) {
+      link.addEventListener('click', function() {
+        toggleMenu(false);
+      });
+    });
+    
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') {
+        toggleMenu(false);
+      }
+      // Nhấn phím M để bật/tắt nhanh Menu
+      var activeEl = document.activeElement && document.activeElement.tagName;
+      if (activeEl === 'INPUT' || activeEl === 'TEXTAREA') return;
+      if (e.key === 'm' || e.key === 'M') {
+        toggleMenu(!pan.classList.contains('open'));
+      }
+    });
+  })();
+</script>
+</body>
+</html>

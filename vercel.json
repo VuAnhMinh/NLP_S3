@@ -5,6 +5,8 @@
     { "source": "/1", "destination": "/slides.html" },
     { "source": "/2", "destination": "/slides_2.html" },
     { "source": "/3", "destination": "/slides_3.html" },
-    { "source": "/g", "destination": "/google/google_slides.html" }
+    { "source": "/g3", "destination": "/google/google_slides.html" },
+    { "source": "/g1", "destination": "/google/google_slides_1.html" },
+    { "source": "/g2", "destination": "/google/google_slides_1.html" }
   ]
 }
