@@ -1,0 +1,942 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>S³ - Semantic Signal Separation | Tài liệu Học tập Chuyên sâu</title>
+
+  <!-- Reveal.js CSS -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reveal.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/theme/white.css" id="theme">
+  <!-- Theme highlight cho code -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/plugin/highlight/monokai.css">
+
+  <!-- Google Fonts: Outfit & Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --accent: #1a73e8; /* Google Blue */
+      --accent-light: #eff6ff;
+      --teal: #0f9d58; /* Google Green */
+      --teal-light: #e6f4ea;
+      --warn: #f4b400; /* Google Yellow */
+      --warn-light: #fef7e0;
+      --bad: #d93025; /* Google Red */
+      --bad-light: #fce8e6;
+      --ink: #202124;
+      --muted: #5f6368;
+      --purple: #ab47bc;
+      --purple-light: #f3e5f5;
+    }
+
+    .reveal {
+      font-family: 'Inter', -apple-system, sans-serif;
+      color: var(--ink);
+      --r-main-font-size: 26px;
+      font-size: 26px;
+    }
+
+    .reveal h1, .reveal h2, .reveal h3, .reveal h4 {
+      font-family: 'Outfit', sans-serif;
+      text-transform: none;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+    }
+
+    .reveal h1 {
+      color: var(--accent);
+      font-size: 2.2em;
+      line-height: 1.1;
+    }
+
+    .reveal h2 {
+      color: var(--accent);
+      font-size: 1.5em;
+      border-bottom: 3px solid var(--accent);
+      padding-bottom: 0.2em;
+      margin-bottom: 0.5em;
+      display: inline-block;
+    }
+
+    .reveal h3 {
+      font-size: 1.15em;
+      color: var(--teal);
+      margin-bottom: 0.4em;
+    }
+
+    .reveal section {
+      text-align: left;
+    }
+
+    .reveal .center {
+      text-align: center;
+    }
+
+    .reveal p, .reveal li {
+      line-height: 1.5;
+    }
+
+    .reveal ul, .reveal ol {
+      display: block;
+      margin-left: 0.8em;
+    }
+
+    .reveal li {
+      margin: 0.3em 0;
+    }
+
+    /* Cards / Boxes */
+    .box {
+      border-radius: 12px;
+      padding: 0.7em 1.1em;
+      margin: 0.5em 0;
+      font-size: 0.88em;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+      border: 1px solid rgba(0,0,0,0.05);
+    }
+    
+    .box.idea {
+      background: var(--accent-light);
+      border-left: 6px solid var(--accent);
+    }
+    
+    .box.tech {
+      background: var(--teal-light);
+      border-left: 6px solid var(--teal);
+    }
+    
+    .box.say {
+      background: var(--warn-light);
+      border-left: 6px solid var(--warn);
+    }
+    
+    .box.warnx {
+      background: var(--bad-light);
+      border-left: 6px solid var(--bad);
+    }
+    
+    .box.trans {
+      background: var(--purple-light);
+      border-left: 6px solid var(--purple);
+    }
+
+    .box .lbl {
+      font-family: 'Outfit', sans-serif;
+      font-weight: 800;
+      font-size: 0.78em;
+      letter-spacing: 0.05em;
+      display: block;
+      margin-bottom: 0.3em;
+      text-transform: uppercase;
+    }
+
+    .box.idea .lbl { color: var(--accent); }
+    .box.tech .lbl { color: var(--teal); }
+    .box.say .lbl { color: #b06000; }
+    .box.warnx .lbl { color: var(--bad); }
+    .box.trans .lbl { color: var(--purple); }
+
+    /* Tables */
+    .reveal table {
+      font-size: 0.65em;
+      margin: 0.5em auto;
+      border-collapse: collapse;
+      width: 100%;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    .reveal th {
+      background: var(--accent);
+      color: #fff;
+      padding: 0.5em 0.8em;
+      font-weight: 700;
+      border: none;
+    }
+
+    .reveal td {
+      padding: 0.4em 0.8em;
+      border-bottom: 1px solid #e2e8f0;
+      vertical-align: middle;
+      background: #fff;
+    }
+
+    .reveal tr:nth-child(even) td {
+      background: #f8fafc;
+    }
+
+    .badge {
+      display: inline-block;
+      background: var(--accent);
+      color: #fff;
+      font-family: 'Outfit', sans-serif;
+      font-size: 0.45em;
+      font-weight: 700;
+      padding: 0.25em 0.8em;
+      border-radius: 999px;
+      vertical-align: middle;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .badge.green { background: var(--teal); }
+    .badge.purple { background: var(--purple); }
+    .badge.red { background: var(--bad); }
+    .badge.yellow { background: var(--warn); color: #3c4043; }
+
+    .sym {
+      font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+      background: #f1f5f9;
+      padding: 0.1em 0.35em;
+      border-radius: 6px;
+      font-size: 0.85em;
+      color: var(--bad);
+      font-weight: 600;
+    }
+
+    .reveal .slide-number {
+      background: var(--accent);
+      color: #fff;
+      font-family: 'Outfit', sans-serif;
+      font-weight: 700;
+      font-size: 13px;
+      border-radius: 6px;
+      padding: 0.2em 0.7em;
+    }
+
+    /* Diagram wrapper */
+    .reveal .diagram-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin: 0.5em 0;
+    }
+
+    .reveal pre {
+      box-shadow: none;
+      width: 100%;
+      margin: 0.3em 0;
+    }
+
+    .reveal pre code {
+      border-radius: 10px;
+      font-size: 0.6em;
+      line-height: 1.45;
+      padding: 0.8em;
+    }
+
+    .formula-display {
+      font-size: 1.3em;
+      text-align: center;
+      margin: 0.4em 0;
+      padding: 0.4em;
+      background: #f8fafc;
+      border-radius: 8px;
+      border: 1px dashed #cbd5e1;
+    }
+
+    .hint {
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.65em;
+      margin-top: 0.5em;
+    }
+
+    /* Flex layout utilities */
+    .cols {
+      display: flex;
+      gap: 1em;
+      align-items: stretch;
+    }
+    .cols > div {
+      flex: 1;
+    }
+  </style>
+</head>
+<body>
+<div class="reveal">
+  <div class="slides">
+
+    <!-- SLIDE 1: Trang Bìa -->
+    <section data-background-gradient="linear-gradient(135deg, #eff6ff 0%, #e6f4ea 100%)">
+      <div class="center">
+        <span class="badge">S³ - Semantic Signal Separation</span>
+        <h1 style="margin: 0.3em 0 0.1em; font-family: 'Outfit', sans-serif; font-size: 1.9em;">Phần 3 & 3.1: Chi Tiết Thuật Toán</h1>
+        <h3 style="color: var(--muted); font-weight: 600; font-size: 0.9em; margin-bottom: 1em;">
+          Dịch trọn vẹn §3 + Giải thích cặn kẽ toán học ICA, FastICA & 3 công thức chọn từ
+        </h3>
+        
+        <div class="box idea" style="display: inline-block; text-align: left; max-width: 900px; font-size: 0.75em;">
+          <span class="lbl">Học phần chuyên sâu dành cho bạn:</span>
+          • <b>Khối A:</b> Bản dịch đầy đủ mục 3 & 3.1 (không cắt bớt kiến thức)<br>
+          • <b>Khối B:</b> Kiến thức nền về ICA, thuật toán FastICA và Whitening dữ liệu<br>
+          • <b>Khối C:</b> Mổ xẻ 3 công thức tính độ quan trọng của từ (Axial, Angular, Combined)<br>
+          • <b>Khối D:</b> Hướng dẫn thu thập dữ liệu và cách đọc các ký hiệu toán học
+        </div>
+        <p style="font-size: 0.55em; color: var(--muted); margin-top: 1.5em;">
+          Nguồn: Kardos et al., <i>S³ — Semantic Signal Separation</i>, ACL 2025 (p.635–636)
+        </p>
+      </div>
+      <aside class="notes">Đây là slide deck thiết kế để bạn tự học và nghiên cứu sâu về thuật toán S3. Nhấn mũi tên sang phải (->) hoặc nút Space để chuyển slide.</aside>
+    </section>
+
+    <!-- ===================== KHỐI A: BẢN DỊCH ===================== -->
+    <section>
+      <section data-background-gradient="linear-gradient(135deg, #f3e5f5 0%, #eff6ff 100%)">
+        <div class="center">
+          <span class="badge purple">Khối A</span>
+          <h2 style="border-bottom: none; margin: 0.2em 0;">Bản Dịch Tiếng Việt §3 & §3.1</h2>
+          <p style="font-size: 0.9em; color: var(--muted);">Dịch đầy đủ, chính xác từng câu chữ trong bài báo gốc.</p>
+          <div class="box trans" style="display: inline-block; text-align: left; max-width: 800px; font-size: 0.8em;">
+            <span class="lbl">Mẹo học tập:</span>
+            Các thuật ngữ kỹ thuật tiếng Anh quan trọng được ghi chú bên cạnh bản dịch tiếng Việt để bạn dễ tra cứu tài liệu học thuật quốc tế.
+          </div>
+          <p class="hint">↓ Bấm phím mũi tên Xuống để đọc bản dịch từng trang</p>
+        </div>
+      </section>
+
+      <section>
+        <h3>§3. Semantic Signal Separation (Dịch)</h3>
+        <div class="box trans" style="font-size: 0.76em; line-height: 1.55;">
+          Trong bài báo này, chúng tôi giới thiệu <b>Semantic Signal Separation</b> (hoặc <b>S³</b>), một phương pháp tiếp cận mới cho bài toán mô hình hoá chủ đề (<b>topic modeling</b>) trong không gian embedding liên tục (<b>continuous embedding spaces</b>), nhằm vượt qua các thách thức đã đề cập phía trên của các phương pháp topic modeling ngữ cảnh (<b>contextual topic modeling</b>) hiện tại.
+          <br><br>
+          Thay vì diễn giải các chủ đề dưới dạng các cụm (<b>clusters</b>) hoặc phân phối xác suất của từ (<b>word probabilities</b>), chúng tôi quan niệm các chủ đề là các <b>trục ngữ nghĩa (semantic axes)</b> giải thích sự biến thiên (<b>variation</b>) đặc thù của một kho ngữ liệu (<b>corpus</b>). Điều này đạt được bằng cách phân rã (<b>decomposing</b>) các biểu diễn ngữ nghĩa thành:
+          <ul>
+            <li>Các <b>thành phần ẩn (latent components) <span class="sym">A</span></b>: được giả định chính là các chủ đề (topics).</li>
+            <li><b>Độ mạnh của các thành phần trong từng tài liệu <span class="sym">S</span></b>: chính là độ quan trọng giữa tài liệu và chủ đề (document-topic importances).</li>
+          </ul>
+          Để các chủ đề có tính chất tách biệt rõ ràng về mặt khái niệm (<b>conceptually distinct</b>), chúng tôi sử dụng phương pháp Phân tích Thành phần Độc lập (<b>Independent Component Analysis - ICA</b>) (Jutten và Herault, 1991) để tìm ra chúng. Độ quan trọng của từ đối với chủ đề (<b>term importances</b>) được ước lượng từ độ mạnh của các thành phần chủ đề trong embedding của từ (<b>word embeddings <span class="sym">V</span></b>).
+        </div>
+        <aside class="notes">Đây là phần mở đầu giới thiệu tư duy thiết kế của S3: coi topic là trục ngữ nghĩa độc lập (latent axes) thay vì cụm hoặc xác suất.</aside>
+      </section>
+
+      <section>
+        <h3>§3. Mở đầu & Liên hệ LSA (Dịch tiếp)</h3>
+        <div class="box trans" style="font-size: 0.85em; margin-top: 1em;">
+          Xét trên một số khía cạnh, phương pháp của chúng tôi có thể được coi là hậu duệ ngữ cảnh (<b>contextual successor</b>) của phương pháp Phân tích Ngữ nghĩa Ẩn (<b>Latent Semantic Analysis - LSA</b>) (Dumais, 2004; Deerwester và cộng sự, 1988) - phương pháp vốn khám phá ra các nhân tố (factors) dựa trên sự đồng xuất hiện của từ (word-occurrences).
+        </div>
+        
+        <div class="box idea" style="font-size: 0.8em; margin-top: 1em;">
+          <span class="lbl">Trực giác so sánh:</span>
+          • <b>LSA cổ điển:</b> Phân rã ma trận từ-tài liệu dựa trên tần suất đếm từ (BoW) → Khám phá các nhân tố ngữ nghĩa thô sơ.<br>
+          • <b>S³ hiện đại:</b> Phân rã ma trận tài liệu trong không gian Dense Embedding (SBERT/E5) → Giữ nguyên cấu trúc cú pháp và ngữ cảnh sâu của câu.
+        </div>
+        <aside class="notes">Tác giả định vị S3 là truyền nhân của LSA nhưng hoạt động trên không gian embedding hiện đại thay vì ma trận tần suất từ thưa thớt.</aside>
+      </section>
+
+      <section>
+        <h3>§3.1 Model — Bước 1 & 2: Phân rã ICA (Dịch)</h3>
+        <div class="box trans" style="font-size: 0.78em; line-height: 1.5;">
+          Các biểu diễn tài liệu (<b>document representations</b>) thu được bằng cách mã hoá các tài liệu bằng một mô hình <b>Sentence Transformer</b>.
+          <br><br>
+          1. Gọi <span class="sym">X</span> là ma trận mã hoá của các tài liệu (<b>document encodings matrix</b>).
+          <br><br>
+          Việc phân rã các biểu diễn tài liệu thành các trục ngữ nghĩa độc lập được thực hiện bằng phương pháp Phân tích Thành phần Độc lập (<b>Independent Component Analysis - ICA</b>) (Jutten và Herault, 1991). Trong nghiên cứu này, chúng tôi sử dụng thuật toán <b>FastICA</b> (Hyvärinen và Oja, 2000) để xác định các thành phần ngữ nghĩa ẩn. 
+          <br><br>
+          Là một bước tiền xử lý, phép làm trắng (<b>whitening</b>) được áp dụng lên ma trận embedding, vì FastICA là một mô hình không nhiễu (<b>noiseless model</b>). Do mặc định ICA sẽ tìm ra số lượng thành phần bằng đúng số chiều của embedding, chúng tôi giảm chiều dữ liệu của embedding trong quá trình làm trắng bằng cách chỉ lấy <span class="sym">N</span> thành phần chính đầu tiên (<b>principal components</b>), với <span class="sym">N</span> là số lượng chủ đề (topics) mong muốn.
+          <br><br>
+          2. Phân rã <span class="sym">X</span> sử dụng FastICA:
+          <div class="formula-display">\( X = A \cdot S \)</div>
+          Trong đó, <span class="sym">A</span> là <b>ma trận trộn (mixing matrix)</b>, và <span class="sym">S</span> là <b>ma trận nguồn (source matrix)</b> chứa độ quan trọng giữa tài liệu và chủ đề (document-topic importances).
+        </div>
+        <aside class="notes">Chú ý bước làm trắng (whitening) có tích hợp giảm chiều. Đây là sự kết hợp của PCA (để giảm chiều) và ICA (để xoay trục độc lập).</aside>
+      </section>
+
+      <section>
+        <h3>§3.1 Model — Bước 3 đến 6: Chiếu từ (Dịch)</h3>
+        <div class="box trans" style="font-size: 0.78em; line-height: 1.55;">
+          Độ quan trọng của từ đối với chủ đề (<b>term importances</b>), dùng để lựa chọn các từ ngữ mô tả chủ đề, được tính toán bằng cách chiếu (<b>projecting</b>) các từ lên các trục ngữ nghĩa đã tìm được.
+          <br><br>
+          3. Mã hoá từ vựng của kho ngữ liệu bằng cùng một mô hình encoder đó. Gọi ma trận mã hoá từ vựng là <span class="sym">V</span>.
+          <br>
+          4. Gọi ma trận tách (hay ma trận mở trộn - <b>unmixing matrix</b>) là <span class="sym">C</span>, được tính bằng nghịch đảo giả (<b>pseudo-inverse</b>) của ma trận trộn <span class="sym">A</span>:
+          <div class="formula-display">\( C = A^+ \)</div>
+          5. Chiếu các từ lên các trục ngữ nghĩa đã phát hiện bằng cách nhân ma trận embedding của từ với ma trận unmixing:
+          <div class="formula-display">\( W = V \cdot C^T \)</div>
+          6. Tính toán điểm quan trọng của từ (word importance scores) cho từng chủ đề.
+        </div>
+        <div class="box tech" style="font-size: 0.75em;">
+          <span class="lbl">Dòng chảy thuật toán:</span>
+          Tài liệu → Ma trận <span class="sym">X</span> → FastICA → Ma trận trộn <span class="sym">A</span> → Nghịch đảo giả <span class="sym">C = A⁺</span> → Chiếu từ <span class="sym">W = V Cᵀ</span>.
+        </div>
+        <aside class="notes">Lưu ý cực kỳ quan trọng: ma trận từ vựng V phải được mã hoá bằng CÙNG một mô hình encoder đã dùng cho tài liệu X để đảm bảo tính đồng nhất không gian vector.</aside>
+      </section>
+
+      <section>
+        <h3>§3.1 Model — 3 Công thức & Negative Terms (Dịch)</h3>
+        <div class="box trans" style="font-size: 0.76em; line-height: 1.55;">
+          Chúng tôi xem xét ba phương pháp để tính toán độ quan trọng của từ $j$ đối với chủ đề $t$:
+          <ol>
+            <li><b>Độ quan trọng theo Trục (Axial word importances)</b>: $\beta_{tj} = W_{jt}$</li>
+            <li><b>Chủ đề theo Góc (Angular topics)</b>: $\beta_{tj} = \cos(\Theta) = \frac{W_{jt}}{\lVert W_j \rVert}$</li>
+            <li><b>Độ quan trọng kết hợp (Combined word importance)</b>: $\beta_{tj} = \frac{(W_{jt})^3}{\lVert W_j \rVert}$ &nbsp; <i>(Lấy luỹ thừa bậc lẻ để giữ nguyên dấu).</i></li>
+          </ol>
+          Axial giúp tạo ra các mô tả chứa các từ <b>nổi bật nhất (most salient)</b>, trong khi Angular gán trọng số cao nhất cho những từ <b>đặc trưng riêng biệt nhất (most specific)</b>. Combined hướng tới việc cân bằng cả hai khía cạnh này.
+          <br><br>
+          Lưu ý rằng tất cả các công thức trên đều cho phép các từ có <b>độ quan trọng âm (negative importance)</b> đối với một chủ đề nhất định. Có thể diễn giải mô hình bằng cách kiểm tra các từ có điểm số thấp nhất trên một chủ đề, cung cấp một <b>định nghĩa phủ định (negative definition)</b> cho chủ đề đó. Các thử nghiệm đối sánh mô hình của chúng tôi bỏ qua từ âm để công bằng, tuy nhiên một ví dụ minh hoạ thực tế sẽ được trình bày ở Mục 6.2.
+        </div>
+        <aside class="notes">Đây là điểm độc đáo của S3: Khái niệm "Chủ đề phủ định" (topic không nói về cái gì). Điều mà LDA hay BERTopic không thể làm được.</aside>
+      </section>
+
+      <section>
+        <h3>§3.1 Model — Inference tài liệu mới (Dịch)</h3>
+        <div class="box trans" style="font-size: 0.85em; line-height: 1.6;">
+          <b>Suy luận (Inference)</b> tỷ lệ chủ đề trong các tài liệu mới (chưa từng thấy trước đây) có thể đạt được bằng cách nhân embedding của tài liệu mới đó với ma trận unmixing <span class="sym">C</span>:
+          <br><br>
+          1. Gọi mã hoá của các tài liệu mới chưa từng thấy là <span class="sym">X̂</span>.
+          <br>
+          2. Tính toán ma trận tài liệu - chủ đề mới:
+          <div class="formula-display">\( \hat{S} = \hat{X} \cdot C^T \)</div>
+        </div>
+        <div class="box tech" style="font-size: 0.78em; margin-top: 1em;">
+          <span class="lbl">Tại sao suy luận lại cực nhanh?</span>
+          Không cần huấn luyện lại, không cần tối ưu lặp. Chỉ cần lấy embedding tài liệu mới ($\hat{X}$) thực hiện đúng một phép nhân ma trận với ma trận chuyển vị $C^T$ là có ngay phân phối chủ đề $\hat{S}$.
+        </div>
+        <aside class="notes">Đây là lý do S3 đạt tốc độ nhanh hơn á quân 4.5 lần và trung bình các baseline 27.5 lần: suy luận tài liệu mới chỉ tốn đúng 1 phép nhân ma trận.</aside>
+      </section>
+    </section>
+
+    <!-- ===================== KHỐI B: KIẾN THỨC NỀN ===================== -->
+    <section>
+      <section data-background-gradient="linear-gradient(135deg, #e6f4ea 0%, #eff6ff 100%)">
+        <div class="center">
+          <span class="badge green">Khối B</span>
+          <h2 style="border-bottom: none; margin: 0.2em 0;">Khái Niệm Nền Tảng Cho Người Mới</h2>
+          <p style="font-size: 0.9em; color: var(--muted);">Tìm hiểu sâu về trực giác toán học đứng sau thuật toán.</p>
+          <div class="box tech" style="display: inline-block; text-align: left; max-width: 800px; font-size: 0.8em;">
+            <span class="lbl">Nội dung khối này:</span>
+            • Bản chất ICA & Ẩn dụ Cocktail Party<br>
+            • So sánh chi tiết PCA vs ICA<br>
+            • Thuật toán FastICA & Whitening tiền xử lý<br>
+            • Ý nghĩa & kích thước các ma trận $X, A, S, V, C, W$
+          </div>
+          <p class="hint">↓ Bấm phím mũi tên Xuống để bắt đầu học</p>
+        </div>
+      </section>
+
+      <section>
+        <h3>ICA là gì? Ẩn dụ Cocktail Party</h3>
+        <div class="cols">
+          <div>
+            <div class="box idea" style="font-size: 0.8em; height: 100%;">
+              <span class="lbl">Bài toán thực tế:</span>
+              • Phòng tiệc có 3 người nói chuyện độc lập ($s_1, s_2, s_3$).<br>
+              • Đặt 3 chiếc micro ở các góc, ghi lại 3 bản trộn âm thanh khác nhau ($x_1, x_2, x_3$).<br>
+              • <b>Nhiệm vụ:</b> Khôi phục lại 3 giọng nói ban đầu mà không biết trước giọng của họ.<br>
+              • <b>ICA (Independent Component Analysis)</b> làm việc này bằng cách tìm ma trận gỡ trộn.
+            </div>
+          </div>
+          <div>
+            <div class="box tech" style="font-size: 0.8em; height: 100%;">
+              <span class="lbl">Áp dụng vào Topic Modeling:</span>
+              • <b>Nguồn độc lập ($s$)</b> = Các chủ đề thuần khiết (Topics).<br>
+              • <b>Bản trộn ($x$)</b> = Embedding của tài liệu ($X$) - tài liệu là hỗn hợp của nhiều chủ đề.<br>
+              • <b>Tách tín hiệu</b> = Tách các chủ đề độc lập ra khỏi ma trận embedding tài liệu.
+            </div>
+          </div>
+        </div>
+        <aside class="notes">Mấu chốt của ICA là giả định các nguồn tín hiệu gốc độc lập thống kê với nhau. Từ đó tách nguồn mà không cần thông tin vị trí hay đặc trưng nguồn.</aside>
+      </section>
+
+      <section>
+        <h3>So Sánh Cốt Lõi: PCA vs ICA</h3>
+        <p style="font-size: 0.8em; margin: 0;">Hiểu đúng sự khác biệt để tránh nhầm lẫn bản chất hai thuật toán:</p>
+        <table>
+          <thead>
+            <tr>
+              <th>Tiêu chí</th>
+              <th>PCA (Phân tích Thành phần Chính)</th>
+              <th>ICA (Phân tích Thành phần Độc lập)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><b>Mục tiêu</b></td>
+              <td>Tìm hướng biến thiên (variance) lớn nhất để nén.</td>
+              <td>Tìm hướng độc lập thống kê để tách nguồn.</td>
+            </tr>
+            <tr>
+              <td><b>Ràng buộc trục</b></td>
+              <td>Các trục bắt buộc phải vuông góc (Orthogonal).</td>
+              <td>Các trục tự do xoay góc, không cần vuông góc.</td>
+            </tr>
+            <tr>
+              <td><b>Ràng buộc toán</b></td>
+              <td>Chỉ cần không tương quan tuyến tính ($\text{Cov}=0$).</td>
+              <td>Độc lập thống kê hoàn toàn ($p(x,y)=p(x)p(y)$).</td>
+            </tr>
+            <tr>
+              <td><b>Dữ liệu nguồn</b></td>
+              <td>Hoạt động tốt nhất với phân phối chuẩn (Gaussian).</td>
+              <td>Bắt buộc nguồn phải có tính phi chuẩn (Non-Gaussian).</td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="box warnx" style="font-size: 0.75em; margin-top: 0.5em;">
+          <span class="lbl">Lưu ý cực kỳ quan trọng:</span>
+          <b>"Không tương quan" $\neq$ "Độc lập".</b> Không tương quan chỉ xét ở bậc tuyến tính (bậc 2). Độc lập thống kê xét ở mọi bậc cao hơn. PCA không thể tách nguồn âm thanh hay chủ đề hoàn hảo như ICA.
+        </div>
+        <aside class="notes">Hãy lấy ví dụ y = x^2 để chứng minh không tương quan tuyến tính nhưng hoàn toàn phụ thuộc vào nhau. Đó là lý do PCA thất bại trong việc tách chủ đề.</aside>
+      </section>
+
+      <section>
+        <h3>FastICA & Tiền Xử Lý Whitening</h3>
+        <div class="box idea" style="font-size: 0.8em;">
+          <span class="lbl">Trực giác về FastICA:</span>
+          Theo Định lý giới hạn trung tâm, tổng các biến ngẫu nhiên độc lập trông sẽ "Gaussian" hơn các biến thành phần. ICA đi tìm hướng <b>ít Gaussian nhất (phi-Gaussian nhất)</b> để lấy lại các nguồn độc lập gốc. FastICA sử dụng Negentropy để đo tính phi-Gaussian này.
+        </div>
+        
+        <div class="box tech" style="font-size: 0.78em;">
+          <span class="lbl">Tại sao cần bước Whitening (Làm trắng)?</span>
+          FastICA giả định mô hình không nhiễu. Whitening là bước biến đổi tuyến tính để biến "đám mây" dữ liệu hình elip dài thành hình cầu tròn trịa (phương sai các chiều = 1, không tương quan tuyến tính).
+        </div>
+        
+        <div class="box warnx" style="font-size: 0.78em;">
+          <span class="lbl">Bí mật giảm chiều của S³:</span>
+          Trong bước Whitening, S³ sử dụng SVD để chỉ giữ lại $N$ thành phần chính đầu tiên. Như vậy, <b>S³ thực chất sử dụng PCA để giảm chiều + làm trắng trước, rồi mới chạy FastICA để xoay trục tìm độc lập.</b>
+        </div>
+        <aside class="notes">Mô hình S3 thực chất là một chuỗi xử lý tinh tế: Embedding -> PCA (để giảm chiều & whitening) -> FastICA (để xoay trục đạt độc lập thống kê).</aside>
+      </section>
+
+      <section>
+        <h3>Ý Nghĩa & Kích Thước Các Ma Trận</h3>
+        <p style="font-size: 0.78em; margin: 0 0 0.3em;">Để lập trình đúng thuật toán, hãy nắm chắc kích thước các ma trận trong không gian $d$ chiều với $D$ tài liệu, $V_{vocab}$ từ vựng và $N$ chủ đề:</p>
+        
+        <table>
+          <thead>
+            <tr>
+              <th>Ký hiệu</th>
+              <th>Tên ma trận</th>
+              <th>Kích thước</th>
+              <th>Ý nghĩa thực tế</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="sym">X</td>
+              <td>Document Embeddings</td>
+              <td>$d \times D$</td>
+              <td>Quan sát đầu vào (Mỗi cột là embedding của 1 tài liệu).</td>
+            </tr>
+            <tr>
+              <td class="sym">A</td>
+              <td>Mixing Matrix</td>
+              <td>$d \times N$</td>
+              <td><b>Chủ đề (Topics)</b>: Mỗi cột là một trục chủ đề trong không gian embedding.</td>
+            </tr>
+            <tr>
+              <td class="sym">S</td>
+              <td>Source Matrix</td>
+              <td>$N \times D$</td>
+              <td><b>Độ quan trọng tài liệu - chủ đề</b>: Tỉ lệ chủ đề trong mỗi tài liệu.</td>
+            </tr>
+            <tr>
+              <td class="sym">V</td>
+              <td>Word Embeddings</td>
+              <td>$V_{vocab} \times d$</td>
+              <td>Embedding của toàn bộ từ vựng trong kho ngữ liệu.</td>
+            </tr>
+            <tr>
+              <td class="sym">C</td>
+              <td>Unmixing Matrix</td>
+              <td>$N \times d$</td>
+              <td>Ma trận gỡ trộn ($C = A^+$), dùng để chiếu tài liệu/từ sang không gian chủ đề.</td>
+            </tr>
+            <tr>
+              <td class="sym">W</td>
+              <td>Term-Topic Matrix</td>
+              <td>$V_{vocab} \times N$</td>
+              <td>Ma trận chiếu từ ($W = V C^T$). $W_{jt}$ là toạ độ của từ $j$ trên trục chủ đề $t$.</td>
+            </tr>
+          </tbody>
+        </table>
+        <aside class="notes">Hãy ghi nhớ các kích thước này, chúng rất quan trọng khi viết mã nguồn bằng numpy hoặc pytorch để thực hiện các phép nhân ma trận.</aside>
+      </section>
+    </section>
+
+    <!-- ===================== KHỐI C: 3 CÔNG THỨC ===================== -->
+    <section>
+      <section data-background-gradient="linear-gradient(135deg, #fef7e0 0%, #fce8e6 100%)">
+        <div class="center">
+          <span class="badge yellow">Khối C</span>
+          <h2 style="border-bottom: none; margin: 0.2em 0; color: #b06000;">Mổ Xẻ Hình Học & 3 Công Thức</h2>
+          <p style="font-size: 0.9em; color: var(--muted);">Phân tích chi tiết cách tính điểm quan trọng để trích xuất từ mô tả chủ đề.</p>
+          <div class="box say" style="display: inline-block; text-align: left; max-width: 800px; font-size: 0.8em;">
+            <span class="lbl">Trọng tâm học tập:</span>
+            • Trực quan hình học của các vector từ (Figure 3)<br>
+            • Giải nghĩa tham số: Vị trí trục $v_t$ và Độ dài chuẩn $\lVert v \rVert$<br>
+            • Phân tích ưu/nhược điểm: Axial, Angular, Combined<br>
+            • Tại sao Combined dùng luỹ thừa 3?
+          </div>
+          <p class="hint">↓ Bấm phím mũi tên Xuống để tiếp tục học</p>
+        </div>
+      </section>
+
+      <section>
+        <h3>Minh Hoạ Hình Học (Figure 3)</h3>
+        <div class="cols">
+          <div style="flex: 1.2;">
+            <div class="box idea" style="font-size: 0.78em;">
+              <span class="lbl">Giải nghĩa hình học:</span>
+              Xét trục chủ đề $T_t$ và vector embedding của từ $\vec{v}$:
+              <ul>
+                <li><b>$v_t$ (hoặc $W_{jt}$)</b>: Độ dài hình chiếu vuông góc của $\vec{v}$ lên trục $T_t$. Nó cho biết toạ độ của từ trên trục này.</li>
+                <li><b>$\lVert v \rVert$ (hoặc $\lVert W_j \rVert$)</b>: Độ dài (chuẩn Euclidean) của vector $\vec{v}$. Vector càng dài chứng tỏ từ càng phổ biến hoặc có embedding mang năng lượng lớn.</li>
+                <li><b>$\Theta$ (Theta)</b>: Góc hợp bởi vector $\vec{v}$ và trục chủ đề $T_t$. Góc càng nhỏ ($\cos(\Theta)$ càng lớn), từ càng trùng hướng với chủ đề.</li>
+              </ul>
+            </div>
+          </div>
+          <div style="flex: 0.8; display: flex; align-items: center; justify-content: center;">
+            <!-- ASCII Diagram style -->
+            <pre style="margin: 0; background: #fafafa; border: 1px solid #e2e8f0; padding: 1em; border-radius: 8px; font-family: monospace; font-size: 14px; line-height: 1.2;">
+   Trục T_t (Chủ đề t)
+     ^
+     |      /| Vector v
+     |     / | (độ dài ||v||)
+ v_t |    /  |
+     |   /   |
+     |  / Θ  |
+     | /     |
+     |/______|______> Trục T_0
+    (0)
+            </pre>
+          </div>
+        </div>
+        <aside class="notes">Hình minh hoạ này là chìa khoá để hiểu tại sao có sự đánh đổi giữa từ nổi bật (salient) và từ đặc trưng (specific).</aside>
+      </section>
+
+      <section>
+        <h3>Công Thức 1: Axial Word Importance</h3>
+        <div class="formula-display">
+          $$\beta_{tj} = W_{jt}$$
+        </div>
+        <div class="box trans" style="font-size: 0.8em;">
+          <span class="lbl">Định nghĩa & Trực giác:</span>
+          Điểm quan trọng của từ $j$ đối với chủ đề $t$ chính là <b>toạ độ hình chiếu $W_{jt}$ của từ đó trên trục ngữ nghĩa</b>.
+        </div>
+        <div class="cols" style="font-size: 0.78em;">
+          <div>
+            <div class="box tech">
+              <span class="lbl">Ưu điểm:</span>
+              Chọn ra các từ <b>nổi bật nhất (most salient)</b> của chủ đề. Các từ này rất phổ biến và đại diện mạnh cho ngữ cảnh chung. Đạt điểm số <b>Coherence (mạch lạc) cao nhất</b> trong các thử nghiệm.
+            </div>
+          </div>
+          <div>
+            <div class="box warnx">
+              <span class="lbl">Nhược điểm:</span>
+              Dễ bị lẫn các từ mang tính bao quát toàn cục (global terms). Ví dụ với chủ đề "y học", nó có thể chọn ra các từ chung chung như "bệnh nhân", "y tế", "sức khoẻ" thay vì các thuật ngữ chuyên biệt.
+            </div>
+          </div>
+        </div>
+        <aside class="notes">Công thức Axial rất tốt khi bạn muốn tìm các từ khóa đại diện chung chung và dễ hiểu nhất cho một chủ đề.</aside>
+      </section>
+
+      <section>
+        <h3>Công Thức 2: Angular Word Importance</h3>
+        <div class="formula-display">
+          $$\beta_{tj} = \cos(\Theta) = \frac{W_{jt}}{\lVert W_j \rVert}$$
+        </div>
+        <div class="box trans" style="font-size: 0.85em;">
+          <span class="lbl">Định nghĩa & Trực giác:</span>
+          Lấy <b>hàm Cosine của góc $\Theta$</b> giữa vector từ và trục chủ đề. Phép chia cho chuẩn $\lVert W_j \rVert$ giúp triệt tiêu hoàn toàn độ dài vector, chỉ quan tâm đến <b>hướng đi</b>.
+        </div>
+        <div class="cols" style="font-size: 0.78em;">
+          <div>
+            <div class="box tech">
+              <span class="lbl">Ưu điểm:</span>
+              Chọn ra các từ <b>đặc trưng riêng biệt nhất (most specific)</b>. Đề cao các từ chỉ hướng đúng vào chủ đề đó dù chúng rất hiếm gặp (vector ngắn). Mang lại độ <b>Diversity (đa dạng chủ đề) hoàn hảo</b>.
+            </div>
+          </div>
+          <div>
+            <div class="box warnx">
+              <span class="lbl">Nhược điểm:</span>
+              Có thể chọn ra các từ quá hiếm gặp, các từ viết tắt chuyên ngành sâu hoặc lỗi chính tả đặc thù, khiến người đọc phổ thông khó hiểu chủ đề.
+            </div>
+          </div>
+        </div>
+        <aside class="notes">Angular cực kỳ hữu ích khi bạn muốn phân tách rõ ràng các chủ đề con rất gần nhau mà không lo chúng bị chồng lấn từ vựng.</aside>
+      </section>
+
+      <section>
+        <h3>Công Thức 3: Combined Word Importance</h3>
+        <div class="formula-display">
+          $$\beta_{tj} = \frac{(W_{jt})^3}{\lVert W_j \rVert}$$
+        </div>
+        <div class="box idea" style="font-size: 0.8em;">
+          <span class="lbl">Tại sao lại dùng mũ 3 (Luỹ thừa bậc lẻ)?</span>
+          1.  <b>Giữ nguyên dấu:</b> Vì toạ độ $W_{jt}$ có thể âm (biểu thị từ có nghĩa phủ định chủ đề). Luỹ thừa bậc lẻ (mũ 3) đảm bảo giá trị âm vẫn giữ nguyên âm. Nếu dùng bình phương (mũ 2), toạ độ âm sẽ biến thành dương, làm sai lệch bản chất phủ định.<br>
+          2.  <b>Phóng đại giá trị lớn:</b> Mũ 3 hoạt động như bộ lọc khuếch đại phi tuyến, kéo dãn khoảng cách giữa các từ cực kỳ quan trọng và các từ trung bình.
+        </div>
+        <div class="box tech" style="font-size: 0.8em;">
+          <span class="lbl">Khuyến nghị mặc định (Default):</span>
+          Đây là sự dung hoà tuyệt vời: Tử số giữ lại tính nổi bật của Axial ($W_{jt}^3$), mẫu số tích hợp tính đặc trưng của Angular (chia cho $\lVert W_j \rVert$). Bài báo khuyên dùng công thức này để đạt chất lượng chủ đề tối ưu nhất.
+        </div>
+        <aside class="notes">Combined giải quyết bài toán dung hòa: không chọn từ quá chung chung (Axial), cũng không chọn từ quá hiếm (Angular).</aside>
+      </section>
+    </section>
+
+    <!-- ===================== KHỐI D: DỮ LIỆU & KÝ HIỆU ===================== -->
+    <section>
+      <section data-background-gradient="linear-gradient(135deg, #eff6ff 0%, #f3e5f5 100%)">
+        <div class="center">
+          <span class="badge purple">Khối D</span>
+          <h2 style="border-bottom: none; margin: 0.2em 0;">Thu Thập Dữ Liệu & Hướng Dẫn Đọc Ký Hiệu</h2>
+          <p style="font-size: 0.9em; color: var(--muted);">Cẩm nang thực hành giúp bạn làm chủ công thức và cách triển khai code thực tế.</p>
+          <div class="box trans" style="display: inline-block; text-align: left; max-width: 800px; font-size: 0.8em;">
+            <span class="lbl">Nội dung khối này:</span>
+            • Hướng dẫn chi tiết cách thu thập dữ liệu đầu vào cho các tham số<br>
+            • Pipeline triển khai bằng thư viện Python thực tế<br>
+            • Bảng tra cứu cách đọc tên các ký hiệu toán học Việt - Anh
+          </div>
+          <p class="hint">↓ Bấm phím mũi tên Xuống để tiếp tục học</p>
+        </div>
+      </section>
+
+      <section>
+        <h3>Cách Thu Thập Dữ Liệu Cho Tham Số</h3>
+        <div class="box idea" style="font-size: 0.76em; line-height: 1.45;">
+          <span class="lbl">1. Ma trận tài liệu $X$ (Kích thước $d \times D$ hoặc $D \times d$)</span>
+          • <b>Data cần collect:</b> Tập hợp $D$ tài liệu văn bản thô. Không cần xoá stop words.<br>
+          • <b>Mô hình cần dùng:</b> Sentence Transformer (ví dụ: `all-MiniLM-L6-v2` có $d = 384$). Đưa tài liệu qua mô hình để sinh ra ma trận vector $X$.
+        </div>
+        <div class="box tech" style="font-size: 0.76em; line-height: 1.45;">
+          <span class="lbl">2. Ma trận từ vựng $V$ (Kích thước $V_{vocab} \times d$)</span>
+          • <b>Data cần collect:</b> Danh sách $V_{vocab}$ từ duy nhất xuất hiện trong kho ngữ liệu.<br>
+          • <b>Mô hình cần dùng:</b> Bắt buộc phải đưa danh sách từ này qua <b>cùng một mô hình</b> Sentence Transformer đã dùng ở bước 1 để sinh ra ma trận vector $V$.
+        </div>
+        <div class="box say" style="font-size: 0.76em; line-height: 1.45;">
+          <span class="lbl">3. Ma trận $A$ (Mixing) và $S$ (Source)</span>
+          • Được sinh ra tự động bằng cách chạy thuật toán FastICA trên ma trận $X$. Số lượng chủ đề $N$ là siêu tham số (hyperparameter) do bạn tự chọn (ví dụ: $N=20$).
+        </div>
+        <aside class="notes">Nhớ nhấn mạnh: tính nhất quán của encoder là yếu tố sống còn để các vector nằm cùng một không gian và phép chiếu W = V C^T có ý nghĩa hình học.</aside>
+      </section>
+
+      <section>
+        <h3>Triển Khai Thuật Toán Bằng Python</h3>
+        <p style="font-size: 0.75em; margin: 0;">Dưới đây là pipeline tính toán hoàn chỉnh tương đương với Phần 3.1:</p>
+        <pre><code class="language-python">from sentence_transformers import SentenceTransformer
+from sklearn.decomposition import FastICA
+import numpy as np
+
+# 1. Khởi tạo encoder chung
+model = SentenceTransformer("all-MiniLM-L6-v2") # d = 384
+
+# 2. Tạo ma trận X (tài liệu) và ma trận V (từ vựng)
+X = model.encode(documents)       # Kích thước: (D_docs x d)
+V = model.encode(vocabulary)      # Kích thước: (V_vocab x d)
+
+# 3. Chạy FastICA trên X (Giảm chiều còn N chủ đề + Whitening bên trong)
+N_topics = 20
+ica = FastICA(n_components=N_topics, whiten="unit-variance", random_state=42)
+S = ica.fit_transform(X)          # S (Source): (D_docs x N) - Tỉ lệ chủ đề trong tài liệu
+A = ica.mixing_                   # A (Mixing): (d x N) - Các trục chủ đề ngữ nghĩa
+
+# 4. Tính ma trận unmixing C (nghịch đảo giả của A)
+C = np.linalg.pinv(A)             # C: (N x d)
+
+# 5. Chiếu từ vựng lên các trục chủ đề
+W = V @ C.T                       # W: (V_vocab x N) - Toạ độ từ trên các trục
+
+# 6. Tính điểm Beta bằng công thức Combined
+W_cubed = W ** 3
+W_norm = np.linalg.norm(W, axis=1, keepdims=True) # Chuẩn ||W_j|| của từng từ j
+beta = W_cubed / W_norm           # beta: (V_vocab x N) - Điểm quan trọng của từ
+</code></pre>
+        <aside class="notes">Đây chính là mã nguồn tối giản mô tả trọn vẹn thuật toán S3. Nó rất gọn gàng và chạy cực kỳ nhanh vì chỉ sử dụng các phép toán đại số tuyến tính cơ bản.</aside>
+      </section>
+
+      <section>
+        <h3>Bảng Tra Cứu Ký Hiệu Toán Học</h3>
+        <p style="font-size: 0.78em; margin: 0 0 0.3em;">Hướng dẫn cách đọc tên tiếng Việt và tiếng Anh chuẩn của các ký hiệu trong công thức để bạn tự tin báo cáo:</p>
+        
+        <table>
+          <thead>
+            <tr>
+              <th>Ký hiệu</th>
+              <th>Tên gọi</th>
+              <th>Cách đọc tiếng Việt</th>
+              <th>Ý nghĩa trong thuật toán S³</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="sym">$\beta_{tj}$</td>
+              <td>Beta sub t, j</td>
+              <td><i>Bê-ta tê gi</i></td>
+              <td>Điểm quan trọng của từ $j$ đối với chủ đề $t$.</td>
+            </tr>
+            <tr>
+              <td class="sym">$\Theta$</td>
+              <td>Theta</td>
+              <td><i>Thi-ta</i> hoặc <i>Thê-ta</i></td>
+              <td>Góc giữa vector embedding của từ và trục chủ đề.</td>
+            </tr>
+            <tr>
+              <td class="sym">$A^+$</td>
+              <td>A plus / Pseudo-inverse</td>
+              <td><i>A cộng</i> hoặc <i>A nghịch đảo giả</i></td>
+              <td>Nghịch đảo giả Moore-Penrose của ma trận trộn $A$.</td>
+            </tr>
+            <tr>
+              <td class="sym">$C^T$</td>
+              <td>C transpose</td>
+              <td><i>C chuyển vị</i></td>
+              <td>Ma trận xoay hàng thành cột của ma trận unmixing $C$.</td>
+            </tr>
+            <tr>
+              <td class="sym">$\lVert W_j \rVert$</td>
+              <td>L2 Norm of W_j</td>
+              <td><i>Chuẩn của W gi</i></td>
+              <td>Độ dài hình học (khoảng cách Euclid) của vector từ $j$.</td>
+            </tr>
+            <tr>
+              <td class="sym">$\hat{X}$</td>
+              <td>X-hat</td>
+              <td><i>Ích-xét hắt</i> hoặc <i>X nón/mũ</i></td>
+              <td>Ma trận embedding của các tài liệu mới cần suy luận.</td>
+            </tr>
+            <tr>
+              <td class="sym">$\hat{S}$</td>
+              <td>S-hat</td>
+              <td><i>Ét-xét hắt</i> hoặc <i>S nón/mũ</i></td>
+              <td>Phân phối chủ đề dự đoán được cho tài liệu mới.</td>
+            </tr>
+          </tbody>
+        </table>
+        <aside class="notes">Việc đọc chuẩn tên các ký hiệu này sẽ giúp bạn ghi điểm chuyên nghiệp khi thuyết trình trước hội đồng hoặc giáo viên.</aside>
+      </section>
+
+      <section>
+        <h3>Đọc Thành Lời Các Công Thức</h3>
+        <div class="box idea" style="font-size: 0.85em; margin-top: 1em;">
+          <span class="lbl">1. Công thức tính góc (Angular):</span>
+          $$\beta_{tj} = \frac{W_{jt}}{\lVert W_j \rVert}$$
+          • <b>Đọc thành lời:</b> <i>"Beta tê gi bằng Vê-kép gi tê chia cho chuẩn của vector Vê-kép gi".</i><br>
+          • <b>Giải thích bản chất:</b> Điểm quan trọng góc của từ $j$ đối với chủ đề $t$ bằng toạ độ của từ đó trên trục $t$, chia cho độ dài vector của từ đó.
+        </div>
+        
+        <div class="box tech" style="font-size: 0.85em; margin-top: 1em;">
+          <span class="lbl">2. Công thức suy luận (Inference):</span>
+          $$\hat{S} = \hat{X} \cdot C^T$$
+          • <b>Đọc thành lời:</b> <i>"Ét-xét hắt bằng Ích-xét hắt nhân C chuyển vị".</i><br>
+          • <b>Giải thích bản chất:</b> Ma trận chủ đề của tài liệu mới bằng ma trận embedding tài liệu mới nhân với ma trận unmixing đã được chuyển vị.
+        </div>
+        <aside class="notes">Hãy tập đọc to vài lần để tạo phản xạ tự nhiên. Điều này rất có ích cho việc ghi nhớ sâu kiến thức học tập.</aside>
+      </section>
+
+      <section>
+        <h3>Checklist Tự Kiểm Tra Kiến Thức</h3>
+        <div class="box tech" style="font-size: 0.8em; margin-top: 1em;">
+          <span class="lbl">Hãy chắc chắn bạn trả lời được các câu hỏi sau trước khi kết thúc học tập:</span>
+          <ul style="margin: 0.2em 0;">
+            <li>[ ] Tại sao S³ coi chủ đề là một <b>Trục ngữ nghĩa độc lập</b> thay vì một cụm tài liệu?</li>
+            <li>[ ] Bản chất của Phân tích Thành phần Độc lập (ICA) là gì? Nó khác PCA ở điểm nào?</li>
+            <li>[ ] Vai trò của ma trận trộn $A$, ma trận nguồn $S$ và ma trận unmixing $C$ trong S³?</li>
+            <li>[ ] Tại sao S³ cần bước Whitening (làm trắng) và giảm chiều?</li>
+            <li>[ ] Phân biệt ý nghĩa hình học và công dụng của điểm Axial vs điểm Angular?</li>
+            <li>[ ] Tại sao công thức Combined lại sử dụng luỹ thừa bậc 3 ($W_{jt}^3$)?</li>
+            <li>[ ] Quy trình thu thập dữ liệu đầu vào cho tài liệu ($X$) và từ vựng ($V$) diễn ra thế nào?</li>
+            <li>[ ] Cách đọc chuẩn của các ký hiệu $\beta_{tj}$, $\Theta$, $A^+$ và $C^T$ bằng tiếng Việt và tiếng Anh?</li>
+          </ul>
+        </div>
+        <p class="hint">Đã tích đủ 8 ô? Xin chúc mừng, bạn đã làm chủ hoàn toàn toán học đứng sau S³!</p>
+        <aside class="notes">Đây là cẩm nang ôn tập nhanh. Hãy dùng nó trước mỗi buổi thảo luận nhóm hoặc thi cử để hệ thống hóa kiến thức.</aside>
+      </section>
+    </section>
+
+  </div>
+</div>
+
+<!-- Nút mở Menu nhanh cho Slide (Phím tắt M) -->
+<button id="qnav" title="Menu (M)" style="position: fixed; top: 16px; left: 16px; z-index: 40; width: 42px; height: 42px; border-radius: 50%; border: none; background: var(--accent); color: #fff; font-size: 20px; cursor: pointer; box-shadow: 0 4px 10px rgba(26,115,232,0.3); display: flex; align-items: center; justify-content: center; transition: all 0.2s;">☰</button>
+<div id="qov" style="position: fixed; inset: 0; background: rgba(32,33,36,0.4); z-index: 38; opacity: 0; pointer-events: none; transition: opacity 0.25s;"></div>
+<nav id="qpan" aria-hidden="true" style="position: fixed; top: 0; left: 0; bottom: 0; width: 280px; z-index: 39; background: #fff; box-shadow: 4px 0 20px rgba(0,0,0,0.1); transform: translateX(-100%); transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); padding: 70px 20px 20px; overflow-y: auto; font-family: 'Outfit', sans-serif;">
+  <h4 style="margin: 0 0 1em; color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 800;">Mục lục Slide</h4>
+  <a href="#/0">Trang bìa mở đầu</a>
+  <a href="#/1">Khối A: Bản dịch Phần 3 & 3.1</a>
+  <a href="#/2">Khối B: Khái niệm nền ICA / FastICA</a>
+  <a href="#/3">Khối C: Mổ xẻ 3 công thức Word Importance</a>
+  <a href="#/4">Khối D: Thu thập dữ liệu & Ký hiệu toán học</a>
+</nav>
+
+<style>
+  #qpan.open { transform: translateX(0) !important; }
+  #qov.open { opacity: 1 !important; pointer-events: auto !important; }
+  #qpan a { display: block; padding: 0.6em 0.8em; margin: 0.2em 0; border-radius: 8px; color: var(--ink); text-decoration: none; font-size: 14px; font-weight: 600; transition: all 0.2s; }
+  #qpan a:hover { background: var(--accent-light); color: var(--accent); }
+  #qnav:hover { transform: scale(1.08); background: #1557b0; }
+</style>
+
+<!-- Reveal.js và Plugins qua CDN -->
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reveal.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/plugin/notes/notes.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/plugin/highlight/highlight.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/plugin/math/math.js"></script>
+
+<script>
+  // Khởi tạo Reveal.js với các Plugin hỗ trợ
+  Reveal.initialize({
+    hash: true,
+    progress: true,
+    slideNumber: 'c/t',
+    transition: 'slide',
+    width: 1100,
+    height: 740,
+    margin: 0.06,
+    plugins: [ RevealNotes, RevealHighlight, RevealMath.KaTeX ],
+    katex: {
+      delimiters: [
+        { left: '$$', right: '$$', display: true },
+        { left: '$', right: '$', display: false },
+        { left: '\\[', right: '\\]', display: true },
+        { left: '\\(', right: '\\)', display: false }
+      ]
+    }
+  });
+
+  // Code điều khiển thanh Menu nhanh
+  (function() {
+    var btn = document.getElementById('qnav');
+    var pan = document.getElementById('qpan');
+    var ov = document.getElementById('qov');
+    
+    function toggleMenu(show) {
+      pan.classList.toggle('open', show);
+      ov.classList.toggle('open', show);
+      pan.setAttribute('aria-hidden', String(!show));
+    }
+    
+    btn.addEventListener('click', function() {
+      toggleMenu(!pan.classList.contains('open'));
+    });
+    
+    ov.addEventListener('click', function() {
+      toggleMenu(false);
+    });
+    
+    pan.querySelectorAll('a').forEach(function(link) {
+      link.addEventListener('click', function() {
+        toggleMenu(false);
+      });
+    });
+    
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') {
+        toggleMenu(false);
+      }
+      // Nhấn phím M để bật/tắt nhanh Menu
+      var activeEl = document.activeElement && document.activeElement.tagName;
+      if (activeEl === 'INPUT' || activeEl === 'TEXTAREA') return;
+      if (e.key === 'm' || e.key === 'M') {
+        toggleMenu(!pan.classList.contains('open'));
+      }
+    });
+  })();
+</script>
+</body>
+</html>
