@@ -407,20 +407,106 @@
         <div class="center">
           <span class="badge green">Khối B</span>
           <h2 style="border-bottom: none; margin: 0.2em 0;">Khái Niệm Nền Tảng Cho Người Mới</h2>
-          <p style="font-size: 0.9em; color: var(--muted);">Tìm hiểu sâu về trực giác toán học đứng sau thuật toán.</p>
-          <div class="box tech" style="display: inline-block; text-align: left; max-width: 800px; font-size: 0.8em;">
-            <span class="lbl">Nội dung khối này:</span>
-            • Bản chất ICA & Ẩn dụ Cocktail Party<br>
-            • So sánh chi tiết PCA vs ICA<br>
-            • Thuật toán FastICA & Whitening tiền xử lý<br>
-            • Ý nghĩa & kích thước các ma trận $X, A, S, V, C, W$
+          <p style="font-size: 0.9em; color: var(--muted);">Giải thích cặn kẽ trực giác toán học và quy trình hoạt động bằng các ví dụ trực quan.</p>
+          <div class="box tech" style="display: inline-block; text-align: left; max-width: 850px; font-size: 0.76em;">
+            <span class="lbl">Các khái niệm sẽ được làm rõ:</span>
+            • Không gian embedding liên tục là gì? &nbsp;·&nbsp; Dense embedding là gì?<br>
+            • Bài toán Cocktail Party & Phân biệt PCA vs ICA<br>
+            • Ý nghĩa Ma trận trộn A & Phép làm trắng Whitening<br>
+            • Tại sao FastICA không nhiễu & Quy trình Train / Implement chi tiết
           </div>
-          <p class="hint">↓ Bấm phím mũi tên Xuống để bắt đầu học</p>
+          <p class="hint">↓ Bấm phím mũi tên Xuống để bắt đầu học từng khái niệm</p>
         </div>
       </section>
 
+      <!-- Slide B1: Continuous embedding space -->
       <section>
-        <h3>ICA là gì? Ẩn dụ Cocktail Party</h3>
+        <h3>1. Không gian Embedding Liên tục là gì?</h3>
+        <div class="cols">
+          <div>
+            <div class="box idea" style="font-size: 0.78em; height: 100%;">
+              <span class="lbl">Cách biểu diễn rời rạc (Cũ):</span>
+              Trong từ điển thông thường, mỗi từ là một mã số rời rạc và đứng cô lập:
+              <br><br>
+              <span class="sym">mèo = 1</span>, &nbsp;<span class="sym">chó = 2</span>, &nbsp;<span class="sym">bàn = 3</span>
+              <br><br>
+              • Ta không thể tính khoảng cách giữa "mèo" và "chó".<br>
+              • Không có khái niệm từ nằm "giữa" mèo và chó (như 1.5).
+            </div>
+          </div>
+          <div>
+            <div class="box tech" style="font-size: 0.78em; height: 100%;">
+              <span class="lbl">Không gian liên tục (S³ dùng):</span>
+              Mỗi từ/tài liệu được biểu diễn bằng một vector (tọa độ) trong không gian nhiều chiều.
+              <br><br>
+              Vì không gian là **liên tục**, ta có thể:
+              • Tính toán khoảng cách (độ gần gũi ngữ nghĩa).<br>
+              • Xác định hướng đi (mối quan hệ khái niệm).<br>
+              • Tìm các điểm trung gian nằm giữa các từ.
+            </div>
+          </div>
+        </div>
+        <aside class="notes">Nhấn mạnh tính liên tục cho phép thực hiện các phép toán đại số tuyến tính như chiếu vector, đo góc cosine, cộng trừ ngữ nghĩa.</aside>
+      </section>
+
+      <!-- Slide B2: Ví dụ Continuous embedding space -->
+      <section>
+        <h3>Ví dụ: Trực quan hóa Không gian Liên tục</h3>
+        <div class="box idea" style="font-size: 0.8em;">
+          <span class="lbl">Ví dụ giả lập 2 chiều:</span>
+          Giả sử ta nhúng các loài động vật vào không gian 2 chiều:<br>
+          • <b>Chiều 1 (Trục hoành):</b> "Độ lớn cơ thể" (từ 0.0 đến 1.0)<br>
+          • <b>Chiều 2 (Trục tung):</b> "Độ thuần hóa/thân thiện" (từ 0.0 đến 1.0)
+        </div>
+        <div class="cols" style="font-size: 0.78em;">
+          <div>
+            <div class="box tech">
+              <span class="lbl">Tọa độ các từ:</span>
+              • <span class="sym">Chó nhà</span> = [0.4, 0.9]<br>
+              • <span class="sym">Mèo nhà</span> = [0.2, 0.8]<br>
+              • <span class="sym">Hổ rừng</span> = [0.9, 0.1]
+            </div>
+          </div>
+          <div>
+            <div class="box say">
+              <span class="lbl">Ý nghĩa hình học:</span>
+              • **Khoảng cách:** Chó nhà và Mèo nhà rất gần nhau (nghĩa gần nhau). Hổ rừng nằm rất xa cả hai.<br>
+              • **Điểm trung gian:** Một điểm có tọa độ [0.3, 0.85] nằm ở giữa Chó và Mèo, có thể đại diện cho một loài thú cưng nhỏ khác (ví dụ: Hamster).
+            </div>
+          </div>
+        </div>
+        <aside class="notes">Bản chất của continuous space là sự chuyển tiếp mượt mà về ngữ nghĩa dựa trên các khoảng cách số học.</aside>
+      </section>
+
+      <!-- Slide B3: Dense embedding là gì? -->
+      <section>
+        <h3>2. Dense Embedding (Embedding dày đặc)</h3>
+        <div class="cols">
+          <div>
+            <div class="box warnx" style="font-size: 0.78em; height: 100%;">
+              <span class="lbl">Sparse Vector (Vector thưa thớt - Cũ):</span>
+              • Độ dài bằng kích thước toàn bộ từ điển (ví dụ: 50.000 chiều).<br>
+              • Mỗi từ chỉ là số 1 tại vị trí của nó, còn lại là số 0.<br>
+              • **Ví dụ "mèo":** $[0, 0, 0, 0, 1, 0, \dots, 0]$ (dài 50.000, 99.9% là số 0).<br>
+              • Rất tốn bộ nhớ, thưa thớt, không giữ được quan hệ ngữ nghĩa.
+            </div>
+          </div>
+          <div>
+            <div class="box tech" style="font-size: 0.78em; height: 100%;">
+              <span class="lbl">Dense Vector (Vector dày đặc - S³ dùng):</span>
+              • Kích thước nhỏ và cố định (ví dụ: 384 hoặc 768 chiều).<br>
+              • **Mọi phần tử đều là các số thực khác 0** (dày đặc).<br>
+              • **Ví dụ "mèo":** $[0.12, -0.45, 0.78, \dots, -0.09]$ (dài 384).<br>
+              • Mỗi số thực biểu thị một nét nghĩa ẩn được nén lại (size, lông, chân, thú cưng...).
+            </div>
+          </div>
+        </div>
+        <aside class="notes">Mô hình S3 chỉ hoạt động được trên các dense vector liên tục này vì ICA cần các phân phối số thực để tính hiệp phương sai và Negentropy.</aside>
+      </section>
+
+      <!-- Slide B4: ICA cocktail party -->
+      <section>
+        <h3>3. ICA là gì? Ẩn dụ Cocktail Party</h3>
         <div class="cols">
           <div>
             <div class="box idea" style="font-size: 0.8em; height: 100%;">
@@ -443,6 +529,7 @@
         <aside class="notes">Mấu chốt của ICA là giả định các nguồn tín hiệu gốc độc lập thống kê với nhau. Từ đó tách nguồn mà không cần thông tin vị trí hay đặc trưng nguồn.</aside>
       </section>
 
+      <!-- Slide B5: PCA vs ICA -->
       <section>
         <h3>So Sánh Cốt Lõi: PCA vs ICA</h3>
         <p style="font-size: 0.8em; margin: 0;">Hiểu đúng sự khác biệt để tránh nhầm lẫn bản chất hai thuật toán:</p>
@@ -484,38 +571,162 @@
         <aside class="notes">Hãy lấy ví dụ y = x^2 để chứng minh không tương quan tuyến tính nhưng hoàn toàn phụ thuộc vào nhau. Đó là lý do PCA thất bại trong việc tách chủ đề.</aside>
       </section>
 
+      <!-- Slide B6: Mixing Matrix A -->
       <section>
-        <h3>FastICA & Tiền Xử Lý Whitening</h3>
-        <div class="box idea" style="font-size: 0.8em;">
-          <span class="lbl">Trực giác về FastICA:</span>
-          Theo Định lý giới hạn trung tâm, tổng các biến ngẫu nhiên độc lập trông sẽ "Gaussian" hơn các biến thành phần. ICA đi tìm hướng <b>ít Gaussian nhất (phi-Gaussian nhất)</b> để lấy lại các nguồn độc lập gốc. FastICA sử dụng Negentropy để đo tính phi-Gaussian này.
+        <h3>4. Ma Trận Trộn (Mixing Matrix) A là gì?</h3>
+        <div class="box trans" style="font-size: 0.78em;">
+          <span class="lbl">Định nghĩa:</span>
+          Ma trận trộn $A$ (kích thước $d \times N$) chính là "công thức" cho biết các nguồn chủ đề độc lập được trộn lại với nhau theo tỷ lệ nào để tạo ra vector embedding tài liệu quan sát được. Mỗi cột của $A$ đại diện cho tọa độ của một trục chủ đề trong không gian embedding $d$ chiều.
         </div>
-        
-        <div class="box tech" style="font-size: 0.78em;">
-          <span class="lbl">Tại sao cần bước Whitening (Làm trắng)?</span>
-          FastICA giả định mô hình không nhiễu. Whitening là bước biến đổi tuyến tính để biến "đám mây" dữ liệu hình elip dài thành hình cầu tròn trịa (phương sai các chiều = 1, không tương quan tuyến tính).
+        <div class="box idea" style="font-size: 0.78em;">
+          <span class="lbl">Ví dụ cụ thể (Giả sử kho văn bản có 2 chủ đề, embedding dài 3 chiều):</span>
+          Gọi 2 chủ đề là $T_1$ (Tech) và $T_2$ (Sports). Ma trận trộn $A$ học được là:
+          $$A = \begin{bmatrix} 0.8 & 0.1 \\ -0.2 & 0.9 \\ 0.5 & -0.3 \end{bmatrix}$$
+          (Cột 1 đại diện cho hướng đi của Tech, Cột 2 đại diện cho hướng đi của Sports).
+          <br>
+          Một bài báo chứa 70% nội dung Tech và 30% nội dung Sports, tức là vector nguồn $S = \begin{bmatrix} 0.7 \\ 0.3 \end{bmatrix}$.
+          <br>
+          Embedding tài liệu quan sát được $X$ sẽ được tạo ra bằng cách nhân $A \cdot S$:
+          $$X = \begin{bmatrix} 0.8 \cdot 0.7 + 0.1 \cdot 0.3 \\ -0.2 \cdot 0.7 + 0.9 \cdot 0.3 \\ 0.5 \cdot 0.7 + (-0.3) \cdot 0.3 \end{bmatrix} = \begin{bmatrix} 0.59 \\ 0.13 \\ 0.26 \end{bmatrix}$$
         </div>
-        
-        <div class="box warnx" style="font-size: 0.78em;">
-          <span class="lbl">Bí mật giảm chiều của S³:</span>
-          Trong bước Whitening, S³ sử dụng SVD để chỉ giữ lại $N$ thành phần chính đầu tiên. Như vậy, <b>S³ thực chất sử dụng PCA để giảm chiều + làm trắng trước, rồi mới chạy FastICA để xoay trục tìm độc lập.</b>
-        </div>
-        <aside class="notes">Mô hình S3 thực chất là một chuỗi xử lý tinh tế: Embedding -> PCA (để giảm chiều & whitening) -> FastICA (để xoay trục đạt độc lập thống kê).</aside>
+        <aside class="notes">ICA làm việc ngược lại: chỉ biết X, đi tìm A và S. Khi tìm được A, ta biết được tọa độ của các trục chủ đề trong không gian embedding.</aside>
       </section>
 
+      <!-- Slide B7: Whitening là làm gì? -->
       <section>
-        <h3>Ý Nghĩa & Kích Thước Các Ma Trận</h3>
-        <p style="font-size: 0.78em; margin: 0 0 0.3em;">Để lập trình đúng thuật toán, hãy nắm chắc kích thước các ma trận trong không gian $d$ chiều với $D$ tài liệu, $V_{vocab}$ từ vựng và $N$ chủ đề:</p>
-        
+        <h3>5. Phép Làm Trắng (Whitening) hoạt động ra sao?</h3>
+        <div class="cols">
+          <div>
+            <div class="box idea" style="font-size: 0.78em; height: 100%;">
+              <span class="lbl">Ví dụ về tương quan (Height & Weight):</span>
+              Giả sử ta thu thập Chiều cao và Cân nặng của một nhóm người.
+              <br><br>
+              • Hai biến này tương quan rất mạnh (người cao thường nặng cân).<br>
+              • Đồ thị phân tán sẽ là một elip lệch xiên góc.<br>
+              • Sự tương quan này làm nhiễu thuật toán ICA, vì năng lượng dữ liệu bị dồn cục theo hướng đường chéo elip.
+            </div>
+          </div>
+          <div>
+            <div class="box tech" style="font-size: 0.78em; height: 100%;">
+              <span class="lbl">Whitening giải quyết thế nào:</span>
+              Phép làm trắng thực hiện biến đổi tuyến tính qua 3 bước:
+              <br><br>
+              1. **Trừ trung bình:** Đưa tâm elip về gốc tọa độ $0$.<br>
+              2. **Decorrelate (Xoay):** Xoay elip nằm thẳng đứng/ngang (bằng PCA).<br>
+              3. **Scale (Co giãn):** Co giãn các trục sao cho phương sai cả 2 chiều đều bằng 1.<br><br>
+              • **Kết quả:** Elip nghiêng biến thành một **hình tròn hoàn hảo**.
+            </div>
+          </div>
+        </div>
+        <aside class="notes">Sau khi làm trắng, mọi hướng trong không gian đều có năng lượng như nhau, FastICA có thể tự do xoay trục để tìm hướng độc lập tối ưu nhất.</aside>
+      </section>
+
+      <!-- Slide B8: Whitening diagram -->
+      <section>
+        <h3>Whitening (làm trắng) — vì sao bắt buộc?</h3>
+        <svg class="diagram" viewBox="0 0 760 190" style="width:min(720px,86%)" role="img" aria-label="Whitening: elip nghiêng thành hình cầu rồi ICA xoay trục">
+          <text x="115" y="20" font-size="12" fill="#64748b" text-anchor="middle" font-weight="700">① Gốc (elip nghiêng)</text>
+          <g transform="translate(115,105) rotate(-30)"><ellipse cx="0" cy="0" rx="78" ry="28" fill="#dbeafe" stroke="#2563eb"/>
+            <g fill="#2563eb"><circle cx="-48" cy="-6" r="3"/><circle cx="-18" cy="5" r="3"/><circle cx="12" cy="-6" r="3"/><circle cx="42" cy="7" r="3"/></g></g>
+          <text x="250" y="110" font-size="24" fill="#94a3b8" text-anchor="middle">→</text>
+          <text x="385" y="20" font-size="12" fill="#64748b" text-anchor="middle" font-weight="700">② Whitened (cầu, var=1)</text>
+          <circle cx="385" cy="105" r="48" fill="#f0fdf4" stroke="#16a34a"/>
+          <g fill="#16a34a"><circle cx="360" cy="95" r="3"/><circle cx="400" cy="92" r="3"/><circle cx="378" cy="118" r="3"/><circle cx="405" cy="122" r="3"/></g>
+          <text x="520" y="110" font-size="24" fill="#94a3b8" text-anchor="middle">→</text>
+          <text x="640" y="20" font-size="12" fill="#64748b" text-anchor="middle" font-weight="700">③ ICA xoay về trục độc lập</text>
+          <circle cx="640" cy="105" r="48" fill="#ecfeff" stroke="#0891b2" opacity=".6"/>
+          <line x1="595" y1="135" x2="685" y2="75" stroke="#0891b2" stroke-width="3"/><line x1="602" y1="78" x2="680" y2="135" stroke="#0891b2" stroke-width="3"/>
+        </svg>
+        <div class="box tech" style="font-size:.82em;"><span class="lbl">WHITENING = xoay + co giãn</span>
+          Biến đám mây điểm sao cho <b>mọi chiều có phương sai = 1 và không tương quan</b> (thành hình cầu). Thực hiện bằng <b>SVD/PCA</b>. FastICA là mô hình <b>noiseless</b> nên cần bước này để bài toán "sạch".</div>
+        <div class="box warnx" style="font-size:.82em;"><span class="lbl">GIẢM CHIỀU Ở ĐÂY</span>
+          Ngay trong whitening, S³ chỉ giữ <b>N thành phần chính đầu</b> (N = số topic) → embedding từ D chiều còn N chiều. ⇒ "Có một bước giống <b>PCA</b> bên trong, rồi <b>ICA</b> mới xoay trục cho độc lập". S³ <b>không</b> chỉ là PCA.</div>
+        <aside class="notes">Câu hỏi kinh điển "S³ khác PCA không?": PCA chỉ là bước dọn dẹp (whitening+giảm chiều); phần quyết định là ICA.</aside>
+      </section>
+
+      <!-- Slide B9: Noiseless model -->
+      <section>
+        <h3>6. Tại sao FastICA là mô hình Không nhiễu (Noiseless)?</h3>
+        <div class="cols">
+          <div>
+            <div class="box warnx" style="font-size: 0.78em; height: 100%;">
+              <span class="lbl">Mô hình có nhiễu (Noisy ICA):</span>
+              $$X = A \cdot S + \eta$$
+              (Trong đó $\eta$ là ma trận sai số/nhiễu).
+              <br><br>
+              • Sát thực tế hơn.<br>
+              • **Tuy nhiên:** Việc tính toán cực kỳ phức tạp và chậm chạp vì phải tối ưu hóa phân phối của nhiễu.
+            </div>
+          </div>
+          <div>
+            <div class="box tech" style="font-size: 0.78em; height: 100%;">
+              <span class="lbl">Mô hình không nhiễu (Noiseless ICA):</span>
+              $$X = A \cdot S$$
+              FastICA giả định bản trộn quan sát được tạo ra hoàn hảo từ nguồn mà không có nhiễu.
+              <br><br>
+              • **Tại sao dùng?** Vì không có nhiễu, việc gỡ trộn chỉ đơn giản là tìm ma trận nghịch đảo giả: $S = A^+ \cdot X$.<br>
+              • **Tốc độ:** Chạy giải tích thuần túy, mang lại tốc độ chạy tức thời (nhanh gấp hàng chục lần mạng nơ-ron).
+            </div>
+          </div>
+        </div>
+        <aside class="notes">Giả định noiseless giúp loại bỏ các bước tối ưu hóa phân phối lỗi phức tạp, giữ lại các phép đại số tuyến tính sạch sẽ và nhanh chóng.</aside>
+      </section>
+
+      <!-- Slide B10: Quy trình Train -->
+      <section>
+        <h3>7. Quy Trình Huấn Luyện (Training Workflow) của S³</h3>
+        <div class="box tech" style="font-size: 0.78em; margin: 0.2em 0;">
+          <span class="lbl">Mục tiêu:</span>
+          Đi từ kho văn bản thô $D$ tài liệu để học được Ma trận trộn $A$ (các trục chủ đề) và Ma trận nguồn $S$ (phân phối chủ đề của tài liệu).
+        </div>
+        <div class="box idea" style="font-size: 0.75em; line-height: 1.45;">
+          • **Bước 1: Mã hóa tài liệu (Encoding)**<br>
+          Dùng Sentence Transformer mã hóa $D$ tài liệu thành ma trận embedding $X$ kích thước $D \times d$.
+          <br>
+          • **Bước 2: Làm trắng & Giảm chiều (Whitening & Dimension Reduction)**<br>
+          Tính ma trận hiệp phương sai của $X$. Sử dụng SVD để dọn dẹp tương quan và giảm chiều dữ liệu từ $d$ chiều xuống đúng $N$ chủ đề (giữ lại $N$ principal components lớn nhất). Thu được ma trận whitened $X_{white}$ ($D \times N$).
+          <br>
+          • **Bước 3: Tối ưu FastICA (FastICA Optimization)**<br>
+          Chạy thuật toán FastICA trên $X_{white}$ để tìm ma trận xoay trực giao $W_{ica}$ ($N \times N$) nhằm cực đại hóa tính phi-Gaussian (Negentropy), tách biệt các nguồn chủ đề.
+          <br>
+          • **Bước 4: Trích xuất các ma trận**<br>
+          Thu được ma trận trộn $A$ ($d \times N$) chứa tọa độ các trục chủ đề trong không gian gốc và ma trận nguồn $S$ ($N \times D$) chứa độ quan trọng chủ đề trong tài liệu.
+        </div>
+        <aside class="notes">Đây là 4 bước chính trong pha huấn luyện của S3. Toàn bộ quá trình chỉ là đại số tuyến tính không lặp gradient học sâu.</aside>
+      </section>
+
+      <!-- Slide B11: Quy trình Implement & Inference -->
+      <section>
+        <h3>8. Quy Trình Triển Khai & Suy Luận (Inference)</h3>
+        <div class="box tech" style="font-size: 0.78em; margin: 0.2em 0;">
+          <span class="lbl">Mục tiêu:</span>
+          Chiếu từ vựng lên các trục chủ đề đã học để trích xuất từ khóa, và dự đoán chủ đề cho tài liệu mới.
+        </div>
+        <div class="box idea" style="font-size: 0.75em; line-height: 1.45;">
+          • **Bước 1: Tính ma trận Unmixing $C$**<br>
+          Tính nghịch đảo giả Moore-Penrose của ma trận trộn $A$: $C = A^+$ (kích thước $N \times d$).
+          <br>
+          • **Bước 2: Mã hóa từ vựng $V$**<br>
+          Trích xuất danh sách $V_{vocab}$ từ đơn trong kho ngữ liệu. Mã hóa bằng **cùng một** Sentence Transformer để thu được ma trận $V$ ($V_{vocab} \times d$).
+          <br>
+          • **Bước 3: Chiếu từ vựng lên các trục chủ đề**<br>
+          Nhân ma trận: $W = V \cdot C^T$ ($V_{vocab} \times N$). Phần tử $W_{jt}$ là tọa độ của từ $j$ trên trục chủ đề $t$.
+          <br>
+          • **Bước 4: Tính điểm từ $\beta_{tj}$**<br>
+          Áp dụng công thức Combined: $\beta_{tj} = \frac{(W_{jt})^3}{\lVert W_j \rVert}$. Lọc Top từ mô tả chủ đề.
+          <br>
+          • **Bước 5: Suy luận tài liệu mới (Inference)**<br>
+          Với tài liệu mới $\hat{X}$ ($D_{new} \times d$), tính toán phân phối chủ đề bằng một phép nhân duy nhất:
+          <div class="formula-display" style="font-size: 1.1em; margin: 0.1em 0; padding: 0.1em;">\(\hat{S} = \hat{X} \cdot C^T\)</div>
+        </div>
+        <aside class="notes">Inference cực nhanh vì chỉ là một phép nhân ma trận tĩnh, không cần chạy lại FastICA hay tinh chỉnh tham số.</aside>
+      </section>
+
+      <!-- Slide B12: 6 ma trận -->
+      <section>
+        <h3>9. 6 Ma Trận — Vai Trò & Kích Trước</h3>
         <table>
-          <thead>
-            <tr>
-              <th>Ký hiệu</th>
-              <th>Tên ma trận</th>
-              <th>Kích thước</th>
-              <th>Ý nghĩa thực tế</th>
-            </tr>
-          </thead>
+          <thead><tr><th>Ký hiệu</th><th>Tên</th><th>Kích thước</th><th>Là gì</th></tr></thead>
           <tbody>
             <tr>
               <td class="sym">X</td>
@@ -555,7 +766,18 @@
             </tr>
           </tbody>
         </table>
-        <aside class="notes">Hãy ghi nhớ các kích thước này, chúng rất quan trọng khi viết mã nguồn bằng numpy hoặc pytorch để thực hiện các phép nhân ma trận.</aside>
+        <div class="box say" style="font-size:.8em;"><span class="lbl">MẸO NHỚ</span><b>A</b> = "topic là gì" · <b>S</b> = "tài liệu nào thuộc topic nào" · <b>W</b> = "từ nào mô tả topic nào".</div>
+        <aside class="notes">Đừng nhầm A và S: A giữ định nghĩa topic (hướng), S giữ độ mạnh topic theo tài liệu.</aside>
+      </section>
+
+      <!-- Slide B13: Pseudo-inverse -->
+      <section>
+        <h3>10. Pseudo-inverse A⁺ & Phép Chiếu W = V Cᵀ</h3>
+        <div class="box tech" style="font-size:.84em;"><span class="lbl">PSEUDO-INVERSE (giả nghịch đảo) \( A^{+} \)</span>
+          Ma trận vuông "đẹp" có nghịch đảo \( A^{-1} \) (giống 1/x). Ma trận <b>không vuông</b> như A (D×N) không có nghịch đảo thường → dùng <b>pseudo-inverse Moore–Penrose</b> \( A^{+} \): "nghịch đảo gần đúng tốt nhất". Thư viện NumPy tính bằng <span class="sym">np.linalg.pinv(A)</span>.</div>
+        <div class="box idea" style="font-size:.84em;"><span class="lbl">PHÉP CHIẾU \( W = V\,C^{T} \)</span>
+          Nhân embedding từng từ (<b>V</b>) với ma trận gỡ trộn đã chuyển vị (<b>Cᵀ</b>) → đặt mỗi từ vào hệ trục topic. Kết quả <b>W[j,t]</b> = "từ <i>j</i> nằm ở đâu trên trục topic <i>t</i>". Đây là dữ liệu đầu vào cho 3 công thức ở khối C.</div>
+        <aside class="notes">Chuyển vị (transpose) chỉ là "lật hàng thành cột" để phép nhân ma trận khớp kích thước.</aside>
       </section>
     </section>
 

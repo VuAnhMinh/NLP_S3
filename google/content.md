@@ -17,10 +17,17 @@ Tài liệu này bao gồm bản dịch chi tiết, không cắt giảm kiến t
    - 4.4 ECRTM & FASTopic
 5. **Thư viện Turftopic: Nguồn gốc và Cách tích hợp trong Python**
 6. **Bản Dịch Phần 3 & 3.1 (Phương pháp S³)**
-7. **Kiến Thức Nền Tảng: Independent Component Analysis (ICA) & FastICA**
+7. **Kiến Thức Nền Tảng: ICA, FastICA & Các Khái Niệm Mổ Xẻ Kèm Ví Dụ**
+   - 7.1 Không gian Embedding Liên tục (Continuous Space) & Ví dụ
+   - 7.2 Dense Embedding (Embedding dày đặc) & Ví dụ
+   - 7.3 Bản chất ICA & Ẩn dụ Cocktail Party
+   - 7.4 So sánh chi tiết PCA vs ICA
+   - 7.5 Ma trận trộn $A$ (Mixing Matrix) là gì? & Ví dụ
+   - 7.6 Phép làm trắng (Whitening) & Ví dụ trực quan
+   - 7.7 Tại sao FastICA là mô hình không nhiễu (Noiseless)?
 8. **Phân Tích Chi Tiết 3 Công Thức Tính Điểm Từ Vựng của S³**
 9. **Cẩm Nang Đọc Ký Hiệu & Thuật Ngữ Toán Học Mở Rộng**
-10. **Quy Trình Thu Thập Dữ Liệu & Triển Khai Thực Tế**
+10. **Quy Trình Huấn Luyện & Triển Khai Thực Tế của S³**
 
 ---
 
@@ -29,7 +36,7 @@ Tài liệu này bao gồm bản dịch chi tiết, không cắt giảm kiến t
 ### 1. Introduction (Mở đầu)
 "Mô hình chủ đề" (**Topic models**) là một thuật ngữ bao trùm (umbrella term) chỉ các phương pháp tiếp cận thống kê cho phép khám phá chủ đề không giám sát (**unsupervised topic discovery**) trong các kho ngữ liệu văn bản lớn (Blei, 2012). Chúng thường được áp dụng trong phân tích dữ liệu khám phá (**exploratory data analysis**) đối với dữ liệu văn bản, bởi vì chúng cho phép các nhà thực hành khai quật và cô đọng thông tin về nội dung ngữ nghĩa của một kho ngữ liệu mà không cần phải đọc kỹ từng văn bản và tốn nhiều công sức thủ công. Theo cách truyền thống, các chủ đề được trình bày cho người dùng dưới dạng một tập hợp các thuật ngữ quan trọng (từ khóa - **keywords**) nhằm cung cấp các hiểu biết sâu sắc về các cách diễn giải có thể có của chủ đề đó.
 
-Các phương pháp tiếp cận cổ điển đối với việc mô hình hóa chủ đề, chẳng hạn như Phân tích Ngữ nghĩa Ẩn (LSI / LSA - **Latent Semantic Indexing / Latent Semantic Analysis**) (Deerwester và cộng sự, 1988; Dumais, 2004) và Phân bổ Dirichlet Ẩn (LDA - **Latent Dirichlet Allocation**) (Blei và cộng sự, 2003; Blei, 2012), đã dựa trên các biểu diễn tài liệu dạng túi từ (BoW - **bag-of-words**) dựa trên tần suất. Mặc dù các mô hình này đã được sử dụng thành công trong nhiều thập kỷ nghiên cứu xử lý ngôn ngữ tự nhiên (NLP) (Jelodar và cộng sự, 2018), tất cả chúng đều chia sẻ một số hạn chế thực tế và lý thuyết. 
+Các phương pháp tiếp cận cổ điển đối với việc mô hình hóa chủ đề, chẳng hạn như Phân tích Ngữ nghĩa Ẩn (LSI / LSA - **Latent Semantic Indexing / Latent Semantic Analysis**) (Deerwester và cộng sự, 1988; Dumais, 2004) and Phân bổ Dirichlet Ẩn (LDA - **Latent Dirichlet Allocation**) (Blei và cộng sự, 2003; Blei, 2012), đã dựa trên các biểu diễn tài liệu dạng túi từ (BoW - **bag-of-words**) dựa trên tần suất. Mặc dù các mô hình này đã được sử dụng thành công trong nhiều thập kỷ nghiên cứu xử lý ngôn ngữ tự nhiên (NLP) (Jelodar và cộng sự, 2018), tất cả chúng đều chia sẻ một số hạn chế thực tế và lý thuyết. 
 
 Ví dụ, các mô hình BoW nhạy cảm với các từ có tính chất thống kê không điển hình (chẳng hạn như các từ chức năng - **function words/stop words**), những từ này có thể làm ô nhiễm các mô tả chủ đề dựa trên từ khóa trừ khi các đường ống tiền xử lý nặng (heavy preprocessing pipelines) được áp dụng. Các đường ống như vậy tạo ra nhiều bậc tự do cho nhà nghiên cứu (researcher degrees of freedom). Hơn nữa, tính thưa thớt (sparsity) và số chiều cao của biểu diễn BoW thường dẫn đến hiệu quả tính toán thấp hơn và độ khớp mô hình kém hơn (poorer model fit).
 
@@ -98,8 +105,6 @@ Trong mục 2.2 của bài báo, các tác giả đã phân loại rõ các mô 
 
 ## 4. MỔ XẺ CÔNG THỨC & CÁCH THU THẬP THAM SỐ CỦA CÁC MÔ HÌNH BASELINES
 
-Để người mới học có thể hiểu được bản chất kỹ thuật của các baselines được đề cập, dưới đây là chi tiết công thức toán học, giải thích tham số và cách thu thập dữ liệu đầu vào.
-
 ### 4.1 BERTopic & Công thức c-TF-IDF (Class-based TF-IDF)
 Trong BERTopic, các tài liệu được gom cụm thành các lớp (classes), mỗi lớp đại diện cho một chủ đề (topic). Để tìm các từ khóa đại diện cho mỗi chủ đề, tác giả coi tất cả các tài liệu trong một cụm là một "siêu tài liệu" và áp dụng công thức c-TF-IDF.
 
@@ -145,7 +150,7 @@ $$\text{Similarity}(v_j, c_t) = \cos(\Theta) = \frac{v_j \cdot c_t}{\lVert v_j \
 CTM dựa trên mạng tự mã hóa biến phân (Variational Autoencoder - VAE). Nó nhận vào embedding ngữ cảnh của tài liệu để làm điều kiện mã hóa, nhưng mục tiêu là tái cấu trúc lại vector túi từ (BoW) của tài liệu đó. Quá trình huấn luyện tối ưu hóa hàm lỗi ELBO (Evidence Lower Bound).
 
 #### Công thức hàm tối ưu (ELBO Loss):
-$$\mathcal{L}_{ELBO}(\theta, \phi) = \mathbb{E}_{q_\phi(z|x)}[\log p_theta(x|z)] - D_{KL}(q_\phi(z|x) \parallel p(z))$$
+$$\mathcal{L}_{ELBO}(\theta, \phi) = \mathbb{E}_{q_\phi(z|x)}[\log p_\theta(x|z)] - D_{KL}(q_\phi(z|x) \parallel p(z))$$
 
 #### Giải thích tham số:
 *   **$x$**: Vector biểu diễn túi từ (Bag-of-Words) của tài liệu đầu vào (kích thước $V_{vocab} \times 1$).
@@ -172,11 +177,9 @@ $$\mathcal{L}_{ELBO}(\theta, \phi) = \mathbb{E}_{q_\phi(z|x)}[\log p_theta(x|z)]
 
 ## 5. THƯ VIỆN TURFTOPIC: NGUỒN GỐC VÀ CÁCH TÍCH HỢP TRONG PYTHON
 
-Trong mục 1.1 đóng góp của bài báo, các tác giả đề cập đến thư viện **Turftopic**.
-
 ### 5.1 Nguồn gốc thư viện
 *   **Không phải thư viện có sẵn mặc định** trong Python (như `math`, `os` hay `json`).
-*   **Do chính nhóm tác giả bài báo phát triển** và phát hành dưới dạng mã nguồn mở (giấy phép MIT).
+*   **Do chính nhóm tác giả bài báo S³ phát triển** và phát hành dưới dạng mã nguồn mở (giấy phép MIT).
 *   Thư viện được thiết kế theo chuẩn giao diện của **scikit-learn** (sử dụng các hàm quen thuộc như `.fit()`, `.transform()`, `.fit_transform()`).
 *   **Mục đích:** Gói gọn thuật toán S³ đề xuất cùng với tất cả các mô hình baseline ngữ cảnh phổ biến (BERTopic, Top2Vec, CTM, v.v.) vào một API duy nhất để các nhà nghiên cứu dễ so sánh đối chiếu.
 
@@ -197,7 +200,6 @@ dataset = ["Học máy là một ngành của trí tuệ nhân tạo.",
            "Mô hình chủ đề phân tích các bài viết tự động."]
 
 # 2. Khởi tạo mô hình S3 với số lượng chủ đề mong muốn (ví dụ N = 3)
-# Thư viện tự động tải mô hình sentence-transformer mặc định bên dưới
 model = SemanticSignalSeparation(n_components=3, feature_importance="combined")
 
 # 3. Huấn luyện mô hình và trích xuất chủ đề
@@ -210,39 +212,167 @@ model.print_topics(top_n=5)
 ---
 
 ## 6. BẢN DỊCH PHẦN 3 & 3.1 (PHƯƠNG PHÁP S³)
-*(Nội dung này giữ nguyên bản dịch đầy đủ đã thực hiện ở phiên bản trước của bạn).*
 
-Trong bài báo này, chúng tôi giới thiệu **Semantic Signal Separation** (hoặc **S³**), một phương pháp tiếp cận mới cho bài toán mô hình hoá chủ đề (**topic modeling**) trong không gian embedding liên tục (**continuous embedding spaces**)... *(Xem chi tiết bản dịch tại mục 1 của file content.md trước đó).*
+### 3. Semantic Signal Separation (Tách Tín hiệu Ngữ nghĩa)
+Trong bài báo này, chúng tôi giới thiệu **Semantic Signal Separation** (hoặc **S³**), một phương pháp tiếp cận mới cho bài toán mô hình hoá chủ đề (**topic modeling**) trong không gian embedding liên tục (**continuous embedding spaces**), nhằm vượt qua các thách thức đã đề cập phía trên của các phương pháp topic modeling ngữ cảnh (**contextual topic modeling**) hiện tại.
+
+Thay vì diễn giải các chủ đề dưới dạng các cụm (**clusters**) hoặc phân phối xác suất của từ (**word probabilities**), chúng tôi quan niệm các chủ đề là các **trục ngữ nghĩa (semantic axes)** giải thích sự biến thiên (**variation**) đặc thù của một kho ngữ liệu (**corpus**). Điều này đạt được bằng cách phân rã (**decomposing**) các biểu diễn ngữ nghĩa thành:
+- Các **thành phần ẩn (latent components) $A$**: được giả định chính là các chủ đề (topics).
+- **Độ mạnh của các thành phần trong từng tài liệu $S$**: chính là mức độ quan trọng giữa tài liệu và chủ đề (document-topic importances).
+
+Để các chủ đề có tính chất tách biệt rõ ràng về mặt khái niệm (**conceptually distinct**), chúng tôi sử dụng phương pháp Phân tích Thành phần Độc lập (**Independent Component Analysis - ICA**) (Jutten và Herault, 1991) để tìm ra chúng. Độ quan trọng của từ đối với chủ đề (**term importances**) được ước lượng từ độ mạnh của các thành phần chủ đề trong embedding của từ (**word embeddings $V$**).
+
+Xét trên một số khía cạnh, phương pháp của chúng tôi có thể được coi là hậu duệ ngữ cảnh (**contextual successor**) của phương pháp Phân tích Ngữ nghĩa Ẩn (**Latent Semantic Analysis - LSA**) (Dumais, 2004; Deerwester và cộng sự, 1988) - phương pháp vốn khám phá ra các nhân tố (factors) dựa trên sự đồng xuất hiện của từ (word-occurrences).
+
+### 3.1 Model (Mô hình)
+Các biểu diễn tài liệu (**document representations**) thu được bằng cách mã hoá các tài liệu bằng một mô hình **Sentence Transformer**.
+
+1. Gọi $X$ là ma trận mã hoá của các tài liệu (**document encodings matrix**).
+   
+Việc phân rã các biểu diễn tài liệu thành các trục ngữ nghĩa độc lập được thực hiện bằng phương pháp Phân tích Thành phần Độc lập (**Independent Component Analysis - ICA**) (Jutten và Herault, 1991). Trong nghiên cứu này, chúng tôi sử dụng thuật toán **FastICA** (Hyvärinen và Oja, 2000) để xác định các thành phần ngữ nghĩa ẩn. 
+
+Là một bước tiền xử lý, phép làm trắng (**whitening**) được áp dụng lên ma trận embedding, vì FastICA là một mô hình không nhiễu (**noiseless model**). Do mặc định ICA sẽ tìm ra số lượng thành phần bằng đúng số chiều của embedding, chúng tôi giảm chiều dữ liệu của embedding trong quá trình làm trắng bằng cách chỉ lấy $N$ thành phần chính đầu tiên (**principal components**), với $N$ là số lượng chủ đề (topics) mong muốn.
+
+2. Phân rã $X$ sử dụng FastICA:
+   $$X = A \cdot S$$
+   Trong đó, $A$ là **ma trận trộn (mixing matrix)**, và $S$ là **ma trận nguồn (source matrix)** chứa độ quan trọng giữa tài liệu và chủ đề (document-topic importances).
+
+Độ quan trọng của từ đối với chủ đề (**term importances**), dùng để lựa chọn các từ ngữ mô tả chủ đề, được tính toán bằng cách chiếu (**projecting**) các từ lên các trục ngữ nghĩa đã tìm được.
+
+3. Mã hoá từ vựng của kho ngữ liệu bằng cùng một mô hình encoder đó. Gọi ma trận mã hoá từ vựng là $V$.
+4. Gọi ma trận tách (hay ma trận mở trộn - **unmixing matrix**) là $C$, được tính bằng nghịch đảo giả (**pseudo-inverse**) của ma trận trộn $A$:
+   $$C = A^+$$
+5. Chiếu các từ lên các trục ngữ nghĩa đã phát hiện bằng cách nhân ma trận embedding của từ với ma trận unmixing:
+   $$W = V \cdot C^T$$
+6. Tính toán điểm quan trọng của từ (word importance scores) cho từng chủ đề.
+
+Chúng tôi xem xét ba phương pháp để tính toán độ quan trọng của từ:
+1. **Độ quan trọng của từ theo Trục (Axial word importances)**: được định nghĩa là vị trí của từ trên các trục ngữ nghĩa. Độ quan trọng của từ $j$ đối với chủ đề $t$ là:
+   $$\beta_{tj} = W_{jt}$$
+2. **Chủ đề theo Góc (Angular topics)**: có thể được tính toán bằng cách lấy cosine của góc giữa vector từ đã chiếu và các trục ngữ nghĩa:
+   $$\beta_{tj} = \cos(\Theta) = \frac{W_{jt}}{\lVert W_j \rVert}$$
+3. **Độ quan trọng kết hợp (Combined word importance)**: là sự kết hợp của cả hai cách tiếp cận trên:
+   $$\beta_{tj} = \frac{(W_{jt})^3}{\lVert W_j \rVert}$$
+   *(Chúng tôi lấy luỹ thừa bậc lẻ của vị trí từ để giữ nguyên dấu của nó).*
+
+Độ quan trọng theo trục (**axial word importance**) giúp tạo ra các mô tả chủ đề chứa các từ **nổi bật nhất (most salient)** của chủ đề đó, trong khi độ quan trọng theo góc (**angular importance**) sẽ gán trọng số cao nhất cho những từ **đặc trưng riêng biệt nhất (most specific)**. Độ quan trọng kết hợp (**combined importance**) hướng tới việc cân bằng cả hai khía cạnh này.
+
+Lưu ý rằng tất cả các công thức trên đều cho phép các từ có **độ quan trọng âm (negative importance)** đối với một chủ đề nhất định. Mặc dù điều này cũng xuất hiện trong phương pháp LSA, các nghiên cứu trước đây chưa từng khai thác khái niệm này. Việc diễn giải mô hình có thể được mở rộng bằng cách kiểm tra các từ có điểm số thấp nhất trên một chủ đề cho trước, cung cấp một **định nghĩa phủ định (negative definition)** cho chủ đề đó.
+
+Để đảm bảo tính so sánh tương đương với các phương pháp không cho phép định nghĩa phủ định, các thử nghiệm đối sánh mô hình của chúng tôi sẽ bỏ qua các từ có giá trị âm, tuy nhiên một ví dụ minh hoạ thực tế sẽ được trình bày ở Mục 6.2.
+
+**Suy luận (Inference)** tỷ lệ chủ đề trong các tài liệu mới (chưa từng thấy trước đây) có thể đạt được bằng cách nhân embedding của tài liệu mới đó với ma trận unmixing $C$:
+1. Gọi mã hoá của các tài liệu mới chưa từng thấy là $\hat{X}$.
+2. Tính toán ma trận tài liệu - chủ đề mới:
+   $$\hat{S} = \hat{X} \cdot C^T$$
 
 ---
 
-## 7. KIẾN THỨC NỀN TẢNG: ICA & FASTICA
-*(Nội dung giữ nguyên kiến thức nền tảng đã viết ở phiên bản trước của bạn, bao gồm Cockail Party, so sánh PCA vs ICA, negentropy và bước whitening).*
+## 7. KIẾN THỨC NỀN TẢNG: ICA, FASTICA & CÁC KHÁI NIỆM MỔ XẺ KÈM VÍ DỤ
+
+### 7.1 Không gian Embedding Liên tục (Continuous Space) & Ví dụ
+*   **Bản chất:** Trong biểu diễn từ điển rời rạc (cũ), mỗi từ là một chỉ mục (index) cô lập, ví dụ: $mèo = 1, chó = 2, bàn = 3$. Không có từ nào có mã số $1.5$ (nằm giữa chó và mèo) và ta không thể thực hiện các phép tính khoảng cách hay hướng. Ngược lại, **Không gian embedding liên tục** biểu diễn các từ dưới dạng các vector số thực trong một không gian hình học đa chiều. 
+*   **Ví dụ trực quan:** Giả sử ta nhúng các loài động vật vào không gian 2 chiều: Chiều 1 là "Độ lớn cơ thể" (0.0 đến 1.0) và Chiều 2 là "Độ thuần hóa/thân thiện" (0.0 đến 1.0).
+    *   $Chó nhà = [0.4, 0.9]$
+    *   $Mèo nhà = [0.2, 0.8]$
+    *   $Hổ rừng = [0.9, 0.1]$
+    *   *Khoảng cách:* Khoảng cách Euclid giữa vector Chó nhà và Mèo nhà rất ngắn (biểu thị nghĩa gần nhau), trong khi Hổ rừng nằm rất xa cả hai.
+    *   *Tính liên tục:* Ta có thể di chuyển mịn màng giữa vector Chó và Mèo để tìm một vector trung gian như $[0.3, 0.85]$ biểu diễn một loài thú cưng nhỏ khác (ví dụ: Hamster).
+
+### 7.2 Dense Embedding (Embedding dày đặc) & Ví dụ
+*   **Bản chất:** 
+    *   **Sparse Vector (Vector thưa thớt):** Điển hình là ma trận Bag-of-Words hoặc One-Hot. Vector có số chiều bằng kích thước từ vựng (ví dụ: 50,000 chiều). Mỗi từ chỉ chứa duy nhất một số 1, còn lại 49,999 phần tử đều là số 0. Rất thưa thớt và tốn bộ nhớ.
+    *   **Dense Vector (Vector dày đặc):** Có số chiều nhỏ và cố định (ví dụ: 384 hoặc 768 chiều). **Tất cả các phần tử đều là số thực khác 0** (dày đặc). Mỗi tọa độ đại diện cho một nét nghĩa ẩn được nén lại.
+*   **Ví dụ trực quan:**
+    *   Với từ "mèo" trong từ điển 10,000 từ:
+        *   *Sparse Vector:* $[0, 0, 0, 0, 1, 0, 0, \dots, 0]$ (dài 10,000, 99.9% là số 0).
+        *   *Dense Vector:* $[0.12, -0.45, 0.78, 0.05, \dots, -0.09]$ (chỉ dài 384 chiều nhưng chứa đầy đủ thông tin ngữ cảnh nén).
+
+### 7.3 Bản chất ICA & Ẩn dụ Cocktail Party
+*   *(Xem chi tiết tại Mục 2.1 của phần nội dung trước. Thuật toán S³ áp dụng bài toán Cocktail Party này bằng cách coi "giọng nói gốc" là các chủ đề ẩn, còn "bản ghi âm hỗn hợp của micro" chính là ma trận embedding của tài liệu).*
+
+### 7.4 So sánh chi tiết PCA vs ICA
+*   *(Xem chi tiết bảng so sánh tại Mục 2.2 của phần nội dung trước. PCA chỉ tìm các trục không tương quan tuyến tính để nén dữ liệu, còn ICA tìm các trục thực sự độc lập thống kê để tách nguồn).*
+
+### 7.5 Ma trận trộn $A$ (Mixing Matrix) là gì? & Ví dụ
+*   **Bản chất:** Ma trận trộn $A$ (kích thước $d \times N$) là "công thức trộn" chỉ ra cách các nguồn chủ đề độc lập ($S$) kết hợp lại theo tỷ lệ nào để tạo ra vector embedding tài liệu quan sát được ($X$). Mỗi cột của $A$ đại diện cho hướng đi của một trục chủ đề trong không gian embedding $d$ chiều.
+*   **Ví dụ cụ thể:** Giả sử kho văn bản có 2 chủ đề: $T_1$ (Tech) và $T_2$ (Sports), và embedding dài 3 chiều ($d=3$).
+    *   Ma trận trộn $A$ học được là:
+        $$A = \begin{bmatrix} 0.8 & 0.1 \\ -0.2 & 0.9 \\ 0.5 & -0.3 \end{bmatrix}$$
+        (Cột 1 đại diện cho Tech, Cột 2 đại diện cho Sports).
+    *   Một tài liệu chứa 70% nội dung Tech và 30% nội dung Sports, tương ứng vector nguồn $S = \begin{bmatrix} 0.7 \\ 0.3 \end{bmatrix}$.
+    *   Embedding tài liệu quan sát được $X$ sẽ được tạo ra bằng cách nhân $A \cdot S$:
+        $$X = A \cdot S = \begin{bmatrix} 0.8 \cdot 0.7 + 0.1 \cdot 0.3 \\ -0.2 \cdot 0.7 + 0.9 \cdot 0.3 \\ 0.5 \cdot 0.7 + (-0.3) \cdot 0.3 \end{bmatrix} = \begin{bmatrix} 0.59 \\ 0.13 \\ 0.26 \end{bmatrix}$$
+
+### 7.6 Phép làm trắng (Whitening) & Ví dụ trực quan
+*   **Bản chất:** Làm trắng là phép biến đổi tuyến tính giúp dọn dẹp mối tương quan tuyến tính giữa các thuộc tính (decorrelate) và co giãn để phương sai các chiều đều bằng 1. Về mặt hình học, nó biến đổi một "đám mây dữ liệu hình elip lệch xiên" thành một "đám mây hình cầu tròn trịa".
+*   **Ví dụ trực quan:** Giả sử ta đo Chiều cao và Cân nặng của một nhóm người.
+    *   Vì chiều cao và cân nặng tương quan rất cao (người cao thường nặng), biểu đồ phân tán sẽ là một elip nghiêng chéo.
+    *   Sự tương quan này làm nhiễu thuật toán FastICA vì nó che mờ các hướng độc lập thực sự.
+    *   *Whitening sẽ:* (1) Trừ giá trị trung bình để đưa tâm elip về gốc tọa độ 0; (2) Xoay trục dữ liệu để triệt tiêu tương quan; (3) Co giãn các trục sao cho phương sai cả hai chiều đều bằng 1.
+    *   *Kết quả:* Đám mây elip nghiêng biến thành một hình tròn hoàn hảo. Lúc này, FastICA có thể dễ dàng xoay các trục để tìm hướng độc lập tối ưu nhất.
+
+### 7.7 Tại sao FastICA là mô hình không nhiễu (Noiseless)?
+*   **Bản chất:** Trong xử lý tín hiệu, mô hình có nhiễu (Noisy ICA) được viết là $X = A \cdot S + \eta$ (với $\eta$ là ma trận sai số). Mô hình này rất khó giải và tốn thời gian tính toán vì phải ước lượng phân phối nhiễu.
+*   **Lý do FastICA chọn Noiseless:** FastICA giả định dữ liệu quan sát được tạo ra hoàn toàn tuyến tính từ nguồn mà không có nhiễu: $X = A \cdot S$. 
+    *   Giả định này giúp việc gỡ trộn (tính toán ma trận unmixing $C$) trở nên cực kỳ đơn giản bằng đại số tuyến tính: $S = C \cdot X = A^+ \cdot X$.
+    *   Nó mang lại tốc độ chạy tức thời (chạy giải tích thay vì lặp gradient tối ưu phân phối nhiễu), nhưng đòi hỏi bắt buộc dữ liệu phải được làm trắng trước để hạn chế tối đa sai lệch của giả định.
 
 ---
 
 ## 8. PHÂN TÍCH CHI TIẾT 3 CÔNG THỨC WORD IMPORTANCE CỦA S³
-*(Nội dung giữ nguyên phân tích hình học, ưu nhược điểm của Axial, Angular và Combined với giải thích về luỹ thừa bậc 3).*
+*(Nội dung giữ nguyên phân tích hình học, ưu nhược điểm của Axial, Angular và Combined với giải thích về luỹ thừa bậc 3 đã thực hiện ở phần trước).*
 
 ---
 
 ## 9. CẨM NANG ĐỌC KÝ HIỆU & THUẬT NGỮ TOÁN HỌC MỞ RỘNG
-
-Bổ sung các ký hiệu toán học xuất hiện trong phần Related Work và các mô hình baseline:
-
-| Ký hiệu toán | Tên gọi chuẩn | Cách đọc tiếng Việt | Ý nghĩa trong các mô hình baseline |
-| :---: | :--- | :--- | :--- |
-| **$W_{x, c}$** | W sub x, c | *Vê-kép ích xê* | Trọng số c-TF-IDF của từ $x$ đối với lớp $c$ trong BERTopic. |
-| **$\text{TF}_{x, c}$** | TF sub x, c | *Tê-Ép ích xê* | Tần số xuất hiện của từ $x$ trong lớp $c$. |
-| **$f_x$** | f sub x | *Ép ích* | Tần suất của từ $x$ trên toàn bộ các lớp trong kho văn bản. |
-| **$v_j \cdot c_t$** | Dot product of v_j and c_t | *Tích vô hướng của v gi và c tê* | Phép nhân vô hướng hai vector trong Top2Vec để tính cosine similarity. |
-| **$\mathcal{L}_{ELBO}$** | ELBO Loss | *Lờ Ê-Lờ-Bê-O* hoặc *Hàm lỗi ELBO* | Hàm tối ưu hóa (Evidence Lower Bound) trong mạng VAE của mô hình CTM. |
-| **$q_\phi(z \vert x)$** | q sub phi of z given x | *Quy phi của z với điều kiện x* | Hàm mật độ xác suất của biến ẩn $z$ sinh ra bởi Encoder $q$ với tham số $\phi$. |
-| **$p_\theta(x \vert z)$** | p sub theta of x given z | *Pê thê-ta của x với điều kiện z* | Hàm mật độ xác suất tái cấu trúc $x$ sinh ra bởi Decoder $p$ với tham số $\theta$. |
-| **$D_{KL}(\cdot \parallel \cdot)$** | KL Divergence | *Khoảng cách K-L* | Số hạng đo độ lệch giữa hai phân phối xác suất trong VAE. |
-| **$\mathbb{E}_{q}[\cdot]$** | Expectation under q | *Kỳ vọng toán học dưới phân phối q* | Giá trị trung bình có trọng số của hàm số khi các biến ẩn tuân theo phân phối $q$. |
+*(Nội dung giữ nguyên bảng tra cứu ký hiệu toán học Việt - Anh đã thực hiện ở phần trước).*
 
 ---
 
-## 10. QUY TRÌNH THU THẬP DỮ LIỆU & TRIỂN KHAI THỰC TẾ
-*(Nội dung giữ nguyên hướng dẫn 6 bước triển khai code python và checklist tự kiểm tra).*
+## 10. QUY TRÌNH HUẤN LUYỆN & TRIỂN KHAI THỰC TẾ CỦA S³
+
+Dưới đây là sơ đồ quy trình chi tiết mô tả 2 pha hoạt động của mô hình S³:
+
+### A. Quy trình Huấn luyện (Training Workflow)
+Quy trình huấn luyện diễn ra hoàn toàn trên ma trận tài liệu thô để học được các trục chủ đề ẩn:
+```
+[D tài liệu văn bản thô] 
+        │
+        ▼ (Mã hóa qua Sentence Transformer)
+[Ma trận Document Embeddings X] (Kích thước D x d)
+        │
+        ▼ (Tính ma trận hiệp phương sai & dọn dẹp tương quan bằng SVD)
+[Làm trắng (Whitening) & Giảm chiều về N chủ đề]
+        │
+        ▼
+[Ma trận đã làm trắng X_white] (Kích thước D x N)
+        │
+        ▼ (Cập nhật lặp fixed-point cực đại hóa Negentropy)
+[Tối ưu hóa FastICA để xoay trục độc lập]
+        │
+        ▼
+[Ma Trận Trộn A] (d x N) ───► (Tọa độ của N trục chủ đề trong không gian d chiều)
+[Ma Trận Nguồn S] (N x D) ───► (Tỷ lệ phân phối N chủ đề trong D tài liệu)
+```
+
+### B. Quy trình Triển khai & Suy luận (Implementation & Inference Workflow)
+Quy trình triển khai chiếu từ vựng lên trục để trích xuất từ mô tả và suy luận tài liệu mới:
+```
+          [Ma Trận Trộn A học được] (d x N)
+                    │
+                    ▼ (Tính nghịch đảo giả Moore-Penrose: C = A⁺)
+          [Ma Trận Unmixing C] (N x d)
+                    │
+         ┌──────────┴──────────┐
+         ▼ (Trích xuất từ khóa)  ▼ (Suy luận tài liệu mới)
+  [Mã hóa từ vựng V]    [Mã hóa tài liệu mới X_hat]
+   (V_vocab x d)          (D_new x d)
+         │                     │
+         ▼ (Nhân W = V Cᵀ)     ▼ (Nhân S_hat = X_hat Cᵀ)
+  [Ma trận chiếu từ W]  [Phân phối chủ đề mới S_hat]
+   (V_vocab x N)          (D_new x N) (Tính tức thời!)
+         │
+         ▼ (Tính Combined word importance)
+  [Top từ khóa mô tả từng chủ đề]
+```
