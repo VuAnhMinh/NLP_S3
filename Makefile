@@ -47,10 +47,10 @@ rungoogle1:
 	python3 -m http.server $(PORT)
 
 open:
-	open temp/slides.html
+	open main/main.html
 
 open2:
-	open main/main.html
+	open temp/slides.html
 
 opengoogle:
 	open temp/google/google_slides.html
