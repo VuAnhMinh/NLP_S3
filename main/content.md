@@ -1,8 +1,8 @@
 # S³ — Kịch bản thuyết trình (bản "hook-first")
 
 > Thứ tự kể: **mở màn bằng Cocktail Party → cầu nối sang văn bản → ICA vs PCA khái quát → động lực & baseline → thuật toán S³ → thí nghiệm & kết quả.**
-> Nguồn nội dung: bài báo gốc *S³ — Semantic Signal Separation*, Kardos et al., ACL 2025 (tr. 633–666). Bản chi tiết từng thuật ngữ: xem `content.md`.
-> Deck đi kèm: `slides_2.html` (mở trực tiếp bằng trình duyệt, không cần deploy).
+> Nguồn nội dung: bài báo gốc *S³ — Semantic Signal Separation*, Kardos et al., ACL 2025 (tr. 633–666). Bản chi tiết từng thuật ngữ: xem `../temp/content.md`.
+> Deck đi kèm: `main.html` (mở trực tiếp bằng trình duyệt, không cần deploy).
 > Ký hiệu: **[Slide]** tiêu đề · *Ý chính* · 🎤 câu dẫn gợi ý · ⏱ thời lượng.
 
 ---

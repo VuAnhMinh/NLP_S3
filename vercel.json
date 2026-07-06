@@ -1,12 +1,13 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "rewrites": [
-    { "source": "/", "destination": "/slides.html" },
-    { "source": "/1", "destination": "/slides.html" },
-    { "source": "/2", "destination": "/slides_2.html" },
-    { "source": "/3", "destination": "/slides_3.html" },
-    { "source": "/g3", "destination": "/google/google_slides.html" },
-    { "source": "/g1", "destination": "/google/google_slides_1.html" },
-    { "source": "/g2", "destination": "/google/google_slides_1.html" }
+    { "source": "/", "destination": "/main/main.html" },
+    { "source": "/main", "destination": "/main/main.html" },
+    { "source": "/2", "destination": "/main/main.html" },
+    { "source": "/1", "destination": "/temp/slides.html" },
+    { "source": "/3", "destination": "/temp/slides_3.html" },
+    { "source": "/g1", "destination": "/temp/google/google_slides_1.html" },
+    { "source": "/g2", "destination": "/temp/google/google_slides_1.html" },
+    { "source": "/g3", "destination": "/temp/google/google_slides.html" }
   ]
 }
