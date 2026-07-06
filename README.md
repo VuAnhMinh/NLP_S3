@@ -1,61 +1,97 @@
 # NLP_S3
 
-Slide thuyết trình về bài báo **S³ — Tách Tín hiệu Ngữ nghĩa**:
+Slide thuyết trình & tài liệu học về bài báo **S³ — Semantic Signal Separation** (ACL 2025):
 https://aclanthology.org/2025.acl-long.32/
 
-Slide được viết bằng [reveal.js](https://revealjs.com/) (tải qua CDN) trong một file HTML duy nhất — không cần build, không cần cài dependency.
+Slide viết bằng [reveal.js](https://revealjs.com/) (tải qua CDN) trong file HTML đơn — **không cần build, không cần cài dependency**. Chỉ cần trình duyệt (và mạng để tải CDN).
+
+---
+
+## 👉 Anh em làm việc ở đâu?
+
+> **Làm việc chính trong thư mục [`main/`](main/).** Đây là bản thuyết trình chung của cả nhóm.
+
+- **[`main/main.html`](main/main.html)** — SLIDE CHÍNH (bản thuyết trình, mạch "hook-first" theo 4 Act).
+- **[`main/content.md`](main/content.md)** — kịch bản lời nói đi kèm (câu dẫn, thời lượng từng slide).
+
+Mọi chỉnh sửa cho buổi báo cáo → sửa 2 file trong `main/`. Các file trong `temp/` chỉ là bản nháp/tài liệu học tham khảo, **không** dùng để trình bày.
+
+---
 
 ## Cấu trúc thư mục
 
-- `slides.html` — file slide chính, mở trực tiếp là chạy được.
-- `content.md` — nội dung/ghi chú soạn thảo cho slide.
-- `2025.acl-long.32.pdf` — bài báo gốc.
-- `vercel.json` — cấu hình rewrite `/` → `/slides.html` khi deploy lên Vercel.
+```
+main/                  ← LÀM VIỆC Ở ĐÂY
+  main.html            slide chính (thuyết trình)
+  content.md           kịch bản/ghi chú cho main.html
 
-## Chạy trên local
+temp/                  ← bản nháp & tài liệu học (tham khảo)
+  slides.html          bản HỌC đầy đủ (có mục "Kiến thức nền")
+  slides_3.html        bản HỌC SÂU Phần 3 (thuật toán, cho Người 3)
+  content.md           bản chắt lọc nội dung chi tiết từng thuật ngữ
+  google/              các bản slide phụ (google_slides*.html)
 
-### Dùng Makefile (khuyên dùng)
-
-```bash
-make open   # mo slides.html truc tiep bang trinh duyet
-make serve  # chay local server tai http://localhost:8000/slides.html (PORT=xxxx de doi cong)
-make clean  # don file tam (.vercel/)
+2025.acl-long.32.pdf   bài báo gốc
+Makefile               lệnh chạy/mở/deploy nhanh
+vercel.json            cấu hình đường dẫn khi deploy Vercel
 ```
 
-### Hoặc chạy tay
+---
 
-Vì `slides.html` chỉ load tài nguyên qua CDN (không gọi API riêng), bạn có thể mở trực tiếp bằng trình duyệt:
+## Lệnh Make (chạy & mở nhanh)
 
+Gõ `make help` để xem danh sách. Đổi cổng bằng `PORT=xxxx` (mặc định 8000).
+
+| Lệnh | Việc |
+|---|---|
+| `make main` | Chạy server + mở **main/main.html** — *slide chính, dùng cái này để trình bày* |
+| `make run2` | Alias của `make main` (giữ tương thích cũ) |
+| `make run` | Chạy server + mở **temp/slides.html** (bản HỌC đầy đủ) |
+| `make run3` | Chạy server + mở **temp/slides_3.html** (HỌC SÂU Phần 3) |
+| `make rungoogle` | Chạy server + mở **temp/google/google_slides.html** |
+| `make rungoogle1` | Chạy server + mở **temp/google/google_slides_1.html** |
+| `make open` | Mở **temp/slides.html** trực tiếp (không qua server) |
+| `make open2` | Mở **main/main.html** trực tiếp (không qua server) |
+| `make opengoogle` | Mở **temp/google/google_slides.html** trực tiếp |
+| `make opengoogle1` | Mở **temp/google/google_slides_1.html** trực tiếp |
+| `make serve` | Chỉ chạy local server tại `http://localhost:8000/` (tự vào đường dẫn) |
+| `make deploy` | Deploy lên **Vercel production** (`vercel deploy --prod`) |
+| `make clean` | Xoá file tạm (`.vercel/`) |
+
+Ví dụ:
 ```bash
-# Windows
-start slides.html
-
-# macOS
-open slides.html
-
-# Linux
-xdg-open slides.html
+make main            # mở slide chính để tập thuyết trình
+make run3 PORT=9000  # mở bản học sâu Phần 3 ở cổng 9000
+make deploy          # đẩy bản mới nhất lên web
 ```
 
-Nếu trình duyệt chặn một số tính năng khi mở bằng `file://` (ví dụ do CORS), hãy chạy qua một local server đơn giản rồi mở `http://localhost:<port>`:
+Ghi chú:
+- `make main / run / run3 / ...` tự khởi động một local server rồi mở trình duyệt; nhấn `Ctrl+C` để dừng server.
+- `make open* ` mở thẳng file (`file://`) — nhanh hơn nhưng vài trình duyệt có thể chặn tính năng do CORS; khi đó dùng `make main`/`make run` (qua server) cho chắc.
+- Lệnh dùng `python3` và `open` (macOS). Máy khác chỉnh `open` thành `xdg-open` (Linux) hoặc `start` (Windows).
 
-```bash
-# Cách 1: dùng Python (có sẵn trên hầu hết máy)
-python -m http.server 8000
+---
 
-# Cách 2: dùng Node (nếu đã cài Node.js)
-npx serve .
-```
+## Xem trên web (Vercel) — mở được trên điện thoại
 
-Sau đó mở trình duyệt tại `http://localhost:8000/slides.html`.
+Dự án deploy qua **Vercel** (miễn phí). Một domain, nhiều đường dẫn (cấu hình trong `vercel.json`):
+
+| URL | Nội dung |
+|---|---|
+| `minh-internal-nlp-slides.vercel.app/` | **main/main.html** — slide chính |
+| `…/2` hoặc `…/main` | main/main.html (cùng slide chính) |
+| `…/1` | temp/slides.html (bản HỌC đầy đủ) |
+| `…/3` | temp/slides_3.html (HỌC SÂU Phần 3) |
+| `…/g1` `…/g2` `…/g3` | temp/google/... |
+
+Repo đã kết nối Git với Vercel → mỗi `git push` lên `main` sẽ **tự deploy**. Muốn đẩy ngay bản local (chưa commit) thì dùng `make deploy`.
+
+---
 
 ## Điều hướng slide
 
-- `→ / ←` hoặc `Space`: chuyển slide kế tiếp/trước đó.
+- `→ / ←` hoặc `Space`: chuyển slide kế tiếp/trước.
 - `↓ / ↑`: xuống/lên slide con (nếu có).
-- `Esc`: xem tổng quan tất cả slide (overview mode).
-- Progress bar và số thứ tự slide hiển thị ở góc dưới màn hình.
-
-## Deploy
-
-Dự án được deploy qua **Vercel**, cấu hình rewrite tại `vercel.json` để domain gốc trỏ thẳng vào `slides.html`.
+- `Esc`: xem tổng quan tất cả slide (overview).
+- `F`: toàn màn hình · `S`: speaker notes · `M`: menu nhảy nhanh theo mục.
+- Thanh tiến trình + số thứ tự slide hiển thị ở góc dưới.
