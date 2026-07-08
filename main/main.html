@@ -529,6 +529,40 @@ W = V @ C.T</code></pre>
       <div class="box key"><span class="lbl">KHUYẾN NGHỊ</span>Dùng <b>Combined</b> mặc định — ngăn một từ lọt vào nhiều topic khi nó ghi điểm cao trên nhiều trục.</div>
       <aside class="notes">Ba biến thể: S³_axi, S³_ang, S³_com. Khác nhau chủ yếu ở đánh đổi coherence↔diversity.</aside>
     </section>
+    <!-- Tổng hợp code Bước 1–6 -->
+    <section>
+      <h2>Tổng hợp: Example code cho S³ <span class="act-badge">ACT 3</span></h2>
+      <pre style="font-size:.46em;background:#fff;border-radius:8px;padding:.7em;margin:.2em 0;"><code class="language-python">from sentence_transformers import SentenceTransformer
+from sklearn.decomposition import FastICA
+from sklearn.feature_extraction.text import CountVectorizer
+import numpy as np
+
+enc = SentenceTransformer("all-MiniLM-L6-v2")   # encoder chung
+N = 10                                          # số topic mong muốn
+
+# Bước 1: embedding tài liệu + FastICA (whitening + giảm chiều còn N)
+X = enc.encode(documents)                       # (số_tài_liệu × D)
+ica = FastICA(n_components=N, whiten="unit-variance")
+
+# Bước 2: phân rã  X = A · S
+S = ica.fit_transform(X)     # (số_tài_liệu × N) = document-topic importances
+A = ica.mixing_              # (D × N) = mixing matrix = TOPIC
+
+# Bước 3: embedding TỪ VỰNG (cùng encoder)
+vocabulary = CountVectorizer().fit(documents).get_feature_names_out()
+V = enc.encode(vocabulary)   # (số_từ × D)
+
+# Bước 4: ma trận tách  C = A⁺
+C = np.linalg.pinv(A)        # (N × D) = unmixing matrix
+
+# Bước 5: chiếu từ lên trục topic  W = V · Cᵀ
+W = V @ C.T                  # (số_từ × N), W[j,t] = vị trí từ j trên trục t
+
+# Bước 6: điểm quan trọng β (Combined)
+norm = np.linalg.norm(W, axis=1, keepdims=True)   # ‖W_j‖ cho từng từ
+beta = (W ** 3) / norm       # (số_từ × N) — cột t = các từ mô tả topic t</code></pre>
+      <aside class="notes">Chốt chùm thuật toán: toàn bộ 6 bước gói trong ~20 dòng — chỉ encode + phân rã ma trận, không train mạng. (Turftopic đã gói sẵn các bước này.)</aside>
+    </section>
   </section>
 
   <!-- Nhóm: Từ negative + ví dụ §6.2 (Compass rồi Table 2) -->
