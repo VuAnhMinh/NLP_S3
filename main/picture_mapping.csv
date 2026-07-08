@@ -1,2 +1,4 @@
 picture_name,description
-figure3.png,mô tả 3 cách để tính toán xem một từ quan trọng với chủ đề như thế nào
+main/figure3.png.png,mô tả 3 cách để tính toán xem một từ quan trọng với chủ đề như thế nào
+main/figure7.png,Các khái niệm dọc theo các Trục ngữ nghĩa được trích xuất bởi S3 trong tập dữ liệu Bài báo Học máy ArXiv
+main/table2.png,các topic trong bài báo ArXiv được trích xuất bởi S3
