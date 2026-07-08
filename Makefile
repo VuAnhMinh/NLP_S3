@@ -1,6 +1,6 @@
 PORT ?= 8000
 
-.PHONY: help serve main run run2 run3 rungoogle rungoogle1 open open2 opengoogle opengoogle1 deploy clean
+.PHONY: help serve main run run2 run3 rungoogle rungoogle1 open open2 opengoogle opengoogle1 pptx openpptx deploy clean
 
 help:
 	@echo "Targets:"
@@ -12,6 +12,8 @@ help:
 	@echo "  make rungoogle1  - chay server + mo temp/google/google_slides_1.html"
 	@echo "  make open        - mo temp/slides.html   truc tiep bang trinh duyet"
 	@echo "  make open2       - mo main/main.html     truc tiep bang trinh duyet"
+	@echo "  make pptx        - dung lai main/main.pptx (PowerPoint) tu build_pptx.py"
+	@echo "  make openpptx    - mo main/main.pptx bang PowerPoint/Keynote"
 	@echo "  make deploy      - deploy len Vercel production (cap nhat / /1 /2 /3 /g...)"
 	@echo "  make clean       - xoa file tam (.vercel/)"
 
@@ -57,6 +59,12 @@ opengoogle:
 
 opengoogle1:
 	open temp/google/google_slides_1.html
+
+pptx:
+	cd main && python3 build_pptx.py
+
+openpptx:
+	open main/main.pptx
 
 deploy:
 	vercel deploy --prod
