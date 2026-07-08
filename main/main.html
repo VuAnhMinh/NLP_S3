@@ -246,6 +246,60 @@
   <!-- ACT 3 — THUẬT TOÁN S³                                      -->
   <!-- ========================================================= -->
 
+  <!-- P3-A Turftopic: dùng thử -->
+  <section>
+    <h2>Dùng thử S³ trong vài dòng — Turftopic <span class="act-badge">ACT 3 · THUẬT TOÁN</span></h2>
+    <p>Tác giả đóng gói S³ thành thư viện Python <b>Turftopic</b> (interface kiểu scikit-learn) — cài 1 lệnh, chạy vài dòng, chưa cần hiểu ICA.</p>
+    <div class="box tech"><span class="lbl">CÀI ĐẶT (CLI)</span>
+      <pre style="font-size:.55em;background:#fff;border-radius:8px;padding:.6em;margin:.3em 0;"><code class="language-bash">pip install turftopic</code></pre>
+    </div>
+    <div class="box key"><span class="lbl">DÙNG</span>
+      <pre style="font-size:.55em;background:#fff;border-radius:8px;padding:.6em;margin:.3em 0;"><code class="language-python">from turftopic import SemanticSignalSeparation
+model = SemanticSignalSeparation(n_components=10)   # 10 topic
+model.fit_transform(documents)                       # chạy S³
+model.print_topics()                                 # in từ khoá mỗi topic</code></pre>
+    </div>
+    <div class="box say"><span class="lbl">Ý</span>Dùng được ngay mà không cần biết bên trong. Phần sau ta "mở nắp capo" xem S³ hoạt động thế nào.</div>
+    <aside class="notes">Mở đầu nhẹ: S³ rất dễ dùng. n_components = số topic. Rồi mới đi vào cơ chế — đi từ dễ đến khó.</aside>
+  </section>
+
+  <!-- P3-B Pipeline tổng thể (copy từ bản học) -->
+  <section>
+    <h2>Pipeline S³ tổng thể <span class="act-badge">ACT 3 · THUẬT TOÁN</span></h2>
+    <svg class="diagram" viewBox="0 0 800 320" style="width:min(800px,94%)" role="img" aria-label="Sơ đồ luồng toàn bộ thuật toán S³">
+      <defs>
+        <marker id="fa" markerWidth="9" markerHeight="9" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#64748b"/></marker>
+      </defs>
+      <rect x="10" y="40" width="110" height="46" rx="8" fill="#eff6ff" stroke="#2563eb"/><text x="65" y="68" font-size="13" text-anchor="middle" fill="#1e293b">Tài liệu</text>
+      <line x1="120" y1="63" x2="150" y2="63" stroke="#64748b" stroke-width="2" marker-end="url(#fa)"/>
+      <rect x="150" y="40" width="110" height="46" rx="8" fill="#f0fdfa" stroke="#0891b2"/><text x="205" y="62" font-size="12" text-anchor="middle" fill="#1e293b">Encoder</text><text x="205" y="78" font-size="10" text-anchor="middle" fill="#64748b">(sentence tf)</text>
+      <line x1="260" y1="63" x2="290" y2="63" stroke="#64748b" stroke-width="2" marker-end="url(#fa)"/>
+      <rect x="290" y="40" width="70" height="46" rx="8" fill="#eff6ff" stroke="#2563eb"/><text x="325" y="68" font-size="15" text-anchor="middle" fill="#2563eb" font-weight="800">X</text>
+      <line x1="360" y1="63" x2="390" y2="63" stroke="#64748b" stroke-width="2" marker-end="url(#fa)"/>
+      <rect x="390" y="35" width="130" height="56" rx="8" fill="#fef9c3" stroke="#d97706"/><text x="455" y="58" font-size="12" text-anchor="middle" fill="#1e293b">Whiten + PCA</text><text x="455" y="76" font-size="10" text-anchor="middle" fill="#64748b">giảm chiều → K</text>
+      <line x1="520" y1="63" x2="550" y2="63" stroke="#64748b" stroke-width="2" marker-end="url(#fa)"/>
+      <rect x="550" y="35" width="110" height="56" rx="8" fill="#f0fdf4" stroke="#16a34a"/><text x="605" y="58" font-size="14" text-anchor="middle" fill="#16a34a" font-weight="800">FastICA</text><text x="605" y="76" font-size="10" text-anchor="middle" fill="#64748b">xoay → độc lập</text>
+      <line x1="660" y1="55" x2="700" y2="45" stroke="#64748b" stroke-width="2" marker-end="url(#fa)"/>
+      <line x1="660" y1="72" x2="700" y2="90" stroke="#64748b" stroke-width="2" marker-end="url(#fa)"/>
+      <rect x="700" y="25" width="90" height="40" rx="8" fill="#f0fdf4" stroke="#16a34a"/><text x="745" y="42" font-size="12" text-anchor="middle" fill="#1e293b" font-weight="700">A = topic</text><text x="745" y="58" font-size="9" text-anchor="middle" fill="#64748b">(doc-topic)</text>
+      <rect x="700" y="75" width="90" height="40" rx="8" fill="#f0fdfa" stroke="#0891b2"/><text x="745" y="92" font-size="11" text-anchor="middle" fill="#1e293b" font-weight="700">S = source</text><text x="745" y="107" font-size="9" text-anchor="middle" fill="#64748b">(hướng topic)</text>
+      <rect x="10" y="200" width="110" height="46" rx="8" fill="#eff6ff" stroke="#2563eb"/><text x="65" y="228" font-size="13" text-anchor="middle" fill="#1e293b">Từ vựng</text>
+      <line x1="120" y1="223" x2="150" y2="223" stroke="#64748b" stroke-width="2" marker-end="url(#fa)"/>
+      <rect x="150" y="200" width="110" height="46" rx="8" fill="#f0fdfa" stroke="#0891b2"/><text x="205" y="222" font-size="12" text-anchor="middle" fill="#1e293b">cùng Encoder</text><text x="205" y="238" font-size="10" text-anchor="middle" fill="#64748b">→ V</text>
+      <line x1="260" y1="223" x2="290" y2="223" stroke="#64748b" stroke-width="2" marker-end="url(#fa)"/>
+      <rect x="290" y="200" width="150" height="46" rx="8" fill="#fff7ed" stroke="#d97706"/><text x="365" y="222" font-size="12" text-anchor="middle" fill="#1e293b">C = A⁺ ; W = V·Cᵀ</text><text x="365" y="238" font-size="10" text-anchor="middle" fill="#64748b">chiếu từ lên trục</text>
+      <line x1="440" y1="223" x2="470" y2="223" stroke="#64748b" stroke-width="2" marker-end="url(#fa)"/>
+      <rect x="470" y="200" width="140" height="46" rx="8" fill="#fef2f2" stroke="#dc2626"/><text x="540" y="222" font-size="12" text-anchor="middle" fill="#1e293b">β: axial/ang/comb</text><text x="540" y="238" font-size="10" text-anchor="middle" fill="#64748b">word importance</text>
+      <line x1="610" y1="223" x2="640" y2="223" stroke="#64748b" stroke-width="2" marker-end="url(#fa)"/>
+      <rect x="640" y="200" width="150" height="46" rx="8" fill="#f0fdf4" stroke="#16a34a"/><text x="715" y="222" font-size="12" text-anchor="middle" fill="#16a34a" font-weight="700">Từ mô tả topic</text><text x="715" y="238" font-size="10" text-anchor="middle" fill="#64748b">(+ từ negative)</text>
+      <line x1="745" y1="65" x2="745" y2="120" stroke="#16a34a" stroke-width="1.5" stroke-dasharray="4 3"/>
+      <path d="M745,120 C745,150 365,150 365,198" fill="none" stroke="#16a34a" stroke-width="1.5" stroke-dasharray="4 3" marker-end="url(#fa)"/>
+      <text x="500" y="145" font-size="10" fill="#16a34a">A dùng để tính C = A⁺</text>
+    </svg>
+    <p class="cap">Hàng trên: tài liệu → embedding X → whitening/PCA → FastICA → topic (A) &amp; hướng (S). Hàng dưới: từ vựng → V → chiếu lên trục (W) → word importance → từ mô tả topic.</p>
+    <aside class="notes">Bản đồ toàn cảnh trước khi vào công thức. Nhấn: cùng một encoder cho tài liệu và từ vựng; không train mạng → nhanh.</aside>
+  </section>
+
   <!-- S10 6 bước (stack) -->
   <section>
     <section>
@@ -320,7 +374,37 @@
       <li><span class="tag amber">Fair</span> So sánh định lượng <b>bỏ qua từ âm</b>; từ âm chỉ dùng minh hoạ định tính.</li>
     </ul>
     <div class="box say"><span class="lbl">CÂU DẪN</span>Không mô hình nào khác cho biết một topic <i>KHÔNG</i> nói về cái gì — S³ thì có.</div>
-    <aside class="notes">Ví dụ ArXiv ở Act 4: Topic 0 và 4 có từ dương giống nhau, chỉ từ âm mới phân biệt.</aside>
+    <aside class="notes">Ví dụ cụ thể ngay slide sau: Topic 0 và 4 có từ dương giống nhau, chỉ từ âm mới phân biệt.</aside>
+  </section>
+
+  <!-- P3-C Ví dụ output: Table 2 (§6.2) -->
+  <section>
+    <h2>S³ cho ra gì? — Ví dụ trên ArXiv <span class="act-badge">ACT 3 · §6.2</span></h2>
+    <div class="cols" style="align-items:center;">
+      <img src="/main/table2.png" alt="Table 2 — các topic trong ArXiv ML Papers do S³ trích xuất, mỗi topic có cột từ dương và từ âm" style="max-height:430px;width:auto;max-width:56%;border-radius:8px;border:1px solid #e2e8f0;">
+      <div class="box idea" style="flex:1"><span class="lbl">ĐỌC BẢNG (Table 2)</span>
+        Mỗi topic có <b>top từ dương</b> (topic nói về gì) và <b>top từ âm</b> (topic KHÔNG phải gì).<br><br>
+        Topic <b>0</b> và <b>4</b> đều có "clustering" ở cột dương — <b>chỉ nhờ cột âm</b> mới phân biệt:<br>
+        • Topic 0 ⟂ reinforcement, planning<br>
+        • Topic 4 ⟂ cnn, deepmind, convnet<br><br>
+        → Đây chính là sức mạnh của <b>từ negative</b> ở slide trước, thể hiện trên dữ liệu thật.</div>
+    </div>
+    <aside class="notes">Đây là output S³ thật (Table 2 của bài). Nhấn Topic 0 vs 4: từ dương giống nhau, từ âm khác nhau.</aside>
+  </section>
+
+  <!-- P3-D Concept Compass: Figure 7 (§6.2) -->
+  <section>
+    <h2>Concept Compass — bản đồ ngữ nghĩa <span class="act-badge">ACT 3 · §6.2</span></h2>
+    <div class="cols" style="align-items:center;">
+      <img src="/main/figure7.png" alt="Figure 7 — Concept Compass: các từ ArXiv đặt trên mặt phẳng 2 trục topic do S³ trích xuất" style="max-height:470px;width:auto;max-width:54%;border-radius:8px;border:1px solid #e2e8f0;">
+      <div class="box key" style="flex:1"><span class="lbl">Ý NGHĨA (Figure 7)</span>
+        Chọn <b>2 trục topic</b> làm 2 chiều → đặt mọi từ lên một mặt phẳng:<br>
+        • Trục ngang: Vật lý/Sinh học/Thị giác ↔ <b>Ngôn ngữ</b><br>
+        • Trục dọc: Deep Learning ↔ <b>Thuật toán</b><br><br>
+        S³ không chỉ liệt kê topic — nó cho một <b>bản đồ ngữ nghĩa</b> để đặt bất kỳ từ nào lên và xem nó nằm đâu.<br>
+        <b>Điều mà mô hình cụm / xác suất không làm được.</b></div>
+    </div>
+    <aside class="notes">Finale "dễ nhìn" — chốt Phần 3: từ công thức trừu tượng ra một bản đồ trực quan. Figure 7 của bài.</aside>
   </section>
 
   <!-- ========================================================= -->
@@ -475,9 +559,9 @@ model.print_topics()</code></pre>
   <h4 style="margin:.6em 0 .4em;color:var(--accent2);font-size:12px;text-transform:uppercase;letter-spacing:.05em">Act 2 · Động lực</h4>
   <a href="#/4">Topic model là gì</a><a href="#/5">Bag-of-Words</a><a href="#/6">Embeddings</a><a href="#/7">Baselines</a><a href="#/8">Topic = trục</a>
   <h4 style="margin:.6em 0 .4em;color:var(--accent2);font-size:12px;text-transform:uppercase;letter-spacing:.05em">Act 3 · Thuật toán</h4>
-  <a href="#/9">6 bước</a><a href="#/10">Word importance</a><a href="#/11">Từ negative</a>
+  <a href="#/9">Turftopic (dùng thử)</a><a href="#/10">Pipeline tổng thể</a><a href="#/11">6 bước</a><a href="#/12">Word importance</a><a href="#/13">Từ negative</a><a href="#/14">Ví dụ ArXiv (Table 2)</a><a href="#/15">Concept Compass</a>
   <h4 style="margin:.6em 0 .4em;color:var(--accent2);font-size:12px;text-transform:uppercase;letter-spacing:.05em">Act 4 · Chốt hạ</h4>
-  <a href="#/12">Thiết lập</a><a href="#/13">Kết quả</a><a href="#/14">Hồi quy</a><a href="#/15">Preprocessing</a><a href="#/16">Định tính</a><a href="#/17">Kết luận</a><a href="#/18">Q&amp;A</a>
+  <a href="#/16">Thiết lập</a><a href="#/17">Kết quả</a><a href="#/18">Hồi quy</a><a href="#/19">Preprocessing</a><a href="#/20">Định tính</a><a href="#/21">Kết luận</a><a href="#/22">Q&amp;A</a>
 </nav>
 <style>
   #quick-nav-panel.open{ transform:translateX(0)!important; } #quick-nav-overlay.open{ opacity:1!important; pointer-events:auto!important; }
