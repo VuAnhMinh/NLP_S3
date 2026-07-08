@@ -396,7 +396,14 @@ C = np.linalg.pinv(A)        # C = A⁺ (unmixing matrix, N × D)</code></pre>
       <h2>Bước 5: Chiếu từ lên trục ngữ nghĩa <span class="act-badge">ACT 3</span></h2>
       <p style="font-size:.9em;">Chiếu các từ lên các trục ngữ nghĩa đã phát hiện bằng cách nhân ma trận embedding của từ (<b>V</b>) với ma trận unmixing đã chuyển vị (<b>Cᵀ</b>):</p>
       <p class="center" style="font-size:1.3em;">\[ W = V \cdot C^{\top} \]</p>
-      <pre style="font-size:.5em;background:#fff;border-radius:8px;padding:.6em;margin:.3em 0;"><code class="language-python">W = V @ C.T                  # (số_từ × N) — vị trí từ trên các trục topic</code></pre>
+      <pre style="font-size:.5em;background:#fff;border-radius:8px;padding:.6em;margin:.3em 0;"><code class="language-python"># Embedding của từ vựng (dùng cùng encoder)
+V = enc.encode(vocab)
+
+# Ma trận tách C = A⁺ (unmixing matrix)
+C = np.linalg.pinv(A)
+
+# Chiếu từ lên các trục topic: W = V · Cᵀ  (số_từ × N)
+W = V @ C.T</code></pre>
       <div class="box idea" style="font-size:.8em;"><span class="lbl">Ý NGHĨA</span>
         Ma trận <b>C</b> chứa các <b>vector chỉ phương</b> của các trục chủ đề, ma trận <b>V</b> chứa các <b>vector từ vựng</b>. Nên với mỗi từ ngữ <i>j</i>, <b>tích vô hướng</b> của nó với một trục chính là <b>hình chiếu</b> của từ <i>j</i> lên bề mặt trục topic đó.
         <br>⇒ <b>W<sub>jt</sub></b> là hình chiếu của vector từ ngữ <i>j</i> lên trục topic <b>T<sub>t</sub></b>. Dữ liệu này dùng để tính <b>word importance (bước 6)</b> ở các slide sau.</div>
