@@ -328,32 +328,77 @@ model.print_topics()</code></pre>
       <aside class="notes">Điểm bán hàng: không train mạng, không vòng lặp tối ưu → nhanh.</aside>
     </section>
     <section>
-      <h2>Chi tiết 1–2: phân rã + whitening</h2>
-      <p class="center" style="font-size:1.25em;">\[ X = A \cdot S \]</p>
-      <svg class="diagram" viewBox="0 0 760 210" style="width:min(720px,84%)" role="img" aria-label="Ba giai đoạn whitening rồi ICA">
-        <text x="120" y="24" font-size="13" fill="#64748b" text-anchor="middle" font-weight="700">① Gốc (elip nghiêng)</text>
-        <g transform="translate(120,120) rotate(-30)"><ellipse cx="0" cy="0" rx="80" ry="30" fill="#dbeafe" stroke="#2563eb"/>
-          <g fill="#2563eb"><circle cx="-50" cy="-8" r="3"/><circle cx="-20" cy="5" r="3"/><circle cx="10" cy="-6" r="3"/><circle cx="40" cy="8" r="3"/><circle cx="60" cy="-4" r="3"/></g></g>
-        <text x="255" y="125" font-size="26" fill="#94a3b8" text-anchor="middle">→</text>
-        <text x="390" y="24" font-size="13" fill="#64748b" text-anchor="middle" font-weight="700">② Whitened (cầu)</text>
-        <circle cx="390" cy="120" r="52" fill="#f0fdf4" stroke="#16a34a"/>
-        <g fill="#16a34a"><circle cx="362" cy="108" r="3"/><circle cx="405" cy="104" r="3"/><circle cx="382" cy="132" r="3"/><circle cx="412" cy="140" r="3"/><circle cx="360" cy="145" r="3"/></g>
-        <text x="525" y="125" font-size="26" fill="#94a3b8" text-anchor="middle">→</text>
-        <text x="650" y="24" font-size="13" fill="#64748b" text-anchor="middle" font-weight="700">③ ICA xoay trục</text>
-        <circle cx="650" cy="120" r="52" fill="#ecfeff" stroke="#0891b2" opacity=".6"/>
-        <line x1="602" y1="152" x2="698" y2="88" stroke="#0891b2" stroke-width="3"/><line x1="610" y1="92" x2="692" y2="152" stroke="#0891b2" stroke-width="3"/>
-      </svg>
-      <div class="box warnx" style="font-size:.8em;"><span class="lbl">PCA và ICA phối hợp (trả bài Act 1)</span>FastICA là mô hình <b>noiseless</b> → phải <b>whitening</b> trước (dùng PCA). Ngay đó S³ <b>giảm chiều còn N</b> (giữ N principal components đầu). Rồi ICA mới <b>xoay</b> cho độc lập. → PCA dọn dẹp, ICA tách.</div>
-      <aside class="notes">Nhắc y=x²: "không tương quan" ≠ "độc lập". Trả lời "S³ có phải chỉ là PCA?": không — PCA chỉ là bước chuẩn bị.</aside>
+      <h2>Ý tưởng phương pháp — quan điểm tác giả <span class="act-badge">ACT 3 · THUẬT TOÁN</span></h2>
+      <div class="box idea">
+        <b>Semantic Signal Separation (S³)</b> — một phương pháp mới cho topic modeling trong <b>không gian embedding liên tục</b>, nhằm khắc phục các thách thức đã nêu của những phương pháp contextual topic modeling hiện có.
+      </div>
+      <div class="box key" style="font-size:.95em;">
+        Thuật toán quan niệm <b>topic là các trục ngữ nghĩa (semantic axes)</b> giải thích phần <b>biến thiên (variation)</b> đặc thù của một kho ngữ liệu, và phân rã các biểu diễn ngữ nghĩa thành:
+        <ul style="margin:.25em 0;">
+          <li>các thành phần ẩn <b>A</b> — giả định là các <b>topic</b>;</li>
+          <li>độ mạnh của mỗi thành phần trong từng tài liệu <b>S</b> — chính là <b>độ quan trọng topic trong tài liệu</b>.</li>
+        </ul>
+        Từ đó áp dụng <b>Independent Component Analysis (ICA)</b> để tách bạch các topic.
+      </div>
+      <p class="center"><small>↓ đi qua từng bước</small></p>
+      <aside class="notes">Framing theo đúng §3 của bài — "tuyên ngôn" phương pháp trước khi vào chi tiết từng bước.</aside>
     </section>
     <section>
-      <h2>Chi tiết 3–5: chiếu từ lên trục</h2>
-      <div class="step"><b>3.</b> Encode từ vựng → <b>V</b></div>
-      <div class="step"><b>4.</b> Unmixing matrix: \( C = A^{+} \) (pseudo-inverse của A)</div>
-      <div class="step"><b>5.</b> Chiếu từ: \( W = V\,C^{T} \)</div>
-      <div class="box idea"><span class="lbl">Ý NGHĨA</span><b>W₍ⱼₜ₎</b> = vị trí của từ <i>j</i> trên trục topic <i>t</i> → "toạ độ" để chọn từ mô tả topic.</div>
-      <div class="box tech"><span class="lbl">INFERENCE tài liệu mới</span>Chỉ một phép nhân ma trận: \( \hat{S} = \hat{X}\,C^{T} \) — cực nhanh.</div>
-      <aside class="notes">Nhấn: cùng một encoder cho tài liệu và từ vựng — điều kiện để chiếu chung không gian.</aside>
+      <h2>Bước 1: Biểu diễn tài liệu + Whitening <span class="act-badge">ACT 3</span></h2>
+      <p style="font-size:.9em;">Mã hoá tài liệu qua một mô hình <b>sentence transformer</b>. Gọi <b>X</b> là ma trận các biểu diễn (encodings) của tài liệu.</p>
+      <div class="box tech" style="font-size:.82em;"><span class="lbl">TIỀN XỬ LÝ: WHITENING</span>
+        Để chuẩn bị phân rã X bằng FastICA, cần áp dụng kỹ thuật <b>whitening</b> lên ma trận X — vì FastICA là mô hình <b>không nhiễu (noiseless)</b>. Do mặc định ICA tìm ra số thành phần (topic) <b>bằng đúng số chiều embedding</b>, nên phải <b>giảm chiều</b> embedding bằng cách lấy <b>N thành phần chính (principal components) đầu tiên</b>, với N = số topic mong muốn.
+      </div>
+      <pre style="font-size:.5em;background:#fff;border-radius:8px;padding:.6em;margin:.3em 0;"><code class="language-python"># FastICA: whitening + giảm chiều còn N, rồi tách nguồn độc lập
+ica = FastICA(n_components=N, whiten="unit-variance")</code></pre>
+      <aside class="notes">Whitening + giảm chiều về N gói gọn trong FastICA(n_components=N, whiten=...). Đây là chỗ "có PCA bên trong".</aside>
+    </section>
+    <section>
+      <h2>Bước 2: Phân rã X bằng FastICA <span class="act-badge">ACT 3</span></h2>
+      <p class="center" style="font-size:1.15em;">\[ X = A \cdot S \]</p>
+      <div class="box idea" style="font-size:.85em;">
+        <b>A</b> = ma trận trộn (mixing matrix) · <b>S</b> = ma trận nguồn (source matrix) chứa <b>độ quan trọng giữa tài liệu và chủ đề</b> (document-topic importances). FastICA tìm trực tiếp ra A và S.
+      </div>
+      <pre style="font-size:.5em;background:#fff;border-radius:8px;padding:.6em;margin:.3em 0;"><code class="language-python">X = enc.encode(documents)
+
+# FastICA: whitening + giảm chiều còn N, rồi tách nguồn độc lập
+ica = FastICA(n_components=N, whiten="unit-variance")
+S = ica.fit_transform(X)     # (số_tài_liệu × N) = document-topic importances
+A = ica.mixing_              # (D × N) = mixing matrix  = TOPIC</code></pre>
+      <aside class="notes">fit_transform trả về S (doc-topic); mixing_ là A (topic). Chỉ một phép phân rã, không train mạng.</aside>
+    </section>
+    <section>
+      <h2>Bước 3: Mã hoá từ vựng → V <span class="act-badge">ACT 3</span></h2>
+      <p style="font-size:.9em;">Mã hoá từ vựng của kho ngữ liệu bằng <b>cùng một mô hình sentence transformer</b>. Gọi ma trận mã hoá từ vựng là <b>V</b>.</p>
+      <div class="box tech" style="font-size:.8em;"><span class="lbl">TỪ VỰNG LẤY TỪ ĐÂU?</span>
+        Về nguyên tắc từ vựng đến từ một cuốn từ điển (Anh, Việt...). Nhưng khi implement, bước này thường được <b>tích hợp với việc trích xuất từ vựng ngay từ dữ liệu đầu vào</b> — chỉ tổng hợp những từ thực sự xuất hiện trong kho, không cần một cuốn từ điển khổng lồ bên ngoài.
+      </div>
+      <pre style="font-size:.5em;background:#fff;border-radius:8px;padding:.6em;margin:.3em 0;"><code class="language-python">from sklearn.feature_extraction.text import CountVectorizer
+
+# Trích từ vựng ngay từ dữ liệu (không cần từ điển ngoài)
+vocab = CountVectorizer().fit(documents).get_feature_names_out()
+V = enc.encode(vocab)        # (số_từ × D) = embedding của từ vựng</code></pre>
+      <aside class="notes">CountVectorizer gom từ vựng từ chính corpus. V dùng chung encoder với X để cùng không gian.</aside>
+    </section>
+    <section>
+      <h2>Bước 4: Ma trận tách C = A⁺ <span class="act-badge">ACT 3</span></h2>
+      <p style="font-size:.9em;">Ma trận tách (unmixing / khử trộn) <b>C</b> = <b>nghịch đảo giả (pseudo-inverse)</b> của ma trận trộn A:</p>
+      <p class="center" style="font-size:1.15em;">\[ C = A^{+} \]</p>
+      <pre style="font-size:.5em;background:#fff;border-radius:8px;padding:.6em;margin:.3em 0;"><code class="language-python">A = ica.mixing_              # ma trận trộn (D × N)
+C = np.linalg.pinv(A)        # C = A⁺ (unmixing matrix, N × D)</code></pre>
+      <div class="box key" style="font-size:.78em;"><span class="lbl">C GIỮ "QUY LUẬT" CÁC TRỤC NGỮ NGHĨA — DÙNG 2 VIỆC</span>
+        <b>1.</b> "Chiếu" toàn bộ từ vựng lên C để tính hệ số quan trọng của từ → <b>gọi tên được các topic</b>.<br>
+        <b>2.</b> Văn bản mới đưa vào → chỉ cần <b>nhân với C</b> là tính ngay hệ số phân bổ topic, <b>không cần huấn luyện lại</b>.
+      </div>
+      <aside class="notes">Lưu ý code: A lấy bằng thuộc tính ica.mixing_ (không gọi như hàm). pinv = Moore–Penrose pseudo-inverse.</aside>
+    </section>
+    <section>
+      <h2>Bước 5: Chiếu từ lên trục ngữ nghĩa <span class="act-badge">ACT 3</span></h2>
+      <p style="font-size:.9em;">Chiếu các từ lên các trục ngữ nghĩa đã phát hiện bằng cách nhân ma trận embedding của từ (<b>V</b>) với ma trận unmixing đã chuyển vị (<b>Cᵀ</b>):</p>
+      <p class="center" style="font-size:1.3em;">\[ W = V \cdot C^{\top} \]</p>
+      <pre style="font-size:.5em;background:#fff;border-radius:8px;padding:.6em;margin:.3em 0;"><code class="language-python">W = V @ C.T                  # (số_từ × N) — vị trí từ trên các trục topic</code></pre>
+      <div class="box idea" style="font-size:.85em;"><span class="lbl">Ý NGHĨA</span><b>W[j, t]</b> = vị trí (toạ độ) của từ <i>j</i> trên trục topic <i>t</i> — dữ liệu để tính <b>word importance (bước 6)</b> ở các slide sau.</div>
+      <aside class="notes">Bắc cầu sang bước 6: từ W sẽ tính β. W[j,t] chính là vₜ trong hình học Figure 3.</aside>
     </section>
 
     <!-- Bước 6 (word importance) — gộp vào chùm 6 bước -->
