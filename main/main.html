@@ -149,7 +149,7 @@
   <!-- ACT 2 — ĐỘNG LỰC & BỐI CẢNH                                -->
   <!-- ========================================================= -->
 
-  <!-- ACT 2 · Chùm 1 — Lịch sử Topic Modeling (pptx S1–S4) -->
+  <!-- ACT 2 · Chùm 1 — Lịch sử (pptx S1–S3) -->
   <section>
     <section>
       <h2>Quá trình phát triển Topic Modeling <span class="act-badge">ACT 2 · ĐỘNG LỰC</span></h2>
@@ -173,43 +173,26 @@
           <tr><td>d₃: "chuột sợ mèo"</td><td>1</td><td>0</td><td>1</td><td>0</td><td>1</td></tr>
         </tbody>
       </table>
-      <div class="box warnx" style="font-size:.8em;"><span class="lbl">ĐIỂM YẾU</span>Mất ngữ cảnh hoàn toàn · "bank" ngân hàng = "bank" bờ sông · ma trận rất thưa (sparse) · bắt buộc tiền xử lý nặng.</div>
-      <aside class="notes">BoW: đếm từ → ma trận document-term. LSA và LDA đều xây trên nền này.</aside>
+      <div class="box warnx" style="font-size:.8em;"><span class="lbl">ĐIỂM YẾU</span>Mất ngữ cảnh hoàn toàn · không phân biệt nghĩa (đa nghĩa) · ma trận rất thưa (sparse) · bắt buộc tiền xử lý nặng.</div>
+      <aside class="notes">BoW là nền tảng; LSA và LDA đều xây trên nó, chỉ khác cách "tìm chủ đề".</aside>
     </section>
     <section>
-      <h2>LSA (1988) — Phân tách ma trận bằng SVD <span class="act-badge">ACT 2</span></h2>
-      <p class="center" style="font-size:1.15em;">\[ A = U \cdot \Sigma \cdot V^{\top} \]</p>
-      <p style="font-size:.85em;">Ma trận đếm từ = Document-Concept × Độ quan trọng × Term-Concept. Nén ma trận lớn &amp; thưa xuống <b>K chiều</b> → mỗi chiều = một <b>khái niệm ẩn (topic)</b>.</p>
-      <div class="box idea" style="font-size:.82em;"><span class="lbl">QUAN TRỌNG</span>S³ tự nhận là <b>"hậu duệ contextual của LSA"</b> — cùng tinh thần phân tách ma trận tuyến tính.</div>
-      <div class="box warnx" style="font-size:.8em;"><span class="lbl">ĐIỂM YẾU</span>1. SVD chỉ đảm bảo trục <b>trực giao (uncorrelated)</b>, không độc lập → 1 trục có thể lẫn nhiều chủ đề. 2. Input vẫn là BoW → mang theo mọi điểm yếu.</div>
-      <aside class="notes">LSA: SVD phân tách ma trận đếm từ. S³ là hậu duệ contextual. Yếu: chỉ uncorrelated, vẫn BoW.</aside>
-    </section>
-    <section>
-      <h2>LDA (2003) — Mô hình sinh xác suất <span class="act-badge">ACT 2</span></h2>
-      <div class="step" style="font-size:.82em;"><b>1.</b> Mỗi tài liệu rút 1 phân phối chủ đề từ <b>Dirichlet</b> (vd 70% thể thao + 20% kinh tế + 10% giải trí).</div>
-      <div class="step" style="font-size:.82em;"><b>2.</b> Sinh từng từ: chọn 1 chủ đề → chọn 1 từ theo phân phối từ vựng của chủ đề đó.</div>
-      <div class="step" style="font-size:.82em;"><b>3.</b> Suy luận ngược: quan sát từ → suy ra phân phối chủ đề đã sinh ra chúng (variational / Gibbs).</div>
-      <div class="two-col-tight" style="align-items:center;">
-        <table style="font-size:.66em;margin:.2em 0;">
-          <thead><tr><th></th><th>LSA</th><th>LDA</th></tr></thead>
-          <tbody>
-            <tr><td>Nền tảng</td><td>Đại số (SVD)</td><td>Xác suất (Bayes)</td></tr>
-            <tr><td>Mô hình sinh?</td><td>Không</td><td>Có</td></tr>
-            <tr><td>Tiền xử lý?</td><td>Có</td><td>Có (nặng hơn)</td></tr>
-          </tbody>
-        </table>
-        <div class="box warnx" style="font-size:.78em;flex:1"><span class="lbl">ĐIỂM YẾU LDA</span>Giả định Dirichlet có thể sai · nhạy α,β · suy luận tốn thời gian · <b>input vẫn là BoW</b>.</div>
+      <h2>LSA (1988) &amp; LDA (2003) <span class="act-badge">ACT 2</span></h2>
+      <p style="font-size:.85em;">Hai nhánh riêng biệt — cùng xây trên nền Bag-of-Words.</p>
+      <div class="two-col-tight" style="font-size:.8em;">
+        <div class="box tech"><span class="lbl">LSA — Đại số tuyến tính</span>Nén ma trận đếm từ xuống K chiều → mỗi chiều = 1 topic. Công cụ: SVD phân tách \( A = U\,\Sigma\,V^{\top} \). <b>Yếu:</b> SVD chỉ cho trục trực giao (uncorrelated) — 1 trục có thể lẫn nhiều chủ đề; input vẫn BoW.</div>
+        <div class="box key"><span class="lbl">LDA — Thống kê xác suất</span>Mô hình sinh: chọn phân phối chủ đề (Dirichlet) → sinh từng từ theo chủ đề → suy luận ngược (Bayes). <b>Yếu:</b> giả định Dirichlet có thể sai, nhạy α,β, Bayes tốn thời gian; input vẫn BoW.</div>
       </div>
-      <p class="center"><small>→ Cả LSA lẫn LDA đều bị giới hạn bởi Bag-of-Words. Cần đổi cách biểu diễn văn bản.</small></p>
-      <aside class="notes">LDA: mô hình sinh xác suất, 3 bước. Cả hai vẫn bị giới hạn bởi BoW.</aside>
+      <p class="center"><small>S³ sẽ kế thừa tinh thần LSA (phân tách ma trận tuyến tính), chỉ đổi input + thuật toán → Cả hai bị giới hạn bởi BoW.</small></p>
+      <aside class="notes">LSA (SVD) vs LDA (Bayes). Cả hai vẫn bị giới hạn bởi BoW.</aside>
     </section>
   </section>
 
-  <!-- ACT 2 · Chùm 2 — Embedding & 2 nhánh (pptx S5–S6) -->
+  <!-- ACT 2 · Chùm 2 — Embedding & 2 nhánh (pptx S4–S5) -->
   <section>
     <section>
       <h2>Giai đoạn 2: Contextual Embedding <span class="act-badge">ACT 2</span></h2>
-      <p style="font-size:.9em;">Thay đổi cách biểu diễn — từ <b>"đếm từ"</b> sang <b>"hiểu nghĩa"</b>.</p>
+      <p style="font-size:.9em;">Từ <b>"đếm từ"</b> sang <b>"hiểu nghĩa"</b> — BERT (2018), SBERT (2019).</p>
       <table style="font-size:.66em;">
         <thead><tr><th></th><th>Bag-of-Words</th><th>Sentence Embedding</th></tr></thead>
         <tbody>
@@ -220,97 +203,67 @@
           <tr><td>Cần tiền xử lý?</td><td>Bắt buộc</td><td>Không bắt buộc</td></tr>
         </tbody>
       </table>
-      <div class="box key" style="font-size:.8em;"><span class="lbl">TRANSFER LEARNING</span>Embedding được pretrain trên hàng tỷ câu (Wikipedia, BookCorpus...) → áp vào corpus riêng đã sẵn "hiểu" ngữ nghĩa.</div>
-      <aside class="notes">So sánh BoW vs Embedding. Câu hỏi mở: có embedding rồi thì tìm topic bằng cách nào → 2 nhánh.</aside>
+      <div class="box key" style="font-size:.8em;"><span class="lbl">TRANSFER LEARNING</span>Model embedding đã pretrain trên hàng tỷ câu → mang về dùng trên corpus riêng là dùng được ngay, không cần dữ liệu lớn để bắt đầu.</div>
+      <aside class="notes">Embedding chỉ là biểu diễn — chưa tìm topic. Dùng nó tìm topic bằng cách nào → 2 nhánh.</aside>
     </section>
     <section>
-      <h2>Hai nhánh khai thác Embedding <span class="act-badge">ACT 2</span></h2>
-      <div class="two-col-tight">
-        <div class="box tech"><span class="lbl">NHÁNH NEURAL</span>"Học" topic bằng mạng nơ-ron:<br>• <b>CTM</b> — VAE (encoder/decoder)<br>• <b>ECRTM</b> — VAE + Sinkhorn regularization<br>• <b>FASTopic</b> — Optimal Transport</div>
-        <div class="box key"><span class="lbl">NHÁNH CLUSTERING</span>Bài toán hình học — tìm cụm. Pipeline: UMAP → HDBSCAN → từ khóa:<br>• <b>Top2Vec</b> — cosine + centroid<br>• <b>BERTopic</b> — c-TF-IDF (class-based TF-IDF)</div>
+      <h2>Giai đoạn 3: Neural vs Clustering <span class="act-badge">ACT 2</span></h2>
+      <div class="two-col-tight" style="font-size:.74em;">
+        <div class="box tech"><span class="lbl">NHÁNH NEURAL — "học" bằng mạng nơ-ron</span>
+          <b>CTM:</b> VAE encoder→decoder tái tạo BoW. <span class="lose">✕</span> "145, ax, 0d, _o, a86..."<br>
+          <b>ECRTM:</b> VAE+Sinkhorn (1000 lặp), chậm nhất, không dùng contextual. <span class="lose">✕</span> "verbeek, billington..."<br>
+          <b>FASTopic:</b> optimal transport, gộp nhầm topic, kém khi embedding lớn. <span class="lose">✕</span> "moon, bike, car, orbit..."</div>
+        <div class="box key"><span class="lbl">NHÁNH CLUSTERING — bài toán hình học</span>
+          Pipeline: UMAP → HDBSCAN → từ khóa. Top2Vec: cosine với tâm cụm; BERTopic: c-TF-IDF (quay lại đếm từ!).<br>
+          <b>Thất bại thực tế:</b> <span class="lose">✕</span> BERTopic 1 cụm toàn stopword ("the, of, to, in, space..."), stopword tới 100% mô tả; <span class="lose">✕</span> Top2Vec chỉ 2 cụm cho cả corpus.</div>
       </div>
-      <p class="center"><small>Có embedding rồi, hai trường phái tìm topic khác nhau — cùng xem điểm yếu từng nhánh.</small></p>
-      <aside class="notes">2 nhánh: Neural (CTM, ECRTM, FASTopic) vs Clustering (Top2Vec, BERTopic).</aside>
+      <div class="box warnx" style="font-size:.78em;"><span class="lbl">ĐIỂM YẾU CHUNG</span>① Chậm (50–200 epoch / UMAP+HDBSCAN) · ② Nhạy hyperparameter · ③ Nhiều model vẫn quay lại đếm từ ở đâu đó.</div>
+      <aside class="notes">Neural (CTM/ECRTM/FASTopic) vs Clustering (Top2Vec/BERTopic). 3 điểm yếu chung.</aside>
     </section>
   </section>
 
-  <!-- ACT 2 · Chùm 3 — Nhánh Neural (pptx S7–S8) -->
+  <!-- ACT 2 · Chùm 3 — Clustering chi tiết (pptx S6) -->
   <section>
-    <section>
-      <h2>CTM — Variational Autoencoder <span class="act-badge">ACT 2</span></h2>
-      <div class="two-col-tight">
-        <div class="box tech"><span class="lbl">ENCODER — "Nén"</span>Input: sentence embedding → nén thành vector topic (kích thước = K topic). Giống nén ảnh → file zip.</div>
-        <div class="box warnx"><span class="lbl">DECODER — "Giải nén"</span>Tái tạo tài liệu gốc dạng <b>Bag-of-Words</b> (kích thước = |V|, toàn bộ từ vựng). → "Cửa ngõ" quay lại đếm từ.</div>
-      </div>
-      <div class="box warnx" style="font-size:.8em;"><span class="lbl">VÍ DỤ THẤT BẠI (20 Newsgroups)</span>Topic = <span class="chip">145</span><span class="chip">ax</span><span class="chip">0d</span><span class="chip">_o</span><span class="chip">a86</span><span class="chip">mk</span> → toàn ký hiệu vô nghĩa (decoder tái tạo cả rác trong từ vựng chưa lọc).</div>
-      <aside class="notes">CTM: VAE encoder/decoder. Decoder tái tạo BoW → cửa ngõ tiền xử lý. Ví dụ thất bại.</aside>
-    </section>
-    <section>
-      <h2>ECRTM &amp; FASTopic <span class="act-badge">ACT 2</span></h2>
-      <div class="two-col-tight" style="font-size:.82em;">
-        <div class="box warnx"><span class="lbl">ECRTM — VAE + Sinkhorn (1000 lặp)</span>Chạy chậm nhất · "does not utilize contextual representations" · topic lỗi: verbeek, billington, cassels...</div>
-        <div class="box warnx"><span class="lbl">FASTopic — Optimal Transport</span>Gộp nhầm topic (moon, bike, car, orbit...) · kém khi embedding lớn (curse of dim.) · vẫn cần ~200 epoch.</div>
-      </div>
-      <div class="box tech" style="font-size:.8em;"><span class="lbl">3 ĐIỂM YẾU CHUNG NHÁNH NEURAL</span>1. Chậm (train 50–200 epoch) · 2. Nhạy hyperparameter (lr, batch size, epochs, kiến trúc mạng) · 3. Vẫn quay lại đếm từ (decoder BoW ở CTM, hoặc không dùng contextual embedding ở ECRTM).</div>
-      <aside class="notes">ECRTM chậm nhất, không dùng context. FASTopic gộp nhầm topic. 3 điểm yếu chung Neural.</aside>
-    </section>
+    <h2>Clustering: Pipeline &amp; Điểm yếu hệ thống <span class="act-badge">ACT 2</span></h2>
+    <div class="cols" style="font-size:.8em;">
+      <div class="step"><b>1. UMAP</b><br>768 → ~5 chiều<br><small>(giữ cấu trúc gần/xa)</small></div>
+      <div class="step"><b>2. HDBSCAN</b><br>tự tìm vùng mật độ cao = cụm</div>
+      <div class="step"><b>3. Từ khóa</b><br>Top2Vec: cosine · BERTopic: c-TF-IDF</div>
+    </div>
+    <div class="box warnx" style="font-size:.8em;"><span class="lbl">1. Quá nhiều tham số, không biết chọn sao</span>UMAP (3) + HDBSCAN (2) = 5–6 tham số, không có hướng dẫn.</div>
+    <div class="box warnx" style="font-size:.8em;"><span class="lbl">2. Số topic nổ lên không kiểm soát</span>HDBSCAN tự học → có thể hàng trăm cụm → cần thêm bước gộp.</div>
+    <div class="box warnx" style="font-size:.8em;"><span class="lbl">3. Phân cụm sai → không cứu được</span>Gán từ khóa chạy SAU cluster → lỗi chảy xuôi, không có cơ chế sửa.</div>
+    <aside class="notes">Pipeline 3 bước + 3 điểm yếu hệ thống của Clustering.</aside>
   </section>
 
-  <!-- ACT 2 · Chùm 4 — Nhánh Clustering (pptx S9–S10) -->
+  <!-- ACT 2 · Chùm 4 — 3 thách thức chung (pptx S7) -->
   <section>
-    <section>
-      <h2>Nhánh Clustering — Pipeline 3 bước <span class="act-badge">ACT 2</span></h2>
-      <div class="cols" style="font-size:.82em;">
-        <div class="step"><b>1. UMAP giảm chiều</b><br>768 → ~5 chiều<br><small>(giữ cấu trúc "ai gần ai")</small></div>
-        <div class="step"><b>2. HDBSCAN phân cụm</b><br>tự tìm vùng mật độ cao<br><small>= 1 cụm = 1 topic</small></div>
-        <div class="step"><b>3. Gán từ khóa</b><br>Top2Vec: cosine + centroid<br>BERTopic: c-TF-IDF (đếm từ!)</div>
-      </div>
-      <div class="box warnx" style="font-size:.76em;"><span class="lbl">THẤT BẠI THỰC TẾ (Appendix F)</span>BERTopic (20NG, e5-large): chỉ <b>1 cụm</b> toàn stopword (the, of, to, in, space...) · Top2Vec (ArXiv ML): chỉ <b>2 cụm</b> cho cả corpus · corpus thô: stopword chiếm tới <b>100%</b> danh sách từ đại diện.</div>
-      <aside class="notes">Pipeline UMAP→HDBSCAN→từ khóa. 3 ca thất bại nghiêm trọng.</aside>
-    </section>
-    <section>
-      <h2>Điểm yếu nhánh Clustering <span class="act-badge">ACT 2</span></h2>
-      <div class="box warnx" style="font-size:.8em;"><span class="lbl">1. Quá nhiều tham số, không biết chọn sao</span>UMAP (n_neighbors, min_dist, n_components) + HDBSCAN (min_cluster_size, selection_method) = 5–6 tham số phải quyết định.</div>
-      <div class="box warnx" style="font-size:.8em;"><span class="lbl">2. Số topic nổ lên không kiểm soát</span>HDBSCAN tự học số cụm → có thể hàng trăm → cần thêm "topic reduction" (thêm lớp quyết định chủ quan).</div>
-      <div class="box warnx" style="font-size:.8em;"><span class="lbl">3. Phân cụm sai → không cứu được</span>Bước gán từ khóa chạy SAU khi cluster xong → cluster sai thì lỗi chảy xuôi, không có cơ chế sửa.</div>
-      <div class="box warnx" style="font-size:.8em;"><span class="lbl">4. Tài liệu bị bỏ rơi (noise points)</span>HDBSCAN gán điểm lạc = noise → không thuộc topic nào.</div>
-      <aside class="notes">4 điểm yếu: nhiều hyperparameter, số cụm nổ, lỗi chảy xuôi, noise points.</aside>
-    </section>
+    <h2>3 Thách thức chung <span class="act-badge">ACT 2</span></h2>
+    <p style="font-size:.85em;">Cả Neural lẫn Clustering đều gặp — khoảng trống mà S³ nhắm vào:</p>
+    <div class="box warnx" style="font-size:.82em;"><span class="lbl">1. Nhạy hyperparameter, khó tái lập</span>Neural: lr, epochs, kiến trúc mạng · Clustering: UMAP + HDBSCAN + topic reduction → chưa có hướng dẫn chọn tối ưu.</div>
+    <div class="box warnx" style="font-size:.82em;"><span class="lbl">2. Vẫn phụ thuộc tiền xử lý</span>CTM: decoder BoW · BERTopic: c-TF-IDF → "cửa ngõ" cho vấn đề tiền xử lý vẫn tồn tại.</div>
+    <div class="box warnx" style="font-size:.82em;"><span class="lbl">3. Chưa rõ tận dụng context thật</span>Hầu hết đánh giá trên corpus ĐÃ tiền xử lý → tốt vì "hiểu context" hay vì "dữ liệu đã sạch"? Chưa ai so corpus thô vs đã xử lý.</div>
+    <aside class="notes">3 thách thức chung → cầu nối sang S³.</aside>
   </section>
 
-  <!-- ACT 2 · Chùm 5 — 3 thách thức → S³ (pptx S11–S14) -->
+  <!-- ACT 2 · Chùm 5 — S³ tổng kết bối cảnh (pptx S8–S9) -->
   <section>
-    <section>
-      <h2>3 Thách thức chung <span class="act-badge">ACT 2</span></h2>
-      <p style="font-size:.85em;">Cả Neural lẫn Clustering đều gặp — khoảng trống mà S³ nhắm vào:</p>
-      <div class="box warnx" style="font-size:.82em;"><span class="lbl">1. Nhạy hyperparameter, khó tái lập</span>Neural: lr, epochs, kiến trúc mạng · Clustering: UMAP + HDBSCAN + topic reduction → chưa có hướng dẫn chọn tối ưu.</div>
-      <div class="box warnx" style="font-size:.82em;"><span class="lbl">2. Vẫn phụ thuộc tiền xử lý</span>CTM: decoder BoW · BERTopic: c-TF-IDF → "cửa ngõ" cho vấn đề tiền xử lý vẫn tồn tại.</div>
-      <div class="box warnx" style="font-size:.82em;"><span class="lbl">3. Chưa rõ tận dụng context thật</span>Hầu hết đánh giá trên corpus ĐÃ tiền xử lý → tốt vì "hiểu context" hay vì "dữ liệu đã sạch"?</div>
-      <aside class="notes">3 thách thức chung → cầu nối sang S³.</aside>
-    </section>
-    <section>
-      <h2>Nền tảng: Trục ngữ nghĩa đã được khám phá <span class="act-badge">ACT 2</span></h2>
-      <p style="font-size:.85em;">Musil &amp; Mareček (2024) · Yamagiwa et al. (2023).</p>
-      <table style="font-size:.66em;">
-        <thead><tr><th></th><th>Nghiên cứu trước (2023–24)</th><th>S³ (2025)</th></tr></thead>
-        <tbody>
-          <tr><td>Mục tiêu</td><td>Trục phổ quát (universal)</td><td>Trục đặc thù corpus</td></tr>
-          <tr><td>Sinh từ khóa?</td><td>Không</td><td>Có</td></tr>
-          <tr><td>Đánh giá topic?</td><td>Không</td><td>Có (định lượng + định tính)</td></tr>
-          <tr><td>Topic model hoàn chỉnh?</td><td>Không (chỉ chứng minh trục tồn tại)</td><td>Có (dùng được thực tế)</td></tr>
-        </tbody>
-      </table>
-      <div class="box idea" style="font-size:.8em;"><span class="lbl">ĐÓNG GÓP</span>S³ không phát minh "ICA trên embedding" — nền tảng đã có sẵn. S³ là người <b>đầu tiên biến nó thành topic model đầy đủ</b>: trục đặc thù corpus + sinh từ khóa + đánh giá.</div>
-      <aside class="notes">Prior work tìm trục phổ quát, không sinh từ khóa. S³ biến thành topic model hoàn chỉnh.</aside>
-    </section>
     <section>
       <h2>S³ — Hậu duệ contextual của LSA <span class="act-badge">ACT 2</span></h2>
-      <div class="two-col-tight">
-        <div class="box tech"><span class="lbl">LSA (1988)</span>Input: đếm từ (BoW)<br>Thuật toán: SVD<br>Trục: trực giao (uncorrelated)</div>
-        <div class="box key"><span class="lbl">S³ (2025)</span>Input: contextual embedding<br>Thuật toán: ICA (FastICA)<br>Trục: độc lập thống kê (independent)</div>
+      <p style="font-size:.82em;">Nền tảng: trục ngữ nghĩa đã được khám phá (Musil &amp; Mareček 2024 · Yamagiwa 2023).</p>
+      <table style="font-size:.66em;">
+        <thead><tr><th></th><th>Nghiên cứu trước</th><th>S³</th></tr></thead>
+        <tbody>
+          <tr><td>Mục tiêu</td><td>Trục phổ quát (universal)</td><td>Trục đặc thù corpus</td></tr>
+          <tr><td>Topic model?</td><td>Không (chỉ chứng minh trục)</td><td>Có (sinh từ khóa + đánh giá)</td></tr>
+        </tbody>
+      </table>
+      <div class="two-col-tight" style="font-size:.8em;">
+        <div class="box tech"><span class="lbl">LSA</span>đếm từ + SVD → trục trực giao (uncorrelated)</div>
+        <div class="box key"><span class="lbl">S³</span>embedding + ICA → trục độc lập (independent)</div>
       </div>
-      <div class="box idea" style="font-size:.82em;"><span class="lbl">VÌ SAO ICA THAY SVD?</span>SVD/PCA: trục trực giao (uncorrelated) — điều kiện yếu, 1 trục lẫn nhiều chủ đề. ICA: trục <b>độc lập thống kê</b> — mạnh hơn. Trực giác <b>cocktail party</b>: 3 micro thu hỗn hợp → ICA tách từng giọng. Tương tự: tài liệu = bản trộn các chủ đề.</div>
-      <aside class="notes">S³ = LSA nhưng BoW→embedding, SVD→ICA. independent > uncorrelated. Cocktail party.</aside>
+      <div class="box idea" style="font-size:.76em;"><span class="lbl">VÌ SAO ICA THAY SVD?</span>SVD/PCA: trực giao (yếu) → 1 trục lẫn nhiều chủ đề. ICA: độc lập thống kê (mạnh hơn) — biết trục A không suy ra được gì về trục B. Cocktail party: 3 micro thu hỗn hợp → ICA tách từng giọng; tài liệu = hỗn hợp topic → ICA tách topic. <i>Paper: "the contextual successor of Latent Semantic Analysis".</i></div>
+      <aside class="notes">S³ = LSA đổi BoW→embedding, SVD→ICA. Đóng góp: biến kỹ thuật trục ngữ nghĩa thành topic model đầy đủ.</aside>
     </section>
     <section>
       <h2>S³ giải quyết 3 thách thức <span class="act-badge">ACT 2</span></h2>
@@ -319,10 +272,10 @@
         <tbody>
           <tr><td>Nhạy hyperparameter</td><td>Nhiều tham số, không có hướng dẫn</td><td>FastICA dùng default scikit-learn — gần như không cần tinh chỉnh</td></tr>
           <tr><td>Cần tiền xử lý</td><td>Quay lại đếm từ/TF-IDF đâu đó trong pipeline</td><td>Không có bước đếm từ nào — ICA &amp; gán từ khóa đều thuần embedding</td></tr>
-          <tr><td>Chưa rõ dùng context</td><td>Đánh giá trên corpus đã tiền xử lý</td><td>Mô hình DUY NHẤT tốt hơn trên corpus thô</td></tr>
+          <tr><td>Chưa rõ dùng context</td><td>Đánh giá trên corpus đã tiền xử lý</td><td>Hưởng lợi nhiều nhất khi bỏ tiền xử lý — corpus thô &gt; baseline có TXL</td></tr>
         </tbody>
       </table>
-      <div class="box key" style="font-size:.82em;"><span class="lbl">ĐIỂM MẤU CHỐT</span>S³ loại bỏ <b>hoàn toàn</b> mọi bước đếm từ/TF-IDF khỏi pipeline — cả tìm topic (ICA) lẫn gán từ khóa (chiếu embedding lên trục).</div>
+      <div class="box key" style="font-size:.82em;"><span class="lbl">ĐIỂM MẤU CHỐT</span>S³ loại bỏ <b>hoàn toàn</b> mọi bước đếm từ/TF-IDF khỏi pipeline — cả tìm topic (ICA) lẫn gán từ khóa (chiếu embedding lên trục). Đây là khác biệt căn bản nhất so với mọi model trước.</div>
       <p class="center"><small>→ Chuyển sang phần thuật toán chi tiết (Act 3).</small></p>
       <aside class="notes">Bảng S³ vs Neural/Clustering trên 3 thách thức. S³ loại bỏ hoàn toàn đếm từ.</aside>
     </section>
@@ -849,7 +802,7 @@ model.print_topics()</code></pre>
   <h4 style="margin:0 0 .4em;color:var(--accent2);font-size:12px;text-transform:uppercase;letter-spacing:.05em">Act 1 · Hook</h4>
   <a href="#/0">Tiêu đề</a><a href="#/1">Cocktail Party &amp; ICA</a><a href="#/2">Chuyển dịch: văn bản = bản trộn</a><a href="#/3">ICA vs PCA</a>
   <h4 style="margin:.6em 0 .4em;color:var(--accent2);font-size:12px;text-transform:uppercase;letter-spacing:.05em">Act 2 · Động lực</h4>
-  <a href="#/4">Lịch sử (BoW · LSA · LDA)</a><a href="#/5">Embedding &amp; 2 nhánh</a><a href="#/6">Nhánh Neural</a><a href="#/7">Nhánh Clustering</a><a href="#/8">3 thách thức → S³</a>
+  <a href="#/4">Lịch sử (BoW · LSA · LDA)</a><a href="#/5">Embedding &amp; 2 nhánh</a><a href="#/6">Clustering chi tiết</a><a href="#/7">3 thách thức chung</a><a href="#/8">S³ — tổng kết bối cảnh</a>
   <h4 style="margin:.6em 0 .4em;color:var(--accent2);font-size:12px;text-transform:uppercase;letter-spacing:.05em">Act 3 · Thuật toán</h4>
   <a href="#/9">Turftopic (dùng thử)</a><a href="#/10">Pipeline tổng thể</a><a href="#/11">6 bước (gồm word importance)</a><a href="#/12">Từ negative + ví dụ (§6.2)</a><a href="#/13">Inference tài liệu mới</a>
   <h4 style="margin:.6em 0 .4em;color:var(--accent2);font-size:12px;text-transform:uppercase;letter-spacing:.05em">Act 4 · Chốt hạ</h4>
