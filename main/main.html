@@ -494,11 +494,11 @@ W = V @ C.T</code></pre>
   <section>
     <h2>Model — Inference tài liệu mới <span class="act-badge">ACT 3</span></h2>
     <p style="font-size:.92em;">Suy luận (<b>inference</b>) tỷ lệ chủ đề trong các tài liệu <b>mới</b> (chưa từng thấy trước đây) có thể đạt được bằng cách nhân embedding của tài liệu mới đó với ma trận unmixing <b>C</b>:</p>
-    <div class="step"><b>1.</b> Gọi mã hoá của các tài liệu mới chưa từng thấy là <b>X̂</b>.</div>
+    <div class="step"><b>1.</b> Gọi mã hoá của các tài liệu mới chưa từng thấy là \(\hat{X}\).</div>
     <div class="step"><b>2.</b> Tính toán ma trận tài liệu – chủ đề mới:</div>
     <p class="center" style="font-size:1.4em; margin:.2em 0;">\[ \hat{S} = \hat{X} \cdot C^{\top} \]</p>
     <div class="box key"><span class="lbl">VÌ SAO SUY LUẬN CỰC NHANH?</span>
-      Không cần huấn luyện lại, không cần tối ưu lặp. Chỉ cần lấy embedding tài liệu mới <b>X̂</b>, thực hiện <b>đúng một phép nhân ma trận</b> với ma trận chuyển vị <b>Cᵀ</b> là có ngay phân phối chủ đề <b>Ŝ</b>.
+      Không cần huấn luyện lại, không cần tối ưu lặp. Chỉ cần lấy embedding tài liệu mới \(\hat{X}\), thực hiện <b>đúng một phép nhân ma trận</b> với ma trận chuyển vị <b>Cᵀ</b> là có ngay phân phối chủ đề \(\hat{S}\).
     </div>
     <aside class="notes">Nối với bước 4: C dùng cho 2 việc — gọi tên topic (đã làm) và inference (ở đây). Chỉ 1 phép nhân → nhanh, không train lại.</aside>
   </section>
