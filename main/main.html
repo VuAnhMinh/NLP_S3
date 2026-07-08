@@ -463,18 +463,30 @@ W = V @ C.T</code></pre>
 
     <!-- 23 · Table 2 (§6.2) -->
     <section>
-      <h2>S³ cho ra gì? — Ví dụ trên ArXiv (Table 2) <span class="act-badge">ACT 3 · §6.2</span></h2>
+      <h2>Output của S³ — Ví dụ trên ArXiv Papers <span class="act-badge">ACT 3 · §6.2</span></h2>
       <div class="cols" style="align-items:center;">
         <img src="/main/table2.png" alt="Table 2 — các topic trong ArXiv ML Papers do S³ trích xuất, mỗi topic có cột từ dương và từ âm" style="max-height:430px;width:auto;max-width:56%;border-radius:8px;border:1px solid #e2e8f0;">
-        <div class="box idea" style="flex:1"><span class="lbl">ĐỌC BẢNG (Table 2)</span>
+        <div class="box idea" style="flex:1"><span class="lbl">Table 2</span>
           Mỗi topic có <b>top từ dương</b> (topic nói về gì) và <b>top từ âm</b> (topic KHÔNG phải gì).<br><br>
           Topic <b>0</b> và <b>4</b> đều có "clustering" ở cột dương — <b>chỉ nhờ cột âm</b> mới phân biệt:<br>
           • Topic 0 ⟂ reinforcement, planning<br>
-          • Topic 4 ⟂ cnn, deepmind, convnet<br><br>
-          → Chính là sức mạnh của <b>từ negative</b>, thể hiện trên dữ liệu thật.</div>
+          • Topic 4 ⟂ cnn, deepmind, convnet<br><br></div>
       </div>
       <aside class="notes">Output S³ thật (Table 2 của bài). Nhấn Topic 0 vs 4: từ dương giống nhau, từ âm khác nhau.</aside>
     </section>
+  </section>
+
+  <!-- 24 · Inference tài liệu mới (đứng riêng) -->
+  <section>
+    <h2>Model — Inference tài liệu mới <span class="act-badge">ACT 3</span></h2>
+    <p style="font-size:.92em;">Suy luận (<b>inference</b>) tỷ lệ chủ đề trong các tài liệu <b>mới</b> (chưa từng thấy trước đây) có thể đạt được bằng cách nhân embedding của tài liệu mới đó với ma trận unmixing <b>C</b>:</p>
+    <div class="step"><b>1.</b> Gọi mã hoá của các tài liệu mới chưa từng thấy là <b>X̂</b>.</div>
+    <div class="step"><b>2.</b> Tính toán ma trận tài liệu – chủ đề mới:</div>
+    <p class="center" style="font-size:1.4em; margin:.2em 0;">\[ \hat{S} = \hat{X} \cdot C^{\top} \]</p>
+    <div class="box key"><span class="lbl">VÌ SAO SUY LUẬN CỰC NHANH?</span>
+      Không cần huấn luyện lại, không cần tối ưu lặp. Chỉ cần lấy embedding tài liệu mới <b>X̂</b>, thực hiện <b>đúng một phép nhân ma trận</b> với ma trận chuyển vị <b>Cᵀ</b> là có ngay phân phối chủ đề <b>Ŝ</b>.
+    </div>
+    <aside class="notes">Nối với bước 4: C dùng cho 2 việc — gọi tên topic (đã làm) và inference (ở đây). Chỉ 1 phép nhân → nhanh, không train lại.</aside>
   </section>
 
   <!-- ========================================================= -->
@@ -629,9 +641,9 @@ model.print_topics()</code></pre>
   <h4 style="margin:.6em 0 .4em;color:var(--accent2);font-size:12px;text-transform:uppercase;letter-spacing:.05em">Act 2 · Động lực</h4>
   <a href="#/4">Topic model là gì</a><a href="#/5">Bag-of-Words</a><a href="#/6">Embeddings</a><a href="#/7">Baselines</a><a href="#/8">Topic = trục</a>
   <h4 style="margin:.6em 0 .4em;color:var(--accent2);font-size:12px;text-transform:uppercase;letter-spacing:.05em">Act 3 · Thuật toán</h4>
-  <a href="#/9">Turftopic (dùng thử)</a><a href="#/10">Pipeline tổng thể</a><a href="#/11">6 bước (gồm word importance)</a><a href="#/12">Từ negative + ví dụ (§6.2)</a>
+  <a href="#/9">Turftopic (dùng thử)</a><a href="#/10">Pipeline tổng thể</a><a href="#/11">6 bước (gồm word importance)</a><a href="#/12">Từ negative + ví dụ (§6.2)</a><a href="#/13">Inference tài liệu mới</a>
   <h4 style="margin:.6em 0 .4em;color:var(--accent2);font-size:12px;text-transform:uppercase;letter-spacing:.05em">Act 4 · Chốt hạ</h4>
-  <a href="#/13">Thiết lập</a><a href="#/14">Kết quả</a><a href="#/15">Hồi quy</a><a href="#/16">Preprocessing</a><a href="#/17">Định tính</a><a href="#/18">Kết luận</a><a href="#/19">Q&amp;A</a>
+  <a href="#/14">Thiết lập</a><a href="#/15">Kết quả</a><a href="#/16">Hồi quy</a><a href="#/17">Preprocessing</a><a href="#/18">Định tính</a><a href="#/19">Kết luận</a><a href="#/20">Q&amp;A</a>
 </nav>
 <style>
   #quick-nav-panel.open{ transform:translateX(0)!important; } #quick-nav-overlay.open{ opacity:1!important; pointer-events:auto!important; }
