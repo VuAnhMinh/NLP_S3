@@ -149,19 +149,20 @@
   <!-- ACT 2 — ĐỘNG LỰC & BỐI CẢNH                                -->
   <!-- ========================================================= -->
 
-  <!-- ACT 2 · Chùm 1 — Lịch sử (pptx S1–S3) -->
+  <!-- ACT 2 · Timeline (đứng riêng — chuyển ngang) -->
   <section>
-    <section>
-      <h2>Quá trình phát triển Topic Modeling <span class="act-badge">ACT 2 · ĐỘNG LỰC</span></h2>
-      <div class="cols" style="font-size:.8em;">
-        <div class="step"><b>Giai đoạn 1</b><br>Bag-of-Words<br><small>LSA (1988) · LDA (2003)</small></div>
-        <div class="step"><b>Giai đoạn 2</b><br>Contextual Embedding<br><small>BERT · SBERT (~2019)</small></div>
-        <div class="step"><b>Giai đoạn 3</b><br>Neural / Clustering<br><small>CTM · BERTopic · Top2Vec</small></div>
-        <div class="step rank1" style="border:2px solid var(--accent)"><b>Giai đoạn 4</b><br>S³ (2025)<br><small>ICA trên Embedding</small></div>
-      </div>
-      <p class="center"><small>↓ đi qua từng giai đoạn</small></p>
-      <aside class="notes">Tổng quan 4 giai đoạn phát triển của topic modeling.</aside>
-    </section>
+    <h2>Quá trình phát triển Topic Modeling <span class="act-badge">ACT 2 · ĐỘNG LỰC</span></h2>
+    <div class="cols" style="font-size:.8em;">
+      <div class="step"><b>Giai đoạn 1</b><br>Bag-of-Words<br><small>LSA (1988) · LDA (2003)</small></div>
+      <div class="step"><b>Giai đoạn 2</b><br>Contextual Embedding<br><small>BERT · SBERT (~2019)</small></div>
+      <div class="step"><b>Giai đoạn 3</b><br>Neural / Clustering<br><small>CTM · BERTopic · Top2Vec</small></div>
+      <div class="step rank1" style="border:2px solid var(--accent)"><b>Giai đoạn 4</b><br>S³ (2025)<br><small>ICA trên Embedding</small></div>
+    </div>
+    <aside class="notes">Tổng quan 4 giai đoạn phát triển của topic modeling.</aside>
+  </section>
+
+  <!-- ACT 2 · Giai đoạn 1 — BoW + LSA/LDA -->
+  <section>
     <section>
       <h2>Giai đoạn 1: Bag-of-Words <span class="act-badge">ACT 2</span></h2>
       <p style="font-size:.9em;">Biểu diễn văn bản bằng cách <b>đếm từ</b> — bỏ qua ngữ pháp và thứ tự.</p>
@@ -180,11 +181,10 @@
       <h2>LSA (1988) &amp; LDA (2003) <span class="act-badge">ACT 2</span></h2>
       <p style="font-size:.85em;">Hai nhánh riêng biệt — cùng xây trên nền Bag-of-Words.</p>
       <div class="two-col-tight" style="font-size:.8em;">
-        <div class="box tech"><span class="lbl">LSA — Đại số tuyến tính</span>Nén ma trận đếm từ xuống K chiều → mỗi chiều = 1 topic. Công cụ: SVD phân tách \( A = U\,\Sigma\,V^{\top} \). <b>Yếu:</b> SVD chỉ cho trục trực giao (uncorrelated) — 1 trục có thể lẫn nhiều chủ đề; input vẫn BoW.</div>
-        <div class="box key"><span class="lbl">LDA — Thống kê xác suất</span>Mô hình sinh: chọn phân phối chủ đề (Dirichlet) → sinh từng từ theo chủ đề → suy luận ngược (Bayes). <b>Yếu:</b> giả định Dirichlet có thể sai, nhạy α,β, Bayes tốn thời gian; input vẫn BoW.</div>
+        <div class="box tech"><span class="lbl">LSA — Đại số tuyến tính</span><b>Ý tưởng:</b> Nén ma trận đếm từ xuống K chiều, mỗi chiều là 1 topic.<br><b>Cách làm:</b> Dùng thuật toán SVD phân tách \( A = U\,\Sigma\,V^{\top} \).<br><b>Điểm yếu:</b> SVD chỉ cho trục trực giao (uncorrelated) — 1 trục có thể lẫn nhiều chủ đề; input vẫn BoW.</div>
+        <div class="box key"><span class="lbl">LDA — Thống kê xác suất</span><b>Ý tưởng:</b> Mô hình sinh — mô tả cách tài liệu "được sinh ra" rồi suy ngược lại.<br><b>Cách làm:</b> Chọn phân phối chủ đề (Dirichlet) → sinh từng từ theo chủ đề → suy luận ngược (Bayes).<br><b>Điểm yếu:</b> giả định Dirichlet có thể sai, nhạy hyperparameter (α,β), Bayes tốn thời gian; input vẫn là BoW.</div>
       </div>
-      <p class="center"><small>S³ sẽ kế thừa tinh thần LSA (phân tách ma trận tuyến tính), chỉ đổi input + thuật toán → Cả hai bị giới hạn bởi BoW.</small></p>
-      <aside class="notes">LSA (SVD) vs LDA (Bayes). Cả hai vẫn bị giới hạn bởi BoW.</aside>
+      <p class="center"><small>S³ sẽ kế thừa tinh thần LSA (phân tách ma trận tuyến tính), chỉ đổi input + thuật toán (cuối Act 2).</small></p>
     </section>
   </section>
 
@@ -802,11 +802,11 @@ model.print_topics()</code></pre>
   <h4 style="margin:0 0 .4em;color:var(--accent2);font-size:12px;text-transform:uppercase;letter-spacing:.05em">Act 1 · Hook</h4>
   <a href="#/0">Tiêu đề</a><a href="#/1">Cocktail Party &amp; ICA</a><a href="#/2">Chuyển dịch: văn bản = bản trộn</a><a href="#/3">ICA vs PCA</a>
   <h4 style="margin:.6em 0 .4em;color:var(--accent2);font-size:12px;text-transform:uppercase;letter-spacing:.05em">Act 2 · Động lực</h4>
-  <a href="#/4">Lịch sử (BoW · LSA · LDA)</a><a href="#/5">Embedding &amp; 2 nhánh</a><a href="#/6">Clustering chi tiết</a><a href="#/7">3 thách thức chung</a><a href="#/8">S³ — tổng kết bối cảnh</a>
+  <a href="#/4">Lịch sử — tổng quan</a><a href="#/5">Giai đoạn 1: BoW · LSA/LDA</a><a href="#/6">Embedding &amp; 2 nhánh</a><a href="#/7">Clustering chi tiết</a><a href="#/8">3 thách thức chung</a><a href="#/9">S³ — tổng kết bối cảnh</a>
   <h4 style="margin:.6em 0 .4em;color:var(--accent2);font-size:12px;text-transform:uppercase;letter-spacing:.05em">Act 3 · Thuật toán</h4>
-  <a href="#/9">Turftopic (dùng thử)</a><a href="#/10">Pipeline tổng thể</a><a href="#/11">6 bước (gồm word importance)</a><a href="#/12">Từ negative + ví dụ (§6.2)</a><a href="#/13">Inference tài liệu mới</a>
+  <a href="#/10">Turftopic (dùng thử)</a><a href="#/11">Pipeline tổng thể</a><a href="#/12">6 bước (gồm word importance)</a><a href="#/13">Từ negative + ví dụ (§6.2)</a><a href="#/14">Inference tài liệu mới</a>
   <h4 style="margin:.6em 0 .4em;color:var(--accent2);font-size:12px;text-transform:uppercase;letter-spacing:.05em">Act 4 · Chốt hạ</h4>
-  <a href="#/14">Thiết lập</a><a href="#/15">Mô hình &amp; Baselines</a><a href="#/16">Biểu đồ kết quả</a><a href="#/17">Kết quả</a><a href="#/18">Hồi quy</a><a href="#/19">Preprocessing</a><a href="#/20">Ảnh hưởng embedding</a><a href="#/21">Định tính</a><a href="#/22">Kết luận</a><a href="#/23">Q&amp;A</a>
+  <a href="#/15">Thiết lập</a><a href="#/16">Mô hình &amp; Baselines</a><a href="#/17">Biểu đồ kết quả</a><a href="#/18">Kết quả</a><a href="#/19">Hồi quy</a><a href="#/20">Preprocessing</a><a href="#/21">Ảnh hưởng embedding</a><a href="#/22">Định tính</a><a href="#/23">Kết luận</a><a href="#/24">Q&amp;A</a>
 </nav>
 <style>
   #quick-nav-panel.open{ transform:translateX(0)!important; } #quick-nav-overlay.open{ opacity:1!important; pointer-events:auto!important; }
