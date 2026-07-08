@@ -648,6 +648,7 @@ S_hat = X_hat @ C.T
         </tbody>
       </table>
       <div class="box idea" style="font-size:.85em;"><span class="lbl">THIẾT KẾ TINH TẾ</span>Dùng <b>cả 20NG thô lẫn đã làm sạch</b> để đo riêng <b>ảnh hưởng preprocessing</b>. 4 embeddings (GloVe→E5), số topic 10–50, <b>không tune hyperparameter</b> (tránh p-hacking), chạy 1 lần.</div>
+      <div class="box key" style="font-size:.8em;"><span class="lbl">5 MIỀN DỮ LIỆU KHÁC NHAU</span>Newsgroup (20NG) · tin tức (BBC) · học thuật (ArXiv ML abstracts) · y khoa (Wikipedia Medical) · hỏi–đáp (StackExchange) → kiểm chứng mô hình có <b>tổng quát hoá</b> qua nhiều lĩnh vực hay không.</div>
       <aside class="notes">Vocab 20NG raw 21.668 vs preprocessed 1.612 → preprocessing vứt ~93% từ. Thông tin đó có giá trị không?</aside>
     </section>
     <section>
@@ -659,6 +660,62 @@ S_hat = X_hat @ C.T
       <p class="center" style="font-size:1.05em;">\[ \bar{C} = \sqrt{C_{ex}\cdot C_{in}} \qquad \text{Interpretability} = \sqrt{\bar{C}\cdot d} \]</p>
       <div class="box key"><span class="lbl">Vì sao GEOMETRIC mean?</span>Phạt nặng lệch: coherence 1.0 &amp; diversity 0.0 → trung bình cộng cho 0.5 (sai), <b>trung bình nhân cho 0</b> (đúng). Buộc mô hình tốt <b>cả hai mặt</b>.</div>
       <aside class="notes">External = Word2Vec kho ngoài (nghĩa tổng quát); Internal = Word2Vec chính kho (nghĩa đặc thù).</aside>
+    </section>
+  </section>
+
+  <!-- Mô hình & Baselines (embedding models + topic model đối chứng) -->
+  <section>
+    <section>
+      <h2>4 Embedding Models <span class="act-badge">ACT 4 · CHỐT HẠ</span></h2>
+      <table>
+        <thead><tr><th>Model</th><th>Loại</th><th class="num">Dim</th><th>Ghi chú</th></tr></thead>
+        <tbody>
+          <tr><td>Averaged GloVe</td><td>Static</td><td class="num">300</td><td>trung bình vector từ — baseline đơn giản</td></tr>
+          <tr><td>SBERT all-MiniLM-L6-v2</td><td>Sentence</td><td class="num">384</td><td>nhẹ, nhanh</td></tr>
+          <tr><td>SBERT all-mpnet-base-v2</td><td>Sentence</td><td class="num">768</td><td>chất lượng cao hơn</td></tr>
+          <tr class="rank1"><td>intfloat/e5-large-v2</td><td>Text embedding</td><td class="num">1024</td><td>mạnh nhất — semantic search/retrieval</td></tr>
+        </tbody>
+      </table>
+      <div class="box idea" style="font-size:.85em;"><span class="lbl">MỤC ĐÍCH</span>Không chỉ hỏi "mô hình nào tốt hơn?" mà còn hỏi "mô hình có <b>ổn định khi đổi embedding</b> không?" — sát với thực tế người dùng chọn embedding tuỳ tài nguyên sẵn có.</div>
+      <aside class="notes">GloVe static, không ngữ cảnh; SBERT & E5 là contextual sentence/text embeddings. Kiểm tra S³ có phụ thuộc vào một encoder cụ thể không.</aside>
+    </section>
+    <section>
+      <h2>Baselines đối chứng <span class="act-badge">ACT 4</span></h2>
+      <div class="cols" style="font-size:.8em;">
+        <div class="step"><b>Clustering</b><br>BERTopic, Top2Vec<br><small>topic = cụm embedding</small></div>
+        <div class="step"><b>Contextual (VAE)</b><br>ZeroShotTM, CombinedTM<br><small>contextual embedding (+BoW)</small></div>
+        <div class="step"><b>Neural mới</b><br>FASTopic, ECRTM<br><small>Optimal Transport / embedding clustering regularization</small></div>
+        <div class="step"><b>Cổ điển</b><br>LDA, NMF<br><small>Bag-of-Words</small></div>
+      </div>
+      <div class="box key" style="font-size:.85em;"><span class="lbl">CẤU HÌNH CHẠY CHUNG</span>Mọi model — kể cả 3 biến thể S³ (axial/angular/combined) — chạy với số topic <b>10, 20, 30, 40, 50</b>; mỗi topic lấy <b>top 10 từ khoá</b> để đánh giá định lượng &amp; định tính.</div>
+      <aside class="notes">8 baseline chia 4 nhóm. Cùng grid số topic để so sánh công bằng, không thiên vị mô hình nào.</aside>
+    </section>
+  </section>
+
+  <!-- Kết quả bằng biểu đồ (Diversity/Coherence, Robustness, Runtime) -->
+  <section>
+    <section>
+      <h2>Diversity &amp; Coherence <span class="act-badge">ACT 4 · BIỂU ĐỒ</span></h2>
+      <div class="cols" style="align-items:flex-start;">
+        <div style="flex:1"><img src="/main/topic_diversity.png" alt="Diversity scores qua tất cả model, dataset, encoder và số topic" style="width:100%;border-radius:8px;border:1px solid #e2e8f0;"><p class="cap">Diversity (d)</p></div>
+        <div style="flex:1"><img src="/main/topic_coherence.png" alt="Aggregate coherence scores qua tất cả model, dataset, encoder và số topic" style="width:100%;border-radius:8px;border:1px solid #e2e8f0;"><p class="cap">Coherence tổng hợp C̄ = √(Cₑₓ·Cᵢₙ)</p></div>
+      </div>
+      <aside class="notes">Diversity: topic có bị trùng từ khoá không. Coherence: từ trong topic có thực sự liên quan nhau không (external = word embedding tổng quát, internal = trong chính corpus).</aside>
+    </section>
+    <section>
+      <h2>Robustness — chống nhiễu stop words &amp; junk terms <span class="act-badge">ACT 4 · BIỂU ĐỒ</span></h2>
+      <div class="cols" style="align-items:flex-start;">
+        <div style="flex:1"><img src="/main/robustness_wecin.png" alt="WECin scores qua tất cả model, dataset, encoder và số topic" style="width:100%;border-radius:8px;border:1px solid #e2e8f0;"><p class="cap">WECin</p></div>
+        <div style="flex:1"><img src="/main/robustness_wecex.png" alt="WECex scores qua tất cả model, dataset, encoder và số topic" style="width:100%;border-radius:8px;border:1px solid #e2e8f0;"><p class="cap">WECex</p></div>
+      </div>
+      <div class="box idea" style="font-size:.8em;"><span class="lbl">CÁCH ĐO</span>Đếm tỷ lệ stop words / ký tự phi chữ cái lọt vào top 10 từ mô tả topic. S³, Top2Vec, ECRTM hiếm khi dính stop words; một số baseline trên corpus thô có thể ra topic toàn "the, of, to, and".</div>
+      <aside class="notes">Lưu ý: metric không hoàn hảo — số/ký tự đặc biệt đôi khi vẫn có nghĩa (vd "1917" trong topic về Cách mạng tháng Mười Nga).</aside>
+    </section>
+    <section>
+      <h2>Runtime <span class="act-badge">ACT 4 · BIỂU ĐỒ</span></h2>
+      <img src="/main/runtime.png" alt="Runtime tính bằng giây qua tất cả model, dataset, encoder và số topic" style="display:block;margin:.3em auto;max-height:430px;width:auto;max-width:85%;border-radius:8px;border:1px solid #e2e8f0;">
+      <p class="cap">Runtime (giây) trên tất cả model, dataset, encoder, số topic</p>
+      <aside class="notes">Bắc cầu sang slide "con số biết nói" ngay sau: 4.5× nhanh hơn BERTopic, 27.5× nhanh hơn trung bình baseline.</aside>
     </section>
   </section>
 
@@ -711,6 +768,16 @@ S_hat = X_hat @ C.T
     <aside class="notes">Chèn Figure 4 nếu được. Đây là "vòng tròn khép kín" nối lại vấn đề nêu ở Act 2.</aside>
   </section>
 
+  <!-- Ảnh hưởng của embedding models -->
+  <section>
+    <h2>Ảnh hưởng của embedding models <span class="act-badge">ACT 4</span></h2>
+    <div class="box key" style="font-size:.9em;"><span class="lbl">S³ ỔN ĐỊNH</span>Chạy tốt trên cả 4 embeddings — kể cả <b>Averaged GloVe</b> (static, đơn giản nhất) — không phụ thuộc vào một encoder cụ thể.</div>
+    <div class="box warnx" style="font-size:.85em;"><span class="lbl">TOP2VEC NHẠY CẢM</span>Chất lượng giảm mạnh khi đổi embedding, đặc biệt với GloVe và E5-large-v2.</div>
+    <div class="box warnx" style="font-size:.85em;"><span class="lbl">FASTOPIC — CURSE OF DIMENSIONALITY</span>Hoạt động tốt hơn với GloVe (300d) nhưng giảm chất lượng khi embedding dimension tăng lên (768–1024d).</div>
+    <p class="center"><small>→ Tính linh hoạt với embedding là một lợi thế thực tế: người dùng không bị ép chọn một encoder cụ thể.</small></p>
+    <aside class="notes">Đối lập với S³: Top2Vec và FASTopic đều nhạy với lựa chọn embedding theo cách riêng.</aside>
+  </section>
+
   <!-- S19 định tính + compass -->
   <section>
     <section>
@@ -742,14 +809,16 @@ S_hat = X_hat @ C.T
   <!-- S20 kết luận -->
   <section data-background-gradient="linear-gradient(135deg,#eff6ff 0%,#f0fdfa 100%)">
     <h2>Kết luận &amp; Hạn chế <span class="act-badge">ACT 4</span></h2>
-    <div class="cols center">
-      <div class="box key" style="flex:1"><b>Chất lượng</b><br>Mạch lạc + đa dạng, sạch</div>
-      <div class="box key" style="flex:1"><b>Tốc độ</b><br>Nhanh nhất trong contextual TM</div>
+    <div class="cols center" style="font-size:.92em;">
+      <div class="box key" style="flex:1"><b>Chất lượng</b><br>Mạch lạc + đa dạng, cân bằng tối ưu</div>
+      <div class="box key" style="flex:1"><b>Tốc độ</b><br>27.5× nhanh hơn TB baseline</div>
       <div class="box key" style="flex:1"><b>Không preprocessing</b><br>Chạy tốt hơn trên text thô</div>
+      <div class="box key" style="flex:1"><b>Ổn định</b><br>Bền vững qua 4 embeddings</div>
     </div>
+    <div class="box idea" style="font-size:.82em;"><span class="lbl">ĐÁNH GIÁ ĐỊNH TÍNH</span>LDA, NMF, BERTopic → nhiều từ vô nghĩa · CTM, ECRTM → khá hơn nhưng vẫn nhiễu · FASTopic → đôi khi gộp nhầm 2 topic · <b>S³ &amp; Top2Vec → chủ đề rõ ràng, dễ hiểu nhất.</b></div>
     <div class="box tech" style="font-size:.82em;"><span class="lbl">HẠN CHẾ (khách quan)</span>Metric có giả định mạnh · baseline được cài lại (CTM lệch nhỏ) · không tune hyperparameter · chỉ 1 seed · preprocessing thử trên 1 kho.</div>
     <div class="box idea"><span class="lbl">ĐỌNG LẠI</span>Phương pháp <b>đơn giản, theory-driven</b> + thư viện <b>Turftopic</b> (MIT).</div>
-    <aside class="notes">Chốt 3 trụ. Hạn chế thể hiện tính khách quan, tăng độ tin cậy.</aside>
+    <aside class="notes">Chốt 3+1 trụ + đánh giá định tính. Hạn chế thể hiện tính khách quan, tăng độ tin cậy.</aside>
   </section>
 
   <!-- S21 Q&A -->
@@ -784,7 +853,7 @@ model.print_topics()</code></pre>
   <h4 style="margin:.6em 0 .4em;color:var(--accent2);font-size:12px;text-transform:uppercase;letter-spacing:.05em">Act 3 · Thuật toán</h4>
   <a href="#/9">Turftopic (dùng thử)</a><a href="#/10">Pipeline tổng thể</a><a href="#/11">6 bước (gồm word importance)</a><a href="#/12">Từ negative + ví dụ (§6.2)</a><a href="#/13">Inference tài liệu mới</a>
   <h4 style="margin:.6em 0 .4em;color:var(--accent2);font-size:12px;text-transform:uppercase;letter-spacing:.05em">Act 4 · Chốt hạ</h4>
-  <a href="#/14">Thiết lập</a><a href="#/15">Kết quả</a><a href="#/16">Hồi quy</a><a href="#/17">Preprocessing</a><a href="#/18">Định tính</a><a href="#/19">Kết luận</a><a href="#/20">Q&amp;A</a>
+  <a href="#/14">Thiết lập</a><a href="#/15">Mô hình &amp; Baselines</a><a href="#/16">Biểu đồ kết quả</a><a href="#/17">Kết quả</a><a href="#/18">Hồi quy</a><a href="#/19">Preprocessing</a><a href="#/20">Ảnh hưởng embedding</a><a href="#/21">Định tính</a><a href="#/22">Kết luận</a><a href="#/23">Q&amp;A</a>
 </nav>
 <style>
   #quick-nav-panel.open{ transform:translateX(0)!important; } #quick-nav-overlay.open{ opacity:1!important; pointer-events:auto!important; }
