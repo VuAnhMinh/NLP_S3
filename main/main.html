@@ -277,10 +277,10 @@ model.print_topics()</code></pre>
       </defs>
       <rect x="10" y="40" width="110" height="46" rx="8" fill="#eff6ff" stroke="#2563eb"/><text x="65" y="68" font-size="13" text-anchor="middle" fill="#1e293b">Tài liệu</text>
       <line x1="120" y1="63" x2="150" y2="63" stroke="#64748b" stroke-width="2" marker-end="url(#fa)"/>
-      <rect x="150" y="40" width="110" height="46" rx="8" fill="#f0fdfa" stroke="#0891b2"/><text x="205" y="62" font-size="12" text-anchor="middle" fill="#1e293b">Encoder</text><text x="205" y="78" font-size="9" text-anchor="middle" fill="#64748b">(sentence tf model)</text>
-      <line x1="260" y1="63" x2="290" y2="63" stroke="#64748b" stroke-width="2" marker-end="url(#fa)"/>
-      <rect x="290" y="40" width="70" height="46" rx="8" fill="#eff6ff" stroke="#2563eb"/><text x="325" y="62" font-size="14" text-anchor="middle" fill="#2563eb" font-weight="800">X</text><text x="325" y="79" font-size="8" text-anchor="middle" fill="#64748b">embedding</text>
-      <line x1="360" y1="63" x2="390" y2="63" stroke="#64748b" stroke-width="2" marker-end="url(#fa)"/>
+      <rect x="150" y="40" width="110" height="46" rx="8" fill="#f0fdfa" stroke="#0891b2"/><text x="205" y="62" font-size="12" text-anchor="middle" fill="#1e293b">Encoder</text><text x="205" y="78" font-size="9" text-anchor="middle" fill="#64748b">sentence transformers</text>
+      <line x1="260" y1="63" x2="280" y2="63" stroke="#64748b" stroke-width="2" marker-end="url(#fa)"/>
+      <rect x="280" y="40" width="90" height="46" rx="8" fill="#eff6ff" stroke="#2563eb"/><text x="325" y="61" font-size="11" text-anchor="middle" fill="#2563eb" font-weight="800">X = tài liệu</text><text x="325" y="78" font-size="7.5" text-anchor="middle" fill="#64748b">embedding các tài liệu</text>
+      <line x1="370" y1="63" x2="390" y2="63" stroke="#64748b" stroke-width="2" marker-end="url(#fa)"/>
       <rect x="390" y="35" width="130" height="56" rx="8" fill="#fef9c3" stroke="#d97706"/><text x="455" y="58" font-size="12" text-anchor="middle" fill="#1e293b">Whitening</text><text x="455" y="76" font-size="9" text-anchor="middle" fill="#64748b">giảm chiều ma trận → N</text>
       <line x1="520" y1="63" x2="550" y2="63" stroke="#64748b" stroke-width="2" marker-end="url(#fa)"/>
       <rect x="550" y="35" width="110" height="56" rx="8" fill="#f0fdf4" stroke="#16a34a"/><text x="605" y="56" font-size="14" text-anchor="middle" fill="#16a34a" font-weight="800">FastICA</text><text x="605" y="74" font-size="8" text-anchor="middle" fill="#64748b">Phân tích các trục topic</text>
@@ -290,7 +290,7 @@ model.print_topics()</code></pre>
       <rect x="700" y="75" width="90" height="40" rx="8" fill="#f0fdfa" stroke="#0891b2"/><text x="745" y="92" font-size="11" text-anchor="middle" fill="#1e293b" font-weight="700">S = source</text><text x="745" y="107" font-size="9" text-anchor="middle" fill="#64748b">tỷ lệ topic</text>
       <rect x="10" y="200" width="110" height="46" rx="8" fill="#eff6ff" stroke="#2563eb"/><text x="65" y="228" font-size="13" text-anchor="middle" fill="#1e293b">Từ điển</text>
       <line x1="120" y1="223" x2="150" y2="223" stroke="#64748b" stroke-width="2" marker-end="url(#fa)"/>
-      <rect x="150" y="200" width="110" height="46" rx="8" fill="#f0fdfa" stroke="#0891b2"/><text x="205" y="222" font-size="12" text-anchor="middle" fill="#1e293b">Encoder</text><text x="205" y="238" font-size="9" text-anchor="middle" fill="#64748b">(sentence tf model)</text>
+      <rect x="150" y="200" width="110" height="46" rx="8" fill="#f0fdfa" stroke="#0891b2"/><text x="205" y="222" font-size="12" text-anchor="middle" fill="#1e293b">Encoder</text><text x="205" y="238" font-size="9" text-anchor="middle" fill="#64748b">sentence transformers</text>
       <line x1="260" y1="223" x2="290" y2="223" stroke="#64748b" stroke-width="2" marker-end="url(#fa)"/>
       <rect x="290" y="200" width="150" height="46" rx="8" fill="#fff7ed" stroke="#d97706"/><text x="365" y="222" font-size="12" text-anchor="middle" fill="#1e293b">C = A⁺ ; W = V·Cᵀ</text><text x="365" y="238" font-size="9" text-anchor="middle" fill="#64748b">chiếu từ lên trục chủ đề</text>
       <line x1="440" y1="223" x2="470" y2="223" stroke="#64748b" stroke-width="2" marker-end="url(#fa)"/>
@@ -301,9 +301,15 @@ model.print_topics()</code></pre>
       <path d="M745,120 C745,150 365,150 365,198" fill="none" stroke="#16a34a" stroke-width="1.5" stroke-dasharray="4 3" marker-end="url(#fa)"/>
       <text x="500" y="145" font-size="10" fill="#16a34a">A dùng để tính C = A⁺</text>
     </svg>
-    <div class="two-col-tight" style="font-size:.72em; margin-top:.35em;">
-      <div class="box idea"><span class="lbl">X = A @ S</span><b>X</b> = ma trận embedding tài liệu · <b>A</b> = topic (các trục chủ đề) · <b>S</b> = tỷ lệ topic trong mỗi tài liệu</div>
-      <div class="box key"><span class="lbl">W = V @ C.T</span><b>W</b> = toạ độ của từ trên các trục topic · <b>V</b> = embedding của từ điển · <b>C.T</b> = chuyển vị của C (với C = A⁺)</div>
+    <div class="two-col-tight" style="margin-top:.35em;">
+      <div class="box idea">
+        <p class="center" style="font-size:1.7em; margin:.1em 0;">\[ X = A\,S \]</p>
+        <div style="font-size:.72em;"><b>X</b> = ma trận embedding tài liệu · <b>A</b> = topic (các trục chủ đề) · <b>S</b> = tỷ lệ topic trong mỗi tài liệu</div>
+      </div>
+      <div class="box key">
+        <p class="center" style="font-size:1.7em; margin:.1em 0;">\[ W = V\,C^{\top} \]</p>
+        <div style="font-size:.72em;"><b>W</b> = toạ độ của từ trên các trục topic · <b>V</b> = embedding của từ điển · <b>Cᵀ</b> = chuyển vị của C (với C = A⁺)</div>
+      </div>
     </div>
     <aside class="notes">Bản đồ toàn cảnh trước khi vào công thức. Nhấn: cùng một encoder cho tài liệu và từ vựng; không train mạng → nhanh.</aside>
   </section>
