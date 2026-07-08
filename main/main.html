@@ -351,8 +351,8 @@ model.print_topics()</code></pre>
       </div>
       <pre style="font-size:.5em;background:#fff;border-radius:8px;padding:.6em;margin:.3em 0;"><code class="language-python">from sklearn.decomposition import FastICA
 
-# FastICA: whitening + giảm chiều còn N, rồi tách nguồn độc lập
-ica = FastICA(n_components=N, whiten="unit-variance")</code></pre>
+# FastICA: whitening + giảm chiều còn 20 topic, rồi tách nguồn độc lập
+ica = FastICA(n_components=20, whiten="unit-variance")</code></pre>
       <aside class="notes">Whitening + giảm chiều về N gói gọn trong FastICA(n_components=N, whiten=...). Đây là chỗ "có PCA bên trong".</aside>
     </section>
     <section>
@@ -497,9 +497,16 @@ W = V @ C.T</code></pre>
     <div class="step"><b>1.</b> Gọi mã hoá của các tài liệu mới chưa từng thấy là \(\hat{X}\).</div>
     <div class="step"><b>2.</b> Tính toán ma trận tài liệu – chủ đề mới:</div>
     <p class="center" style="font-size:1.4em; margin:.2em 0;">\[ \hat{S} = \hat{X} \cdot C^{\top} \]</p>
-    <div class="box key"><span class="lbl">VÌ SAO SUY LUẬN CỰC NHANH?</span>
-      Không cần huấn luyện lại, không cần tối ưu lặp. Chỉ cần lấy embedding tài liệu mới \(\hat{X}\), thực hiện <b>đúng một phép nhân ma trận</b> với ma trận chuyển vị <b>Cᵀ</b> là có ngay phân phối chủ đề \(\hat{S}\).
-    </div>
+    <pre style="font-size:.5em;background:#fff;border-radius:8px;padding:.6em;margin:.3em 0;"><code class="language-python"># 1. Load ma trận unmixing C đã được train sẵn qua vô số văn bản
+loaded_model = joblib.load("s3_production_model.joblib")
+
+# 2. Nhúng văn bản mới
+new_text = "Technical in medical"
+X_hat = encoder.encode([new_text])
+
+# 3. Tính tỷ lệ Topic S_hat
+S_hat = X_hat @ C.T
+# Giả sử S_hat = [[ 0.85, -0.12 ]] -> Mảng điểm thuần túy</code></pre>
     <aside class="notes">Nối với bước 4: C dùng cho 2 việc — gọi tên topic (đã làm) và inference (ở đây). Chỉ 1 phép nhân → nhanh, không train lại.</aside>
   </section>
 
