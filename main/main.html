@@ -78,17 +78,17 @@
       <span class="tag blue">ACL 2025 · Long Papers</span>
       <h1 style="margin:.3em 0 .1em;">S³ — Semantic Signal Separation</h1>
       <h3 style="color:var(--muted); font-weight:600;">Phân tích chủ đề của văn bản sử dụng thuật toán ICA</h3>
-      <p style="font-size:.82em; color:var(--ink); max-width:26em; margin:.6em auto 0; line-height:1.45;">Làm sao tách được từng <b>giọng nói</b> trong một căn phòng ồn ào? — và điều đó liên quan gì đến việc tìm <b>chủ đề</b> trong văn bản?</p>
+      <p style="font-size:.82em; color:var(--ink); max-width:30em; margin:.6em auto 0; line-height:1.45;">Khám phá chủ đề (<b>topic modeling</b>) trực tiếp trong <b>không gian nhúng neural</b> bằng cách tiếp cận <b>hình học tuyến tính</b>. Để hiểu cơ chế, ta bắt đầu từ một bài toán nền tảng trong xử lý tín hiệu.</p>
       <p class="subtitle" style="margin-top:1.2em;">Kardos, Kostkan, Enevoldsen, Vermillet, Nielbo, Rocca · Aarhus University</p>
       <p style="margin-top:.8em; font-size:.6em; color:#94a3b8;">← → chuyển slide · <b>S</b> speaker notes · <b>F</b> toàn màn hình · <b>ESC</b> tổng quan · <b>M</b> menu</p>
     </div>
-    <aside class="notes">Mở màn bằng câu hỏi, chưa định nghĩa gì. Mục tiêu: gây tò mò và cài sẵn ẩn dụ "giọng nói" cho slide sau.</aside>
+    <aside class="notes">Huy: "Chào thầy cô và các bạn. Hôm nay nhóm mình báo cáo nghiên cứu S³ — Semantic Signal Separation của các tác giả Đại học Aarhus, công bố tại ACL 2025. Mục tiêu cốt lõi: xây dựng phương pháp topic modeling hoạt động trực tiếp trong không gian nhúng neural bằng cách tiếp cận hình học tuyến tính. Để hiểu cơ chế mô hình, ta bắt đầu từ một bài toán nền tảng trong xử lý tín hiệu."</aside>
   </section>
 
   <!-- S2 Cocktail party -->
   <section>
-    <h2>Bài toán "bữa tiệc cocktail" <span class="act-badge">ACT 1 · HOOK</span></h2>
-    <p>Ba người nói cùng lúc. Mỗi micro chỉ thu được một <b>mớ âm thanh trộn lẫn</b>. Vậy mà thuật toán <b>ICA</b> tách lại được từng giọng — dù không biết trước giọng ai. Gọi là <b>tách nguồn mù (blind source separation)</b>.</p>
+    <h2>Bài toán Bữa tiệc Cocktail &amp; Thuật toán ICA <span class="act-badge">ACT 1</span></h2>
+    <p style="font-size:.92em;">Nhiều <b>nguồn phát âm thanh độc lập</b> hoạt động cùng lúc; các micro chỉ ghi được một <b>bản trộn tuyến tính (mixed signal)</b>. Nhiệm vụ: khôi phục các nguồn gốc khi <b>không có thông tin trước</b> về nguồn phát — bài toán <b>Tách nguồn mù (Blind Source Separation)</b>.</p>
     <svg class="diagram" viewBox="0 0 760 250" style="width:min(760px,90%)" role="img" aria-label="Ba nguồn độc lập bị trộn rồi được ICA tách lại">
       <text x="90" y="30" font-size="14" fill="#2563eb" font-weight="700" text-anchor="middle">3 nguồn độc lập</text>
       <g font-size="15" fill="#1e293b">
@@ -117,38 +117,32 @@
         <marker id="arg2" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#16a34a"/></marker>
       </defs>
     </svg>
-    <div class="box tech" style="font-size:.82em;"><span class="lbl">3 Ý CẦN NHỚ</span>(1) nhiều nguồn <b>độc lập</b>; (2) cái ta quan sát là <b>bản trộn</b>; (3) vẫn <b>gỡ ngược</b> ra từng nguồn.</div>
-    <aside class="notes">Nói chậm, cụ thể. Đây là ẩn dụ trung tâm của cả bài — càng khắc sâu ở đây, các phần sau càng nhẹ.</aside>
+    <div class="box key" style="font-size:.82em;"><span class="lbl">THUẬT TOÁN ICA (Independent Component Analysis)</span>Dựa trên giả định các nguồn gốc là các biến ngẫu nhiên <b>độc lập thống kê (statistically independent)</b>, ICA tính <b>ma trận giải trộn</b> để <b>tối đa hoá tính độc lập</b> → khôi phục chính xác tín hiệu gốc.</div>
+    <aside class="notes">Huy: "Bài toán kinh điển trong xử lý tín hiệu — Cocktail Party: nhiều nguồn âm thanh độc lập, micro chỉ ghi được bản trộn tuyến tính. Phải khôi phục nguồn gốc khi không biết trước nguồn phát — Tách nguồn mù (Blind Source Separation). Thuật toán ICA giả định các nguồn độc lập thống kê, tính ma trận giải trộn để tối đa hoá tính độc lập, từ đó khôi phục chính xác tín hiệu gốc."</aside>
   </section>
 
   <!-- S3 Cầu nối -->
   <section data-background-gradient="linear-gradient(135deg,#f0fdfa 0%,#eff6ff 100%)">
-    <h2>Văn bản cũng là một "bản trộn" <span class="act-badge">ACT 1 · HOOK</span></h2>
-    <div class="cols" style="align-items:center;">
-      <div class="box idea"><span class="lbl">ĐỔI GÓC NHÌN</span>
-        <ul style="margin:.2em 0;">
-          <li>Một tài liệu hiếm khi nói đúng <b>một</b> chủ đề — nó <b>trộn nhiều chủ đề</b> (như phòng tiệc trộn nhiều giọng).</li>
-          <li>Tự động tìm &amp; tách các chủ đề trong kho văn bản = <b>topic modeling</b>.</li>
-        </ul>
-      </div>
-      <div class="box key"><span class="lbl">Ý TƯỞNG CỦA S³</span>
-        Coi mỗi <b>chủ đề như một "giọng nói"</b> → dùng <b>đúng ICA</b> để tách chủ đề ra khỏi văn bản.<br><br>
-        Đó là lý do tên bài: <b>Semantic Signal Separation</b> — "tách tín hiệu ngữ nghĩa".</div>
+    <h2>Chuyển dịch: Văn bản là một bản trộn ngữ nghĩa <span class="act-badge">ACT 1</span></h2>
+    <div class="box idea">
+      Một tài liệu hiếm khi chỉ đại diện cho <b>một</b> chủ đề — nó là một <b>bản trộn ngữ nghĩa</b> của nhiều chủ đề ẩn. Đóng góp đầu tiên của S³: <b>chuyển logic tách tín hiệu âm thanh sang không gian ngữ nghĩa văn bản</b>.
     </div>
-    <div class="box say"><span class="lbl">CÂU DẪN</span>Đổi "giọng nói" thành "chủ đề", "căn phòng" thành "một bài viết". Nếu tách được chủ đề như tách giọng nói thì sao? Đó đúng là điều S³ làm.</div>
-    <aside class="notes">Slide bản lề, vá lỗ hổng "để làm gì". Sau slide này người nghe đã có đủ peg: topic modeling + ẩn dụ giọng nói.</aside>
+    <div class="box key">
+      Thay vì gom cụm hình học (clustering) như các mô hình hiện tại, S³ định nghĩa lại bài toán: <b>mỗi chủ đề là một nguồn phát độc lập</b>. Áp <b>FastICA</b> lên ma trận nhúng tài liệu (document embeddings) → phân rã ma trận, tìm các <b>vector cơ sở độc lập</b> = các <b>Trục ngữ nghĩa (Semantic Axes)</b>, mỗi trục đại diện một chủ đề.
+    </div>
+    <aside class="notes">Huy: "Đóng góp đầu tiên của S³ là chuyển logic tách tín hiệu âm thanh sang không gian ngữ nghĩa văn bản. Một tài liệu là bản trộn của nhiều chủ đề ẩn. Thay vì clustering, S³ coi mỗi chủ đề là một nguồn phát độc lập; áp FastICA lên document embeddings để phân rã, tìm các vector cơ sở độc lập — gọi là các Trục ngữ nghĩa (Semantic Axes), mỗi trục là một chủ đề."</aside>
   </section>
 
   <!-- S4 ICA vs PCA khái quát -->
   <section>
-    <h2>ICA khác PCA thế nào? (ý chính) <span class="act-badge">ACT 1 · HOOK</span></h2>
+    <h2>Bản chất toán học: ICA vs PCA <span class="act-badge">ACT 1</span></h2>
     <div class="two-col-tight">
-      <div class="box tech"><span class="lbl">PCA</span>Tìm hướng dữ liệu <b>trải rộng nhất</b>; các trục chỉ cần <b>không tương quan</b> — điều kiện <b>dễ</b>. Hay dùng để <b>nén / giảm chiều</b>.</div>
-      <div class="box key"><span class="lbl">ICA</span>Tìm các thành phần <b>độc lập thống kê</b> — điều kiện <b>khó hơn</b>. Nhờ đó <b>tách được các nguồn thật sự tách bạch</b>.</div>
+      <div class="box tech"><span class="lbl">PCA</span>Tìm các hướng có <b>phương sai lớn nhất</b>, ràng buộc các trục <b>không tương quan (uncorrelated)</b>. Nhưng không tương quan <b>chưa chắc độc lập</b> → PCA thiên về <b>nén dữ liệu</b>, không tách được nguồn.</div>
+      <div class="box key"><span class="lbl">ICA</span>Đòi hỏi các thành phần đạt mức <b>độc lập thống kê cao nhất</b>. Chính điều kiện khắt khe này cho phép <b>tách nguồn</b> thật sự.</div>
     </div>
-    <div class="box idea" style="font-size:.9em;"><span class="lbl">CHỐT MỘT CÂU</span>"Không tương quan" chưa chắc "độc lập". Chính vì đòi <b>độc lập</b> mà ICA cho các chủ đề <b>ít chồng lấn</b> → đây là gốc rễ khiến S³ đạt <b>diversity gần như hoàn hảo</b>.</div>
-    <p class="center"><small>(Chi tiết y=x², whitening, công thức — để dành Act 3 khi vào thuật toán.)</small></p>
-    <aside class="notes">Giữ ở mức khái quát. Không sa vào công thức ở đây — chỉ cần người nghe nắm "độc lập > không tương quan" và vì sao điều đó tốt cho topic.</aside>
+    <div class="box idea" style="font-size:.85em;"><span class="lbl">VÌ SAO QUAN TRỌNG VỚI S³</span>ICA giúp S³ <b>tự động trích xuất các trục ngữ nghĩa</b> từ dữ liệu — không cần con người định nghĩa thủ công bằng các cặp từ đối lập như nghiên cứu trước. Khi <b>chiếu từ vựng lên các trục ICA</b>, các chủ đề trở nên <b>tách biệt, không chồng lấn</b> và <b>diễn giải được</b> trực quan.</div>
+    <p class="center"><small>Vậy các hệ Topic Modeling hiện hành đang gặp điểm nghẽn nào? → phần tiếp theo (Act 2).</small></p>
+    <aside class="notes">Huy: "PCA tìm hướng phương sai lớn nhất, trục không tương quan — nhưng không tương quan chưa chắc độc lập, nên PCA chỉ nén, không tách nguồn. ICA đòi độc lập thống kê cao nhất → tách nguồn. Nhờ đó S³ tự trích xuất trục ngữ nghĩa mà không cần định nghĩa thủ công cặp từ đối lập; chiếu từ vựng lên trục ICA cho các chủ đề tách biệt, diễn giải được. Vậy Topic Modeling hiện hành gặp điểm nghẽn nào dẫn đến động lực phát triển S³? Xin mời [người 2] trình bày phần tiếp theo."</aside>
   </section>
 
   <!-- ========================================================= -->
@@ -658,7 +652,7 @@ model.print_topics()</code></pre>
 <nav id="quick-nav-panel" aria-hidden="true"
   style="position:fixed;top:0;left:0;bottom:0;width:270px;z-index:39;background:#fff;box-shadow:2px 0 12px rgba(0,0,0,.2);transform:translateX(-100%);transition:transform .25s;padding:64px 18px 18px;overflow-y:auto;font-family:-apple-system,'Segoe UI',sans-serif">
   <h4 style="margin:0 0 .4em;color:var(--accent2);font-size:12px;text-transform:uppercase;letter-spacing:.05em">Act 1 · Hook</h4>
-  <a href="#/0">Tiêu đề</a><a href="#/1">Cocktail Party</a><a href="#/2">Văn bản = bản trộn</a><a href="#/3">ICA vs PCA (ý chính)</a>
+  <a href="#/0">Tiêu đề</a><a href="#/1">Cocktail Party &amp; ICA</a><a href="#/2">Chuyển dịch: văn bản = bản trộn</a><a href="#/3">ICA vs PCA</a>
   <h4 style="margin:.6em 0 .4em;color:var(--accent2);font-size:12px;text-transform:uppercase;letter-spacing:.05em">Act 2 · Động lực</h4>
   <a href="#/4">Topic model là gì</a><a href="#/5">Bag-of-Words</a><a href="#/6">Embeddings</a><a href="#/7">Baselines</a><a href="#/8">Topic = trục</a>
   <h4 style="margin:.6em 0 .4em;color:var(--accent2);font-size:12px;text-transform:uppercase;letter-spacing:.05em">Act 3 · Thuật toán</h4>
