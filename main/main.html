@@ -212,11 +212,11 @@
     <h2>Giai đoạn 3: Neural vs Clustering <span class="act-badge">ACT 2</span></h2>
     <div class="two-col-tight" style="font-size:.72em;">
       <div class="box tech"><span class="lbl">NHÁNH NEURAL — mạng nơ-ron ước lượng tham số</span>
-        <b>CTM (ZeroShotTM / CombinedTM):</b> mô hình sinh BoW dùng variational autoencoder; embedding làm input encoder (CombinedTM nối thêm vector BoW). <span class="lose">Yếu:</span> cần tiền xử lý nặng; hiệu quả &amp; chất lượng giảm mạnh khi từ vựng lớn.<br>
-        <b>ECRTM:</b> điều chuẩn phân cụm nhúng để các topic đủ khác biệt (tránh mô tả trùng nhau). <span class="lose">Yếu:</span> không dùng biểu diễn ngữ cảnh; chậm hơn hẳn.<br>
+        <b>CTM (ZeroShotTM / CombinedTM):</b> mô hình sinh BoW dùng variational autoencoder; embedding làm input encoder (CombinedTM nối thêm vector BoW). <span class="lose">Điểm yếu:</span> cần tiền xử lý nặng; hiệu quả &amp; chất lượng giảm mạnh khi từ vựng lớn.<br>
+        <b>ECRTM:</b> điều chuẩn phân cụm nhúng để các topic đủ khác biệt (tránh mô tả trùng nhau). <span class="lose">Điểm yếu:</span> không dùng biểu diễn ngữ cảnh; chậm hơn hẳn.<br>
         <b>FASTopic:</b> quan hệ ngữ nghĩa kép — tài liệu–chủ đề–từ như các "optimal transport plans". <span class="win">Hiệu quả &amp; chất lượng cao hơn các mô hình neural trước.</span></div>
       <div class="box key"><span class="lbl">NHÁNH CLUSTERING — phân cụm embedding, trọng số từ tính post hoc</span>
-        <b>Top2Vec:</b> cosine giữa vector từ và tâm cụm. <span class="lose">Yếu:</span> giả định cụm hình cầu &amp; lồi → mô tả topic sai lệch nếu cụm méo.<br>
+        <b>Top2Vec:</b> cosine giữa vector từ và tâm cụm. <span class="lose">Điểm yếu:</span> giả định cụm hình cầu &amp; lồi → mô tả topic sai lệch nếu cụm méo.<br>
         <b>BERTopic:</b> trọng số từ bằng c-TF-IDF (class-based TF-IDF).<br>
         Cả hai đều: UMAP (giảm chiều) + HDBSCAN (phân cụm), kèm bước <b>giảm số topic</b> — vì HDBSCAN tự học số cụm nên số cụm có thể bùng nổ.</div>
     </div>
