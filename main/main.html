@@ -349,7 +349,9 @@ model.print_topics()</code></pre>
       <div class="box tech" style="font-size:.82em;"><span class="lbl">TIỀN XỬ LÝ: WHITENING</span>
         Để chuẩn bị phân rã X bằng FastICA, cần áp dụng kỹ thuật <b>whitening</b> lên ma trận X — vì FastICA là mô hình <b>không nhiễu (noiseless)</b>. Do mặc định ICA tìm ra số thành phần (topic) <b>bằng đúng số chiều embedding</b>, nên phải <b>giảm chiều</b> embedding bằng cách lấy <b>N thành phần chính (principal components) đầu tiên</b>, với N = số topic mong muốn.
       </div>
-      <pre style="font-size:.5em;background:#fff;border-radius:8px;padding:.6em;margin:.3em 0;"><code class="language-python"># FastICA: whitening + giảm chiều còn N, rồi tách nguồn độc lập
+      <pre style="font-size:.5em;background:#fff;border-radius:8px;padding:.6em;margin:.3em 0;"><code class="language-python">from sklearn.decomposition import FastICA
+
+# FastICA: whitening + giảm chiều còn N, rồi tách nguồn độc lập
 ica = FastICA(n_components=N, whiten="unit-variance")</code></pre>
       <aside class="notes">Whitening + giảm chiều về N gói gọn trong FastICA(n_components=N, whiten=...). Đây là chỗ "có PCA bên trong".</aside>
     </section>
@@ -359,12 +361,19 @@ ica = FastICA(n_components=N, whiten="unit-variance")</code></pre>
       <div class="box idea" style="font-size:.85em;">
         <b>A</b> = ma trận trộn (mixing matrix) · <b>S</b> = ma trận nguồn (source matrix) chứa <b>độ quan trọng giữa tài liệu và chủ đề</b> (document-topic importances). FastICA tìm trực tiếp ra A và S.
       </div>
-      <pre style="font-size:.5em;background:#fff;border-radius:8px;padding:.6em;margin:.3em 0;"><code class="language-python">X = enc.encode(documents)
+      <pre style="font-size:.5em;background:#fff;border-radius:8px;padding:.6em;margin:.3em 0;"><code class="language-python">from sklearn.decomposition import FastICA
+
+# Embedding các tài liệu
+X = enc.encode(documents)
 
 # FastICA: whitening + giảm chiều còn N, rồi tách nguồn độc lập
 ica = FastICA(n_components=N, whiten="unit-variance")
-S = ica.fit_transform(X)     # (số_tài_liệu × N) = document-topic importances
-A = ica.mixing_              # (D × N) = mixing matrix  = TOPIC</code></pre>
+
+# Ma trận nguồn S (số_tài_liệu × N) = document-topic importances
+S = ica.fit_transform(X)
+
+# Ma trận trộn A (D × N) = TOPIC
+A = ica.mixing_</code></pre>
       <aside class="notes">fit_transform trả về S (doc-topic); mixing_ là A (topic). Chỉ một phép phân rã, không train mạng.</aside>
     </section>
     <section>
@@ -377,15 +386,20 @@ A = ica.mixing_              # (D × N) = mixing matrix  = TOPIC</code></pre>
 
 # Trích từ vựng ngay từ dữ liệu (không cần từ điển ngoài)
 vocab = CountVectorizer().fit(documents).get_feature_names_out()
-V = enc.encode(vocab)        # (số_từ × D) = embedding của từ vựng</code></pre>
+
+# Embedding của từ vựng (số_từ × D), dùng cùng encoder
+V = enc.encode(vocab)</code></pre>
       <aside class="notes">CountVectorizer gom từ vựng từ chính corpus. V dùng chung encoder với X để cùng không gian.</aside>
     </section>
     <section>
       <h2>Bước 4: Ma trận tách C = A⁺ <span class="act-badge">ACT 3</span></h2>
       <p style="font-size:.9em;">Ma trận tách (unmixing / khử trộn) <b>C</b> = <b>nghịch đảo giả (pseudo-inverse)</b> của ma trận trộn A:</p>
       <p class="center" style="font-size:1.15em;">\[ C = A^{+} \]</p>
-      <pre style="font-size:.5em;background:#fff;border-radius:8px;padding:.6em;margin:.3em 0;"><code class="language-python">A = ica.mixing_              # ma trận trộn (D × N)
-C = np.linalg.pinv(A)        # C = A⁺ (unmixing matrix, N × D)</code></pre>
+      <pre style="font-size:.5em;background:#fff;border-radius:8px;padding:.6em;margin:.3em 0;"><code class="language-python"># Ma trận trộn A (D × N)
+A = ica.mixing_
+
+# Ma trận tách C = A⁺ (unmixing matrix, N × D)
+C = np.linalg.pinv(A)</code></pre>
       <div class="box key" style="font-size:.78em;"><span class="lbl">C GIỮ "QUY LUẬT" CÁC TRỤC NGỮ NGHĨA — DÙNG 2 VIỆC</span>
         <b>1.</b> "Chiếu" toàn bộ từ vựng lên C để tính hệ số quan trọng của từ → <b>gọi tên được các topic</b>.<br>
         <b>2.</b> Văn bản mới đưa vào → chỉ cần <b>nhân với C</b> là tính ngay hệ số phân bổ topic, <b>không cần huấn luyện lại</b>.
