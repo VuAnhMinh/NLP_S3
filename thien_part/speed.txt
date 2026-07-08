@@ -1,0 +1,181 @@
+1. Bộ dữ liệu sử dụng
+
+Đầu tiên là về datasets.
+
+Tác giả không chỉ đánh giá mô hình trên một bộ dữ liệu duy nhất, mà sử dụng nhiều loại corpus khác nhau để kiểm tra xem mô hình có hoạt động ổn định trên nhiều miền dữ liệu hay không.
+
+Các bộ dữ liệu bao gồm:
+
+Thứ nhất là 20 Newsgroups.
+Đây là một dataset rất phổ biến trong topic modeling và NLP, gồm các bài viết từ nhiều nhóm thảo luận khác nhau. Điểm đặc biệt là paper dùng cả hai phiên bản: một bản raw, tức là văn bản gốc chưa xử lý nhiều, và một bản preprocessed, tức là đã được tiền xử lý. Việc dùng cả hai bản này giúp tác giả kiểm tra xem mô hình có phụ thuộc mạnh vào preprocessing hay không.
+
+Thứ hai là BBC News.
+Đây là tập dữ liệu tin tức, thường có nội dung tương đối rõ ràng theo chủ đề như business, sport, politics, entertainment hoặc technology. Dataset này phù hợp để kiểm tra khả năng mô hình tìm ra các topic có tính phân biệt cao.
+
+Thứ ba là ArXiv Machine Learning abstracts.
+Bộ này gồm khoảng 2048 abstract từ các bài báo về Machine Learning trên ArXiv. Đây là miền dữ liệu học thuật, có nhiều thuật ngữ chuyên ngành. Do đó, dataset này giúp kiểm tra xem topic model có tìm được các chủ đề chuyên sâu như clustering, reinforcement learning, graph learning hoặc deep learning hay không.
+
+Thứ tư là Wikipedia Medical terms.
+Đây là tập dữ liệu về các thuật ngữ y khoa. Miền này cũng có nhiều từ chuyên ngành, nên nó phù hợp để đánh giá coherence, tức là các từ trong cùng một topic có thực sự liên quan về mặt ngữ nghĩa hay không.
+
+Cuối cùng là StackExchange entries.
+Đây là dữ liệu hỏi đáp, thường ngắn, đa dạng và có nhiều cách diễn đạt khác nhau. Dataset này khó hơn vì nội dung không phải lúc nào cũng dài và rõ ràng như bài báo hoặc tin tức.
+
+Như vậy, điểm mạnh trong setup của bài báo là tác giả đánh giá trên nhiều loại dữ liệu: tin tức, học thuật, y khoa, diễn đàn hỏi đáp và newsgroup. Điều này giúp kết quả có tính tổng quát hơn.
+
+2. Embedding Models
+
+Tiếp theo là phần embedding models.
+
+Vì S³ là topic model hoạt động trong không gian embedding, nên chất lượng embedding rất quan trọng. Paper sử dụng 4 loại embedding models khác nhau.
+
+Đầu tiên là Averaged GloVe.
+Đây là static embedding, nghĩa là mỗi từ có một vector cố định, không thay đổi theo ngữ cảnh. Để biểu diễn một document, tác giả lấy trung bình các vector từ. GloVe có embedding size là 300. Đây là baseline đơn giản hơn, giúp kiểm tra xem S³ có hoạt động được trong môi trường ít tài nguyên hoặc embedding đơn giản hay không.
+
+Tiếp theo là hai mô hình SBERT: all-MiniLM-L6-v2 và all-mpnet-base-v2.
+Hai mô hình này tạo sentence embedding, tức là có thể biểu diễn cả câu, đoạn văn hoặc document thành vector. all-MiniLM-L6-v2 nhẹ hơn, embedding size 384, trong khi all-mpnet-base-v2 lớn hơn, embedding size 768. Mục đích của việc dùng hai mô hình này là kiểm tra ảnh hưởng của chất lượng và kích thước embedding lên topic model.
+
+Cuối cùng là intfloat/e5-large-v2.
+Đây là một text embedding model lớn hơn, có embedding size 1024. Mô hình này thường được dùng cho semantic search, retrieval hoặc các tác vụ cần biểu diễn ngữ nghĩa mạnh. Trong bài này, E5-large-v2 giúp kiểm tra xem topic model có tận dụng được embedding chất lượng cao hay không.
+
+Nói ngắn gọn, paper không chỉ hỏi rằng “mô hình nào tốt hơn?”, mà còn hỏi thêm: “mô hình đó có ổn định khi thay embedding model không?”. Đây là một điểm rất quan trọng vì trong thực tế, người dùng có thể chọn các embedding model khác nhau tùy tài nguyên và mục tiêu.
+
+3. Các topic models được so sánh
+
+Phần tiếp theo là các baseline topic models.
+
+Paper so sánh S³ với nhiều nhóm mô hình khác nhau.
+
+Nhóm đầu tiên là các mô hình hiện đại dựa trên embedding, bao gồm BERTopic và Top2Vec.
+Hai mô hình này thường xem topic như các cụm trong không gian embedding. Ví dụ, BERTopic dùng clustering để gom các document gần nhau lại, sau đó dùng class-based TF-IDF để tìm từ khóa đại diện cho từng cụm.
+
+Nhóm thứ hai là các neural topic models hoặc contextual topic models, gồm ZeroShotTM và CombinedTM.
+ZeroShotTM dùng contextual embeddings làm input, còn CombinedTM kết hợp contextual embeddings với Bag-of-Words. Đây là các mô hình cố gắng đưa thông tin ngữ cảnh vào topic modeling.
+
+Nhóm thứ ba là các mô hình neural topic model mới hơn như FASTopic và ECRTM.
+FASTopic tập trung vào việc học quan hệ giữa document, topic và word một cách nhanh và ổn định. ECRTM thì dùng embedding clustering regularization để làm cho các topic khác biệt hơn.
+
+Cuối cùng là hai mô hình cổ điển: LDA và NMF.
+LDA là một trong những topic models kinh điển nhất, xem mỗi document như một phân phối trên các topic. NMF thì dựa trên phân rã ma trận không âm. Hai mô hình này được dùng làm baseline truyền thống để so sánh với các phương pháp hiện đại.
+
+Tất cả các model đều được chạy với số lượng topic là 10, 20, 30, 40 và 50. Với mỗi topic, tác giả lấy ra top 10 terms, tức là 10 từ khóa quan trọng nhất, để phục vụ cho đánh giá định lượng và định tính.
+
+4. Metrics đánh giá
+
+Bây giờ em sẽ đi vào phần rất quan trọng: metrics.
+
+Trong bài này, tác giả không chỉ dùng một metric duy nhất, vì topic modeling là bài toán khó đánh giá. Một topic model tốt không chỉ cần cho ra topic mạch lạc, mà còn cần các topic khác nhau rõ ràng, ít nhiễu, ổn định và chạy đủ nhanh.
+
+Metric đầu tiên là Topic Diversity, ký hiệu là d.
+Topic Diversity đo mức độ khác nhau giữa các topic. Cụ thể, nó xem các topic có bị lặp từ khóa với nhau hay không. Nếu nhiều topic cùng dùng chung một nhóm từ, thì diversity thấp. Ngược lại, nếu mỗi topic có bộ từ khóa riêng biệt, diversity cao.
+
+Ví dụ, nếu một model tạo ra 10 topic nhưng topic nào cũng có các từ như “data”, “model”, “learning”, thì người dùng rất khó phân biệt ý nghĩa của từng topic. Khi đó, diversity thấp. Một topic model tốt cần diversity cao để các topic không bị trùng lặp.
+
+Metric thứ hai là Topic Coherence, tức là độ mạch lạc của topic.
+Coherence trả lời câu hỏi: các từ trong cùng một topic có thực sự liên quan với nhau không?
+
+Ví dụ, nếu một topic gồm các từ như “doctor, patient, disease, hospital, treatment”, ta thấy topic này rất coherent vì các từ đều liên quan đến y tế. Nhưng nếu một topic gồm “doctor, car, election, football, database”, thì topic đó khó diễn giải, coherence thấp.
+
+Trong paper, tác giả chia coherence thành hai loại.
+
+Loại thứ nhất là External Coherence, ký hiệu là Cex.
+External coherence dùng một word embedding model được huấn luyện trước trên corpus lớn để đo sự tương đồng giữa các từ trong topic. Nói cách khác, nó đo mức độ liên quan ngữ nghĩa theo tri thức ngôn ngữ tổng quát.
+
+Loại thứ hai là Internal Coherence, ký hiệu là Cin.
+Internal coherence đo sự liên quan giữa các từ dựa trên chính corpus đang được phân tích. Điều này quan trọng vì có những từ chỉ liên quan với nhau trong một miền dữ liệu cụ thể. Ví dụ trong medical dataset, một số thuật ngữ chuyên ngành có thể liên quan trong corpus y khoa, dù trong ngữ cảnh tổng quát chúng không quá gần nhau.
+
+Sau đó, tác giả kết hợp Cex và Cin bằng geometric mean, tức là căn bậc hai của tích hai giá trị này. Lý do dùng geometric mean thay vì arithmetic mean là để tránh trường hợp một metric rất cao nhưng metric còn lại rất thấp. Một topic model tốt cần cân bằng cả coherence bên ngoài và coherence bên trong corpus.
+
+Ngoài ra, paper còn dùng một chỉ số tổng hợp là:
+
+căn của coherence nhân với diversity, tức là một dạng aggregate interpretability score.
+
+Nói đơn giản, score này đánh giá khả năng diễn giải tổng thể của topic. Một model chỉ coherent nhưng các topic bị trùng nhau thì chưa tốt. Ngược lại, một model có topic rất đa dạng nhưng mỗi topic lại không mạch lạc thì cũng chưa tốt. Chỉ số tổng hợp này cố gắng cân bằng cả hai yếu tố.
+
+Metric tiếp theo là Robustness, tức là độ ổn định và khả năng chống nhiễu.
+Tác giả đánh giá robustness bằng cách xem topic descriptions có chứa nhiều stop words hay không, ví dụ như “the”, “of”, “and”, “to”. Nếu top 10 words của một topic chứa quá nhiều stop words, thì topic đó gần như không có ý nghĩa diễn giải.
+
+Ngoài stop words, tác giả cũng kiểm tra các từ có ký tự không phải alphabet, vì đây có thể là dấu hiệu của junk terms hoặc noise. Tuy nhiên, paper cũng lưu ý rằng metric này không hoàn hảo, vì trong một số trường hợp, số hoặc ký tự đặc biệt vẫn có ý nghĩa. Ví dụ “1917” có thể là từ quan trọng nếu topic nói về Cách mạng tháng Mười Nga.
+
+Metric cuối cùng là Runtime, tức là thời gian chạy.
+Runtime rất quan trọng trong thực tế, vì topic modeling thường được dùng trên corpus lớn. Một model có chất lượng tốt nhưng chạy quá chậm thì khó triển khai. Do đó, paper đánh giá cả chất lượng topic lẫn tốc độ chạy.
+
+5. Kết quả thực nghiệm
+
+Bây giờ em sẽ trình bày phần kết quả.
+
+Kết quả tổng quát cho thấy S³ là mô hình cân bằng nhất trong số các mô hình được so sánh. Nó không phải lúc nào cũng đứng đầu tuyệt đối trên từng metric riêng lẻ, nhưng khi xét tổng hợp giữa diversity, coherence và runtime, S³ cho kết quả rất mạnh.
+
+Theo phần Results, S³ đạt hiệu năng tổng hợp cao hơn các baseline và trung bình nhanh hơn các baseline khoảng 27.5 lần. Ngoài ra, nếu so riêng với BERTopic, S³ được báo cáo là nhanh hơn khoảng 4.5 lần trong phần giới thiệu của paper. Điều này cho thấy S³ không chỉ tốt về chất lượng topic mà còn hiệu quả về mặt tính toán.
+
+Một điểm quan trọng là S³ giữ được sự cân bằng giữa diversity và coherence.
+Một số mô hình khác có điểm mạnh riêng nhưng bị lệch. Ví dụ, Top2Vec thường cho topic khá coherent, tức là các từ trong topic liên quan tốt với nhau, nhưng diversity lại thấp hơn trong nhiều trường hợp. Điều này nghĩa là các topic có thể bị trùng lặp hoặc không phân tách đủ rõ.
+
+Ngược lại, FASTopic và ECRTM đôi khi cho diversity cao, tức là các topic khác nhau rõ ràng, nhưng coherence lại thấp hơn. Điều này nghĩa là topic có thể khác nhau nhưng chưa chắc dễ hiểu hoặc mạch lạc.
+
+Trong khi đó, S³ nằm ở giữa hai cực này: topic vừa khác nhau, vừa có tính mạch lạc tương đối cao. Đây là lý do paper kết luận rằng S³ đạt sự cân bằng tốt giữa diversity và coherence.
+
+Nếu nhìn vào bảng kết quả theo từng corpus, ta thấy S³ hoạt động khá ổn định.
+Trên 20 Newsgroups Raw, các biến thể S³ đạt diversity gần như rất cao, khoảng 0.98 đến 1.00, và điểm tổng hợp cũng cao hơn nhiều baseline cổ điển như LDA, NMF và BERTopic.
+
+Trên BBC News, S³ cũng có điểm tổng hợp khoảng 0.64 đến 0.66, cạnh tranh rất sát với Top2Vec và FASTopic. Điều này cho thấy với dữ liệu tin tức, S³ vẫn tạo ra topic vừa rõ ràng vừa mạch lạc.
+
+Trên ArXiv ML Papers, S³ có kết quả rất tốt. Đây là dataset học thuật, nhiều thuật ngữ chuyên ngành, nhưng S³ vẫn giữ được internal coherence cao. Điều này hợp lý vì S³ hoạt động trực tiếp trên semantic embedding, nên nó có khả năng khai thác quan hệ ngữ nghĩa giữa các thuật ngữ chuyên môn.
+
+Trên StackExchange, S³ cũng đạt diversity rất cao, gần 1.00. Đây là điểm đáng chú ý vì StackExchange có dữ liệu hỏi đáp ngắn và đa dạng, thường khó topic modeling hơn.
+
+Trên Wiki Medical, Top2Vec có điểm tổng hợp rất cao, nhưng S³ và ECRTM cũng ở mức rất cạnh tranh. Điều này cho thấy trong miền y khoa, một số mô hình embedding-based đều có thể khai thác tốt quan hệ ngữ nghĩa chuyên ngành.
+
+6. Ảnh hưởng của preprocessing
+
+Một kết quả rất quan trọng của paper là S³ hoạt động tốt hơn trên dữ liệu raw so với dữ liệu đã preprocessing.
+
+Thông thường, các topic model cổ điển như LDA hoặc một số model dựa trên Bag-of-Words rất cần preprocessing. Ta phải loại stop words, chuẩn hóa từ, loại ký tự nhiễu, có thể stemming hoặc lemmatization. Nếu không, topic dễ bị nhiễu bởi các từ phổ biến hoặc không mang nhiều ý nghĩa.
+
+Tuy nhiên, S³ lại tận dụng tốt văn bản tự nhiên. Khi bỏ preprocessing và dùng raw text, S³ là mô hình duy nhất trong bài thể hiện xu hướng cải thiện nhất quán. Điều này rất quan trọng vì preprocessing đôi khi làm mất thông tin. Đặc biệt với các văn bản ngắn, nếu loại bỏ quá nhiều từ, ngữ cảnh có thể bị mất.
+
+Kết quả này ủng hộ lập luận chính của paper: vì S³ dựa trên contextual embeddings, nó có thể tận dụng ngữ cảnh tự nhiên của văn bản thay vì phụ thuộc quá nhiều vào pipeline tiền xử lý thủ công.
+
+7. Stop words và junk terms
+
+Về robustness, paper kiểm tra xem topic descriptions có bị nhiễu bởi stop words hay không.
+
+Kết quả cho thấy nhiều model truyền thống hoặc một số model như BERTopic có thể tạo ra topic chứa rất nhiều stop words khi chạy trên raw corpus. Trong trường hợp xấu, topic có thể gần như toàn các từ như “the”, “of”, “to”, “and”, khiến topic không còn giá trị diễn giải.
+
+Ngược lại, S³, Top2Vec và ECRTM hiếm khi đưa stop words vào top 10 terms. Điều này cho thấy S³ có khả năng chống nhiễu khá tốt, ngay cả khi không cần preprocessing nặng.
+
+Đây là một ưu điểm thực tế. Vì nếu một topic model yêu cầu preprocessing phức tạp, người dùng phải thử nhiều cấu hình khác nhau. Điều đó làm tăng thời gian, tăng độ phức tạp, và có thể làm kết quả phụ thuộc vào lựa chọn chủ quan của người nghiên cứu.
+
+8. Ảnh hưởng của embedding models
+
+Một câu hỏi khác là: S³ có phụ thuộc vào embedding model hay không?
+
+Kết quả cho thấy S³ khá ổn định trên nhiều embedding models. Ngay cả khi dùng Averaged GloVe, tức là embedding đơn giản hơn và không contextual như SBERT hoặc E5, S³ vẫn hoạt động tương đối tốt.
+
+Trong khi đó, một số model khác nhạy hơn với embedding. Ví dụ, Top2Vec bị ảnh hưởng mạnh khi thay đổi embedding model, đặc biệt là với GloVe và E5. FASTopic thì lại có xu hướng hoạt động tốt với GloVe hơn, nhưng giảm khi embedding size tăng. Paper giải thích rằng điều này có thể liên quan đến curse of dimensionality, tức là khi embedding dimension quá cao, mô hình khó fit tốt hơn.
+
+Điểm này cho thấy S³ có tính linh hoạt cao, vì nó không quá phụ thuộc vào một encoder cụ thể.
+
+9. Ba biến thể của S³
+
+Paper cũng đánh giá ba cách tính word importance của S³: axial, angular, và combined.
+
+Biến thể axial có xu hướng tạo ra topic coherent hơn, tức là các từ trong topic liên quan chặt chẽ hơn.
+
+Biến thể angular có xu hướng tạo ra diversity cao hơn, tức là các topic ít bị trùng từ hơn.
+
+Biến thể combined cố gắng cân bằng hai hướng trên. Vì vậy, paper khuyến nghị dùng combined như lựa chọn mặc định, bởi vì nó cân bằng giữa việc chọn từ quan trọng và việc tránh một từ xuất hiện quá nhiều trong nhiều topic khác nhau.
+
+10. Kết luận phần kết quả
+
+Tóm lại, từ phần thực nghiệm và kết quả, ta có thể rút ra ba kết luận chính.
+
+Thứ nhất, S³ đạt chất lượng topic tốt và cân bằng. Nó không chỉ có diversity cao mà còn giữ được coherence tốt, giúp topic dễ diễn giải hơn.
+
+Thứ hai, S³ rất nhanh. Đây là một lợi thế lớn so với các contextual topic models khác, vì nhiều mô hình hiện đại thường có chi phí tính toán cao.
+
+Thứ ba, S³ ít phụ thuộc vào preprocessing. Đây là điểm rất quan trọng trong thực tế, vì người dùng có thể áp dụng trực tiếp trên natural text mà không cần xây dựng pipeline tiền xử lý phức tạp.
+
+Vì vậy, phần Results của paper ủng hộ mạnh cho đóng góp chính của tác giả: S³ là một topic model đơn giản về mặt ý tưởng, hiệu quả về mặt tính toán, và có khả năng tạo ra các topic vừa đa dạng vừa mạch lạc trong nhiều miền dữ liệu khác nhau.
+
+Đó là phần trình bày của em về experimental setup, metrics và results. Em xin cảm ơn thầy cô và các bạn đã lắng nghe.
