@@ -431,47 +431,50 @@ W = V @ C.T</code></pre>
     </section>
   </section>
 
-  <!-- S14 negative -->
+  <!-- Nhóm: Từ negative + ví dụ §6.2 (Compass rồi Table 2) -->
   <section>
-    <h2>Điểm độc đáo: mô tả bằng từ <span class="lose">NEGATIVE</span> <span class="act-badge">ACT 3</span></h2>
-    <div class="box idea"><span class="lbl">TRỰC GIÁC</span>Cả 3 công thức cho phép từ có <b>độ quan trọng âm</b> → ngoài "top từ dương", S³ liệt kê cả <b>top từ âm</b> = một <b>định nghĩa âm</b> của topic.</div>
-    <ul>
-      <li>LSA cũng có tính chất này về toán, nhưng <b>chưa từng được khai thác</b>.</li>
-      <li><b>Lợi ích:</b> hai topic có từ-dương giống nhau vẫn phân biệt được nhờ <b>từ âm</b>.</li>
-      <li><span class="tag amber">Fair</span> So sánh định lượng <b>bỏ qua từ âm</b>; từ âm chỉ dùng minh hoạ định tính.</li>
-    </ul>
-    <div class="box say"><span class="lbl">CÂU DẪN</span>Không mô hình nào khác cho biết một topic <i>KHÔNG</i> nói về cái gì — S³ thì có.</div>
-    <aside class="notes">Ví dụ cụ thể ngay slide sau: Topic 0 và 4 có từ dương giống nhau, chỉ từ âm mới phân biệt.</aside>
-  </section>
+    <!-- 21 · Từ negative -->
+    <section>
+      <h2>Từ có độ quan trọng âm (negative importance) <span class="act-badge">ACT 3</span></h2>
+      <div class="box idea">
+        Khác với một số mô hình topic modelling khác, <b>S³ cho phép từ ngữ mang giá trị importance âm</b> so với một topic. Việc phát hiện các từ ngữ mang thiên hướng <b>bài xích trục chủ đề</b> này góp phần giải thích chủ đề <b>một cách sâu sắc hơn</b> — cho biết chủ đề đó <b>đối lập với cái gì</b> (hoặc <b>không phải là gì</b>).
+      </div>
+      <div class="box key">
+        <b>LSA (Latent Semantic Analysis)</b> cũng có tính chất này, nhưng <b>chưa từng được khai thác</b> trong văn liệu trước đây.
+      </div>
+      <p class="center"><small>↓ xem ví dụ trên dữ liệu thật</small></p>
+      <aside class="notes">Điểm độc đáo của S³: từ âm cho "định nghĩa âm" của topic. Ví dụ Concept Compass + Table 2 ngay dưới (trượt ↓).</aside>
+    </section>
 
-  <!-- P3-C Ví dụ output: Table 2 (§6.2) -->
-  <section>
-    <h2>S³ cho ra gì? — Ví dụ trên ArXiv <span class="act-badge">ACT 3 · §6.2</span></h2>
-    <div class="cols" style="align-items:center;">
-      <img src="/main/table2.png" alt="Table 2 — các topic trong ArXiv ML Papers do S³ trích xuất, mỗi topic có cột từ dương và từ âm" style="max-height:430px;width:auto;max-width:56%;border-radius:8px;border:1px solid #e2e8f0;">
-      <div class="box idea" style="flex:1"><span class="lbl">ĐỌC BẢNG (Table 2)</span>
-        Mỗi topic có <b>top từ dương</b> (topic nói về gì) và <b>top từ âm</b> (topic KHÔNG phải gì).<br><br>
-        Topic <b>0</b> và <b>4</b> đều có "clustering" ở cột dương — <b>chỉ nhờ cột âm</b> mới phân biệt:<br>
-        • Topic 0 ⟂ reinforcement, planning<br>
-        • Topic 4 ⟂ cnn, deepmind, convnet<br><br>
-        → Đây chính là sức mạnh của <b>từ negative</b> ở slide trước, thể hiện trên dữ liệu thật.</div>
-    </div>
-    <aside class="notes">Đây là output S³ thật (Table 2 của bài). Nhấn Topic 0 vs 4: từ dương giống nhau, từ âm khác nhau.</aside>
-  </section>
+    <!-- 22 · Concept Compass (§6.2) -->
+    <section>
+      <h2>Concept Compass — bản đồ ngữ nghĩa <span class="act-badge">ACT 3 · §6.2</span></h2>
+      <div class="cols" style="align-items:center;">
+        <img src="/main/figure7.png" alt="Figure 7 — Concept Compass: các từ ArXiv đặt trên mặt phẳng 2 trục topic do S³ trích xuất" style="max-height:470px;width:auto;max-width:54%;border-radius:8px;border:1px solid #e2e8f0;">
+        <div class="box key" style="flex:1"><span class="lbl">Ý NGHĨA (Figure 7)</span>
+          Chọn <b>2 trục topic</b> làm 2 chiều → đặt mọi từ lên một mặt phẳng:<br>
+          • Trục ngang: Vật lý/Sinh học/Thị giác ↔ <b>Ngôn ngữ</b><br>
+          • Trục dọc: Deep Learning ↔ <b>Thuật toán</b><br><br>
+          S³ không chỉ liệt kê topic — nó cho một <b>bản đồ ngữ nghĩa</b> để đặt bất kỳ từ nào lên và xem nó nằm đâu.<br>
+          <b>Điều mà mô hình cụm / xác suất không làm được.</b></div>
+      </div>
+      <aside class="notes">Bản đồ ngữ nghĩa trực quan. Figure 7 của bài.</aside>
+    </section>
 
-  <!-- P3-D Concept Compass: Figure 7 (§6.2) -->
-  <section>
-    <h2>Concept Compass — bản đồ ngữ nghĩa <span class="act-badge">ACT 3 · §6.2</span></h2>
-    <div class="cols" style="align-items:center;">
-      <img src="/main/figure7.png" alt="Figure 7 — Concept Compass: các từ ArXiv đặt trên mặt phẳng 2 trục topic do S³ trích xuất" style="max-height:470px;width:auto;max-width:54%;border-radius:8px;border:1px solid #e2e8f0;">
-      <div class="box key" style="flex:1"><span class="lbl">Ý NGHĨA (Figure 7)</span>
-        Chọn <b>2 trục topic</b> làm 2 chiều → đặt mọi từ lên một mặt phẳng:<br>
-        • Trục ngang: Vật lý/Sinh học/Thị giác ↔ <b>Ngôn ngữ</b><br>
-        • Trục dọc: Deep Learning ↔ <b>Thuật toán</b><br><br>
-        S³ không chỉ liệt kê topic — nó cho một <b>bản đồ ngữ nghĩa</b> để đặt bất kỳ từ nào lên và xem nó nằm đâu.<br>
-        <b>Điều mà mô hình cụm / xác suất không làm được.</b></div>
-    </div>
-    <aside class="notes">Finale "dễ nhìn" — chốt Phần 3: từ công thức trừu tượng ra một bản đồ trực quan. Figure 7 của bài.</aside>
+    <!-- 23 · Table 2 (§6.2) -->
+    <section>
+      <h2>S³ cho ra gì? — Ví dụ trên ArXiv (Table 2) <span class="act-badge">ACT 3 · §6.2</span></h2>
+      <div class="cols" style="align-items:center;">
+        <img src="/main/table2.png" alt="Table 2 — các topic trong ArXiv ML Papers do S³ trích xuất, mỗi topic có cột từ dương và từ âm" style="max-height:430px;width:auto;max-width:56%;border-radius:8px;border:1px solid #e2e8f0;">
+        <div class="box idea" style="flex:1"><span class="lbl">ĐỌC BẢNG (Table 2)</span>
+          Mỗi topic có <b>top từ dương</b> (topic nói về gì) và <b>top từ âm</b> (topic KHÔNG phải gì).<br><br>
+          Topic <b>0</b> và <b>4</b> đều có "clustering" ở cột dương — <b>chỉ nhờ cột âm</b> mới phân biệt:<br>
+          • Topic 0 ⟂ reinforcement, planning<br>
+          • Topic 4 ⟂ cnn, deepmind, convnet<br><br>
+          → Chính là sức mạnh của <b>từ negative</b>, thể hiện trên dữ liệu thật.</div>
+      </div>
+      <aside class="notes">Output S³ thật (Table 2 của bài). Nhấn Topic 0 vs 4: từ dương giống nhau, từ âm khác nhau.</aside>
+    </section>
   </section>
 
   <!-- ========================================================= -->
@@ -626,9 +629,9 @@ model.print_topics()</code></pre>
   <h4 style="margin:.6em 0 .4em;color:var(--accent2);font-size:12px;text-transform:uppercase;letter-spacing:.05em">Act 2 · Động lực</h4>
   <a href="#/4">Topic model là gì</a><a href="#/5">Bag-of-Words</a><a href="#/6">Embeddings</a><a href="#/7">Baselines</a><a href="#/8">Topic = trục</a>
   <h4 style="margin:.6em 0 .4em;color:var(--accent2);font-size:12px;text-transform:uppercase;letter-spacing:.05em">Act 3 · Thuật toán</h4>
-  <a href="#/9">Turftopic (dùng thử)</a><a href="#/10">Pipeline tổng thể</a><a href="#/11">6 bước (gồm word importance)</a><a href="#/12">Từ negative</a><a href="#/13">Ví dụ ArXiv (Table 2)</a><a href="#/14">Concept Compass</a>
+  <a href="#/9">Turftopic (dùng thử)</a><a href="#/10">Pipeline tổng thể</a><a href="#/11">6 bước (gồm word importance)</a><a href="#/12">Từ negative + ví dụ (§6.2)</a>
   <h4 style="margin:.6em 0 .4em;color:var(--accent2);font-size:12px;text-transform:uppercase;letter-spacing:.05em">Act 4 · Chốt hạ</h4>
-  <a href="#/15">Thiết lập</a><a href="#/16">Kết quả</a><a href="#/17">Hồi quy</a><a href="#/18">Preprocessing</a><a href="#/19">Định tính</a><a href="#/20">Kết luận</a><a href="#/21">Q&amp;A</a>
+  <a href="#/13">Thiết lập</a><a href="#/14">Kết quả</a><a href="#/15">Hồi quy</a><a href="#/16">Preprocessing</a><a href="#/17">Định tính</a><a href="#/18">Kết luận</a><a href="#/19">Q&amp;A</a>
 </nav>
 <style>
   #quick-nav-panel.open{ transform:translateX(0)!important; } #quick-nav-overlay.open{ opacity:1!important; pointer-events:auto!important; }
