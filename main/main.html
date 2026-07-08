@@ -318,11 +318,12 @@ model.print_topics()</code></pre>
   <section>
     <section>
       <h2>Thuật toán S³ — 6 bước <span class="act-badge">ACT 3 · THUẬT TOÁN</span></h2>
-      <div class="box tech"><span class="lbl">CỐT LÕI</span>Toàn bộ phần "khó" chỉ là <b>một phép phân rã ma trận</b>: <span style="font-size:1.15em">tài liệu = topic × độ mạnh</span></div>
-      <div class="step"><b>1.</b> Encode tài liệu → ma trận <b>X</b></div>
-      <div class="step"><b>2.</b> FastICA: <b>X = A·S</b> (A = topic, S = document-topic importance)</div>
-      <div class="step"><b>3.</b> Encode từ vựng bằng <b>cùng encoder</b> → <b>V</b></div>
-      <div class="step"><b>4.</b> Unmixing: <b>C = A⁺</b> · <b>5.</b> Chiếu từ: <b>W = V·Cᵀ</b> · <b>6.</b> Word importance</div>
+      <div class="step"><b>1.</b> Encode tài liệu → ma trận <b>X</b> (embedding các tài liệu)</div>
+      <div class="step"><b>2.</b> Áp dụng <b>FastICA</b> phân rã: <b>X = A · S</b> &nbsp;(A = trục topic, S = tỷ lệ topic)</div>
+      <div class="step"><b>3.</b> Encode <b>từ điển</b> bằng cùng encoder → ma trận <b>V</b></div>
+      <div class="step"><b>4.</b> Tính unmixing matrix: <b>C = A⁺</b></div>
+      <div class="step"><b>5.</b> Chiếu từ lên trục: <b>W = V · Cᵀ</b></div>
+      <div class="step"><b>6.</b> Tính <b>word importance</b> bằng <b>β</b> — chọn từ mô tả mỗi topic</div>
       <p class="center"><small>↓ bấm xuống xem chi tiết</small></p>
       <aside class="notes">Điểm bán hàng: không train mạng, không vòng lặp tối ưu → nhanh.</aside>
     </section>
