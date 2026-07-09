@@ -175,6 +175,7 @@
         </tbody>
       </table>
       <div class="box warnx" style="font-size:.8em;"><span class="lbl">ĐIỂM YẾU</span>Mất ngữ cảnh hoàn toàn · không phân biệt nghĩa (đa nghĩa) · ma trận rất thưa (sparse) · bắt buộc tiền xử lý nặng.</div>
+      <p class="center"><small>↓ cuộn xuống để xem so sánh giữa LSA và LDA</small></p>
       <aside class="notes">BoW là nền tảng; LSA và LDA đều xây trên nó, chỉ khác cách "tìm chủ đề".</aside>
     </section>
     <section>
@@ -184,42 +185,43 @@
         <div class="box tech"><span class="lbl">LSA — Đại số tuyến tính</span><b>Ý tưởng:</b> Nén ma trận đếm từ xuống K chiều, mỗi chiều là 1 topic.<br><b>Cách làm:</b> Dùng thuật toán SVD phân tách \( A = U\,\Sigma\,V^{\top} \).<br><b>Điểm yếu:</b> SVD chỉ cho trục trực giao (uncorrelated) — 1 trục có thể lẫn nhiều chủ đề; input vẫn BoW.</div>
         <div class="box key"><span class="lbl">LDA — Thống kê xác suất</span><b>Ý tưởng:</b> Mô hình sinh — mô tả cách tài liệu "được sinh ra" rồi suy ngược lại.<br><b>Cách làm:</b> Chọn phân phối chủ đề (Dirichlet) → sinh từng từ theo chủ đề → suy luận ngược (Bayes).<br><b>Điểm yếu:</b> giả định Dirichlet có thể sai, nhạy hyperparameter (α,β), Bayes tốn thời gian; input vẫn là BoW.</div>
       </div>
-      <p class="center"><small>S³ sẽ kế thừa tinh thần LSA (phân tách ma trận tuyến tính), chỉ đổi input + thuật toán (cuối Act 2).</small></p>
+      <p class="center"><small>S³ sẽ kế thừa tinh thần LSA (phân tách ma trận tuyến tính), chỉ đổi input + thuật toán (Slide 12).</small></p>
     </section>
   </section>
 
-  <!-- ACT 2 · Chùm 2 — Embedding & 2 nhánh (pptx S4–S5) -->
+  <!-- ACT 2 · Giai đoạn 2 — Contextual Embedding (đứng riêng) -->
   <section>
-    <section>
-      <h2>Giai đoạn 2: Contextual Embedding <span class="act-badge">ACT 2</span></h2>
-      <p style="font-size:.9em;">Từ <b>"đếm từ"</b> sang <b>"hiểu nghĩa"</b> — BERT (2018), SBERT (2019).</p>
-      <table style="font-size:.66em;">
-        <thead><tr><th></th><th>Bag-of-Words</th><th>Sentence Embedding</th></tr></thead>
-        <tbody>
-          <tr><td>Kích thước</td><td>= |V| (hàng chục nghìn)</td><td>Cố định (384, 768...)</td></tr>
-          <tr><td>Thưa / Dày</td><td>Rất thưa</td><td>Dày đặc</td></tr>
-          <tr><td>Hiểu ngữ cảnh?</td><td>Không</td><td>Có</td></tr>
-          <tr><td>Hiểu ngữ pháp?</td><td>Không</td><td>Có</td></tr>
-          <tr><td>Cần tiền xử lý?</td><td>Bắt buộc</td><td>Không bắt buộc</td></tr>
-        </tbody>
-      </table>
-      <div class="box key" style="font-size:.8em;"><span class="lbl">TRANSFER LEARNING</span>Model embedding đã pretrain trên hàng tỷ câu → mang về dùng trên corpus riêng là dùng được ngay, không cần dữ liệu lớn để bắt đầu.</div>
-      <aside class="notes">Embedding chỉ là biểu diễn — chưa tìm topic. Dùng nó tìm topic bằng cách nào → 2 nhánh.</aside>
-    </section>
-    <section>
-      <h2>Giai đoạn 3: Neural vs Clustering <span class="act-badge">ACT 2</span></h2>
-      <div class="two-col-tight" style="font-size:.74em;">
-        <div class="box tech"><span class="lbl">NHÁNH NEURAL — "học" bằng mạng nơ-ron</span>
-          <b>CTM:</b> VAE encoder→decoder tái tạo BoW. <span class="lose">✕</span> "145, ax, 0d, _o, a86..."<br>
-          <b>ECRTM:</b> VAE+Sinkhorn (1000 lặp), chậm nhất, không dùng contextual. <span class="lose">✕</span> "verbeek, billington..."<br>
-          <b>FASTopic:</b> optimal transport, gộp nhầm topic, kém khi embedding lớn. <span class="lose">✕</span> "moon, bike, car, orbit..."</div>
-        <div class="box key"><span class="lbl">NHÁNH CLUSTERING — bài toán hình học</span>
-          Pipeline: UMAP → HDBSCAN → từ khóa. Top2Vec: cosine với tâm cụm; BERTopic: c-TF-IDF (quay lại đếm từ!).<br>
-          <b>Thất bại thực tế:</b> <span class="lose">✕</span> BERTopic 1 cụm toàn stopword ("the, of, to, in, space..."), stopword tới 100% mô tả; <span class="lose">✕</span> Top2Vec chỉ 2 cụm cho cả corpus.</div>
-      </div>
-      <div class="box warnx" style="font-size:.78em;"><span class="lbl">ĐIỂM YẾU CHUNG</span>① Chậm (50–200 epoch / UMAP+HDBSCAN) · ② Nhạy hyperparameter · ③ Nhiều model vẫn quay lại đếm từ ở đâu đó.</div>
-      <aside class="notes">Neural (CTM/ECRTM/FASTopic) vs Clustering (Top2Vec/BERTopic). 3 điểm yếu chung.</aside>
-    </section>
+    <h2>Giai đoạn 2: Contextual Embedding <span class="act-badge">ACT 2</span></h2>
+    <p style="font-size:.9em;">Từ <b>"đếm từ"</b> sang <b>"hiểu nghĩa"</b> — BERT (2018), SBERT (2019).</p>
+    <table style="font-size:.66em;">
+      <thead><tr><th></th><th>Bag-of-Words</th><th>Sentence Embedding</th></tr></thead>
+      <tbody>
+        <tr><td>Kích thước</td><td>= |V| (hàng chục nghìn)</td><td>Cố định (384, 768...)</td></tr>
+        <tr><td>Thưa / Dày</td><td>Rất thưa</td><td>Dày đặc</td></tr>
+        <tr><td>Hiểu ngữ cảnh?</td><td>Không</td><td>Có</td></tr>
+        <tr><td>Hiểu ngữ pháp?</td><td>Không</td><td>Có</td></tr>
+        <tr><td>Cần tiền xử lý?</td><td>Bắt buộc</td><td>Không bắt buộc</td></tr>
+      </tbody>
+    </table>
+    <div class="box key" style="font-size:.8em;"><span class="lbl">TRANSFER LEARNING</span>Model embedding đã pretrain trên hàng tỷ câu → mang về dùng trên corpus riêng là dùng được ngay, không cần dữ liệu lớn để bắt đầu.</div>
+    <aside class="notes">Embedding chỉ là biểu diễn — chưa tìm topic. Dùng nó tìm topic bằng cách nào → 2 nhánh (Giai đoạn 3).</aside>
+  </section>
+
+  <!-- ACT 2 · Giai đoạn 3 — Neural vs Clustering (đứng riêng · refine theo §2.2) -->
+  <section>
+    <h2>Giai đoạn 3: Neural vs Clustering <span class="act-badge">ACT 2</span></h2>
+    <div class="two-col-tight" style="font-size:.72em;">
+      <div class="box tech"><span class="lbl">NHÁNH NEURAL — mạng nơ-ron ước lượng tham số</span>
+        <b>CTM (ZeroShotTM / CombinedTM):</b> mô hình sinh BoW dùng variational autoencoder; embedding làm input encoder (CombinedTM nối thêm vector BoW). <span class="lose">Điểm yếu:</span> cần tiền xử lý nặng; hiệu quả &amp; chất lượng giảm mạnh khi từ vựng lớn.<br>
+        <b>ECRTM:</b> điều chuẩn phân cụm nhúng để các topic đủ khác biệt (tránh mô tả trùng nhau). <span class="lose">Điểm yếu:</span> không dùng biểu diễn ngữ cảnh; chậm hơn hẳn.<br>
+        <b>FASTopic:</b> quan hệ ngữ nghĩa kép — tài liệu–chủ đề–từ như các "optimal transport plans". <span class="win">Hiệu quả &amp; chất lượng cao hơn các mô hình neural trước.</span></div>
+      <div class="box key"><span class="lbl">NHÁNH CLUSTERING — phân cụm embedding, trọng số từ tính post hoc</span>
+        <b>Top2Vec:</b> cosine giữa vector từ và tâm cụm. <span class="lose">Điểm yếu:</span> giả định cụm hình cầu &amp; lồi → mô tả topic sai lệch nếu cụm méo.<br>
+        <b>BERTopic:</b> trọng số từ bằng c-TF-IDF (class-based TF-IDF).<br>
+        Cả hai đều: UMAP (giảm chiều) + HDBSCAN (phân cụm), kèm bước <b>giảm số topic</b> — vì HDBSCAN tự học số cụm nên số cụm có thể bùng nổ.</div>
+    </div>
+    <div class="box warnx" style="font-size:.76em;"><span class="lbl">THÁCH THỨC CHUNG (§2.2)</span>Nhạy hyperparameter · topic khó diễn giải · phụ thuộc tiền xử lý chưa chuẩn hoá · chưa rõ có thật sự tận dụng ngữ cảnh (thường chỉ đánh giá trên corpus đã tiền xử lý).</div>
+    <aside class="notes">Refine theo §2.2: Neural (CTM/ECRTM/FASTopic) + Clustering (Top2Vec/BERTopic), cách làm + điểm yếu từng loại. FASTopic được §2.2 xem là mạnh nhất nhóm neural.</aside>
   </section>
 
   <!-- ACT 2 · Chùm 3 — Clustering chi tiết (pptx S6) -->
@@ -782,9 +784,9 @@ model.print_topics()</code></pre>
   <h4 style="margin:0 0 .4em;color:var(--accent2);font-size:12px;text-transform:uppercase;letter-spacing:.05em">Act 1 · Hook</h4>
   <a href="#/0">Tiêu đề</a><a href="#/1">Cocktail Party &amp; ICA</a><a href="#/2">Chuyển dịch: văn bản = bản trộn</a><a href="#/3">ICA vs PCA</a>
   <h4 style="margin:.6em 0 .4em;color:var(--accent2);font-size:12px;text-transform:uppercase;letter-spacing:.05em">Act 2 · Động lực</h4>
-  <a href="#/4">Lịch sử — tổng quan</a><a href="#/5">Giai đoạn 1: BoW · LSA/LDA</a><a href="#/6">Embedding &amp; 2 nhánh</a><a href="#/7">Clustering chi tiết</a><a href="#/8">3 thách thức chung</a><a href="#/9">S³ — tổng kết bối cảnh</a>
+  <a href="#/4">Lịch sử — tổng quan</a><a href="#/5">Giai đoạn 1: BoW · LSA/LDA</a><a href="#/6">Giai đoạn 2: Embedding</a><a href="#/7">Giai đoạn 3: Neural &amp; Clustering</a><a href="#/8">Clustering chi tiết</a><a href="#/9">3 thách thức chung</a><a href="#/10">S³ — tổng kết bối cảnh</a>
   <h4 style="margin:.6em 0 .4em;color:var(--accent2);font-size:12px;text-transform:uppercase;letter-spacing:.05em">Act 3 · Thuật toán</h4>
-  <a href="#/10">Turftopic (dùng thử)</a><a href="#/11">Pipeline tổng thể</a><a href="#/12">6 bước (gồm word importance)</a><a href="#/13">Từ negative + ví dụ (§6.2)</a><a href="#/14">Inference tài liệu mới</a>
+  <a href="#/11">Turftopic (dùng thử)</a><a href="#/12">Pipeline tổng thể</a><a href="#/13">6 bước (gồm word importance)</a><a href="#/14">Từ negative + ví dụ (§6.2)</a><a href="#/15">Inference tài liệu mới</a>
   <h4 style="margin:.6em 0 .4em;color:var(--accent2);font-size:12px;text-transform:uppercase;letter-spacing:.05em">Act 4 · Chốt hạ</h4>
   <a href="#/15">Datasets &amp; Metrics</a><a href="#/16">Embeddings &amp; Models</a><a href="#/17">Biểu đồ kết quả</a><a href="#/18">Kết quả tổng quát</a><a href="#/19">Theo từng corpus</a><a href="#/20">Preprocessing</a><a href="#/21">Ảnh hưởng embedding</a><a href="#/22">Định tính</a><a href="#/23">Kết luận kết quả</a><a href="#/24">Q&amp;A</a>
 </nav>
