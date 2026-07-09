@@ -592,58 +592,62 @@ S_hat = X_hat @ C.T
   <!-- S15 setup -->
   <section>
     <section>
-      <h2>Thiết lập thí nghiệm <span class="act-badge">ACT 4 · CHỐT HẠ</span></h2>
+      <h2>Bộ dữ liệu sử dụng <span class="act-badge">ACT 4 · THÍ NGHIỆM</span></h2>
       <table>
-        <thead><tr><th>Dataset</th><th class="num">#Tài liệu</th><th class="num">Vocab</th></tr></thead>
+        <thead><tr><th>Dataset</th><th>Vai trò trong đánh giá</th></tr></thead>
         <tbody>
-          <tr><td>ArXiv ML / BBC News</td><td class="num">2.048 / 1.225</td><td class="num">2.849 / 3.851</td></tr>
-          <tr><td>20NG <b>Preprocessed</b></td><td class="num">16.310</td><td class="num">1.612</td></tr>
-          <tr class="rank1"><td>20NG <b>Raw (thô)</b></td><td class="num">18.846</td><td class="num">21.668</td></tr>
-          <tr><td>StackExchange / Wiki Medical</td><td class="num">75.000 / 6.861</td><td class="num">17.884 / 22.145</td></tr>
+          <tr class="rank1"><td><b>20 Newsgroups</b><br><small>raw + preprocessed</small></td><td>Kiểm tra mô hình có phụ thuộc mạnh vào preprocessing hay không.</td></tr>
+          <tr><td><b>BBC News</b></td><td>Tin tức có chủ đề rõ như business, sport, politics, entertainment, technology.</td></tr>
+          <tr><td><b>ArXiv ML abstracts</b><br><small>2.048 mẫu</small></td><td>Miền học thuật, nhiều thuật ngữ như clustering, reinforcement learning, graph learning.</td></tr>
+          <tr><td><b>Wikipedia Medical terms</b></td><td>Miền y khoa, phù hợp để kiểm tra coherence của thuật ngữ chuyên ngành.</td></tr>
+          <tr><td><b>StackExchange entries</b></td><td>Hỏi đáp ngắn, đa dạng, khó hơn vì ngữ cảnh không dài như bài báo.</td></tr>
         </tbody>
       </table>
-      <div class="box idea" style="font-size:.85em;"><span class="lbl">THIẾT KẾ TINH TẾ</span>Dùng <b>cả 20NG thô lẫn đã làm sạch</b> để đo riêng <b>ảnh hưởng preprocessing</b>. 4 embeddings (GloVe→E5), số topic 10–50, <b>không tune hyperparameter</b> (tránh p-hacking), chạy 1 lần.</div>
-      <div class="box key" style="font-size:.8em;"><span class="lbl">5 MIỀN DỮ LIỆU KHÁC NHAU</span>Newsgroup (20NG) · tin tức (BBC) · học thuật (ArXiv ML abstracts) · y khoa (Wikipedia Medical) · hỏi–đáp (StackExchange) → kiểm chứng mô hình có <b>tổng quát hoá</b> qua nhiều lĩnh vực hay không.</div>
-      <aside class="notes">Vocab 20NG raw 21.668 vs preprocessed 1.612 → preprocessing vứt ~93% từ. Thông tin đó có giá trị không?</aside>
+      <div class="box key" style="font-size:.84em;"><span class="lbl">Ý CHÍNH</span>Tác giả không đánh giá trên một corpus duy nhất, mà dùng nhiều miền dữ liệu để xem S³ có <b>ổn định và tổng quát</b> hay không.</div>
+      <aside class="notes">Đầu tiên là về datasets. Tác giả dùng nhiều loại corpus khác nhau, gồm 20 Newsgroups cả raw và preprocessed, BBC News, ArXiv Machine Learning abstracts, Wikipedia Medical terms và StackExchange entries. Điểm mạnh của setup này là kiểm tra trên tin tức, học thuật, y khoa, diễn đàn hỏi đáp và newsgroup, nên kết quả có tính tổng quát hơn.</aside>
     </section>
     <section>
-      <h2>Đo chất lượng thế nào?</h2>
-      <div class="cols">
-        <div class="box tech" style="flex:1"><span class="lbl">DIVERSITY (d)</span>Topic khác nhau đến đâu (số từ dùng chung). Thấp = trùng lặp = khó phân biệt.</div>
-        <div class="box tech" style="flex:1"><span class="lbl">COHERENCE (C)</span>Topic mạch lạc đến đâu (độ tương đồng trung bình từng cặp từ, dựa trên Word2Vec).</div>
+      <h2>Metrics đánh giá</h2>
+      <div class="two-col-tight" style="font-size:.77em;">
+        <div class="box tech"><span class="lbl">TOPIC DIVERSITY (d)</span>Đo mức độ khác nhau giữa các topic. Nếu nhiều topic lặp cùng từ khóa như “data”, “model”, “learning” thì diversity thấp.</div>
+        <div class="box tech"><span class="lbl">TOPIC COHERENCE</span>Đo các từ trong cùng topic có thật sự liên quan nhau không: “doctor, patient, disease” tốt hơn “doctor, car, election”.</div>
       </div>
-      <p class="center" style="font-size:1.05em;">\[ \bar{C} = \sqrt{C_{ex}\cdot C_{in}} \qquad \text{Interpretability} = \sqrt{\bar{C}\cdot d} \]</p>
-      <div class="box key"><span class="lbl">Vì sao GEOMETRIC mean?</span>Phạt nặng lệch: coherence 1.0 &amp; diversity 0.0 → trung bình cộng cho 0.5 (sai), <b>trung bình nhân cho 0</b> (đúng). Buộc mô hình tốt <b>cả hai mặt</b>.</div>
-      <aside class="notes">External = Word2Vec kho ngoài (nghĩa tổng quát); Internal = Word2Vec chính kho (nghĩa đặc thù).</aside>
+      <div class="two-col-tight" style="font-size:.77em;">
+        <div class="box idea"><span class="lbl">ROBUSTNESS</span>Kiểm tra stop words và junk terms trong top 10 từ khóa. Topic toàn “the, of, and, to” gần như không diễn giải được.</div>
+        <div class="box idea"><span class="lbl">RUNTIME</span>Đo thời gian chạy, vì topic modeling trên corpus lớn cần vừa tốt vừa đủ nhanh để triển khai.</div>
+      </div>
+      <p class="center" style="font-size:.95em;">\[ \bar{C} = \sqrt{C_{ex}\cdot C_{in}} \qquad \text{Interpretability} = \sqrt{\bar{C}\cdot d} \]</p>
+      <div class="box key" style="font-size:.78em;"><span class="lbl">CÂN BẰNG COHERENCE &amp; DIVERSITY</span>Paper dùng geometric mean để tránh trường hợp một chỉ số rất cao nhưng chỉ số còn lại rất thấp. Topic model tốt phải vừa mạch lạc, vừa không trùng lặp.</div>
+      <aside class="notes">Metric đầu tiên là Topic Diversity, đo các topic có bị lặp từ khóa với nhau hay không. Metric thứ hai là Topic Coherence, gồm external coherence Cex và internal coherence Cin. External dùng tri thức ngôn ngữ tổng quát, internal dựa trên chính corpus đang phân tích. Sau đó tác giả kết hợp Cex và Cin bằng geometric mean, rồi nhân với diversity để tạo aggregate interpretability score. Ngoài ra còn có robustness để xem topic descriptions có bị stop words hoặc junk terms làm nhiễu không, và runtime để đo tính khả thi khi chạy trên corpus lớn.</aside>
     </section>
   </section>
 
   <!-- Mô hình & Baselines (embedding models + topic model đối chứng) -->
   <section>
     <section>
-      <h2>4 Embedding Models <span class="act-badge">ACT 4 · CHỐT HẠ</span></h2>
+      <h2>4 Embedding Models <span class="act-badge">ACT 4 · THÍ NGHIỆM</span></h2>
       <table>
         <thead><tr><th>Model</th><th>Loại</th><th class="num">Dim</th><th>Ghi chú</th></tr></thead>
         <tbody>
-          <tr><td>Averaged GloVe</td><td>Static</td><td class="num">300</td><td>trung bình vector từ — baseline đơn giản</td></tr>
-          <tr><td>SBERT all-MiniLM-L6-v2</td><td>Sentence</td><td class="num">384</td><td>nhẹ, nhanh</td></tr>
-          <tr><td>SBERT all-mpnet-base-v2</td><td>Sentence</td><td class="num">768</td><td>chất lượng cao hơn</td></tr>
-          <tr class="rank1"><td>intfloat/e5-large-v2</td><td>Text embedding</td><td class="num">1024</td><td>mạnh nhất — semantic search/retrieval</td></tr>
+          <tr><td>Averaged GloVe</td><td>Static</td><td class="num">300</td><td>Trung bình vector từ, đơn giản và ít tài nguyên.</td></tr>
+          <tr><td>SBERT all-MiniLM-L6-v2</td><td>Sentence</td><td class="num">384</td><td>Nhẹ hơn, tạo embedding cho câu/đoạn/document.</td></tr>
+          <tr><td>SBERT all-mpnet-base-v2</td><td>Sentence</td><td class="num">768</td><td>Lớn hơn MiniLM, kiểm tra tác động của chất lượng embedding.</td></tr>
+          <tr class="rank1"><td>intfloat/e5-large-v2</td><td>Text embedding</td><td class="num">1024</td><td>Mạnh cho semantic search/retrieval và biểu diễn ngữ nghĩa.</td></tr>
         </tbody>
       </table>
-      <div class="box idea" style="font-size:.85em;"><span class="lbl">MỤC ĐÍCH</span>Không chỉ hỏi "mô hình nào tốt hơn?" mà còn hỏi "mô hình có <b>ổn định khi đổi embedding</b> không?" — sát với thực tế người dùng chọn embedding tuỳ tài nguyên sẵn có.</div>
-      <aside class="notes">GloVe static, không ngữ cảnh; SBERT & E5 là contextual sentence/text embeddings. Kiểm tra S³ có phụ thuộc vào một encoder cụ thể không.</aside>
+      <div class="box idea" style="font-size:.85em;"><span class="lbl">MỤC ĐÍCH</span>Vì S³ hoạt động trong không gian embedding, paper không chỉ hỏi “mô hình nào tốt hơn?” mà còn hỏi “mô hình đó có <b>ổn định khi thay embedding model</b> không?”.</div>
+      <aside class="notes">Vì S³ là topic model hoạt động trong không gian embedding, chất lượng embedding rất quan trọng. Paper dùng Averaged GloVe, hai mô hình SBERT là all-MiniLM-L6-v2 và all-mpnet-base-v2, cuối cùng là intfloat/e5-large-v2. Việc dùng nhiều embedding giúp kiểm tra S³ có linh hoạt khi người dùng chọn encoder khác nhau theo tài nguyên và mục tiêu hay không.</aside>
     </section>
     <section>
-      <h2>Baselines đối chứng <span class="act-badge">ACT 4</span></h2>
+      <h2>Các topic models được so sánh <span class="act-badge">ACT 4</span></h2>
       <div class="cols" style="font-size:.8em;">
-        <div class="step"><b>Clustering</b><br>BERTopic, Top2Vec<br><small>topic = cụm embedding</small></div>
-        <div class="step"><b>Contextual (VAE)</b><br>ZeroShotTM, CombinedTM<br><small>contextual embedding (+BoW)</small></div>
-        <div class="step"><b>Neural mới</b><br>FASTopic, ECRTM<br><small>Optimal Transport / embedding clustering regularization</small></div>
-        <div class="step"><b>Cổ điển</b><br>LDA, NMF<br><small>Bag-of-Words</small></div>
+        <div class="step"><b>Embedding-based</b><br>BERTopic, Top2Vec<br><small>topic như cụm trong không gian embedding</small></div>
+        <div class="step"><b>Contextual topic models</b><br>ZeroShotTM, CombinedTM<br><small>contextual embedding, CombinedTM thêm Bag-of-Words</small></div>
+        <div class="step"><b>Neural mới hơn</b><br>FASTopic, ECRTM<br><small>học quan hệ document-topic-word / regularization</small></div>
+        <div class="step"><b>Cổ điển</b><br>LDA, NMF<br><small>baseline Bag-of-Words truyền thống</small></div>
       </div>
       <div class="box key" style="font-size:.85em;"><span class="lbl">CẤU HÌNH CHẠY CHUNG</span>Mọi model — kể cả 3 biến thể S³ (axial/angular/combined) — chạy với số topic <b>10, 20, 30, 40, 50</b>; mỗi topic lấy <b>top 10 từ khoá</b> để đánh giá định lượng &amp; định tính.</div>
-      <aside class="notes">8 baseline chia 4 nhóm. Cùng grid số topic để so sánh công bằng, không thiên vị mô hình nào.</aside>
+      <aside class="notes">Paper so sánh S³ với nhiều nhóm mô hình khác nhau. Nhóm embedding-based gồm BERTopic và Top2Vec. Nhóm neural hoặc contextual topic models gồm ZeroShotTM và CombinedTM. Nhóm mới hơn gồm FASTopic và ECRTM. Cuối cùng là hai baseline cổ điển LDA và NMF. Tất cả đều chạy với 10, 20, 30, 40, 50 topic, mỗi topic lấy top 10 terms.</aside>
     </section>
   </section>
 
@@ -652,128 +656,104 @@ S_hat = X_hat @ C.T
     <section>
       <h2>Diversity &amp; Coherence <span class="act-badge">ACT 4 · BIỂU ĐỒ</span></h2>
       <div class="cols" style="align-items:flex-start;">
-        <div style="flex:1"><img src="/main/topic_diversity.png" alt="Diversity scores qua tất cả model, dataset, encoder và số topic" style="width:100%;border-radius:8px;border:1px solid #e2e8f0;"><p class="cap">Diversity (d)</p></div>
-        <div style="flex:1"><img src="/main/topic_coherence.png" alt="Aggregate coherence scores qua tất cả model, dataset, encoder và số topic" style="width:100%;border-radius:8px;border:1px solid #e2e8f0;"><p class="cap">Coherence tổng hợp C̄ = √(Cₑₓ·Cᵢₙ)</p></div>
+        <div style="flex:1"><img src="/thien_part/topic_diversity.png" alt="Diversity scores across all models, datasets, encoders, and numbers of topics" style="width:100%;border-radius:8px;border:1px solid #e2e8f0;"><p class="cap">Topic Diversity (d)</p></div>
+        <div style="flex:1"><img src="/thien_part/topic_coherence.png" alt="Aggregate coherence scores across all models, datasets, encoders, and numbers of topics" style="width:100%;border-radius:8px;border:1px solid #e2e8f0;"><p class="cap">Aggregate Coherence C̄ = √(Cex·Cin)</p></div>
       </div>
-      <aside class="notes">Diversity: topic có bị trùng từ khoá không. Coherence: từ trong topic có thực sự liên quan nhau không (external = word embedding tổng quát, internal = trong chính corpus).</aside>
+      <div class="box key" style="font-size:.75em;"><span class="lbl">CÁCH ĐỌC</span>Diversity cao nghĩa là các topic ít lặp từ khóa. Coherence cao nghĩa là các từ trong cùng topic liên quan chặt chẽ hơn. S³ nổi bật vì giữ được <b>cân bằng</b> giữa hai hướng này.</div>
+      <aside class="notes">Topic Diversity trả lời câu hỏi các topic có bị lặp từ khóa với nhau không. Topic Coherence trả lời câu hỏi các từ trong cùng topic có thực sự liên quan không. Trong paper, coherence gồm external coherence và internal coherence, sau đó kết hợp bằng geometric mean. Điểm quan trọng là một model tốt không chỉ coherent mà còn phải diverse.</aside>
     </section>
     <section>
-      <h2>Robustness — chống nhiễu stop words &amp; junk terms <span class="act-badge">ACT 4 · BIỂU ĐỒ</span></h2>
+      <h2>Robustness — stop words &amp; junk terms <span class="act-badge">ACT 4 · BIỂU ĐỒ</span></h2>
       <div class="cols" style="align-items:flex-start;">
-        <div style="flex:1"><img src="/main/robustness_wecin.png" alt="WECin scores qua tất cả model, dataset, encoder và số topic" style="width:100%;border-radius:8px;border:1px solid #e2e8f0;"><p class="cap">WECin</p></div>
-        <div style="flex:1"><img src="/main/robustness_wecex.png" alt="WECex scores qua tất cả model, dataset, encoder và số topic" style="width:100%;border-radius:8px;border:1px solid #e2e8f0;"><p class="cap">WECex</p></div>
+        <div style="flex:1"><img src="/thien_part/robustness_wecin.png" alt="WECin scores across all models, datasets, encoders, and numbers of topics" style="width:100%;border-radius:8px;border:1px solid #e2e8f0;"><p class="cap">WECin</p></div>
+        <div style="flex:1"><img src="/thien_part/robustness_wecex.png" alt="WECex scores across all models, datasets, encoders, and numbers of topics" style="width:100%;border-radius:8px;border:1px solid #e2e8f0;"><p class="cap">WECex</p></div>
       </div>
-      <div class="box idea" style="font-size:.8em;"><span class="lbl">CÁCH ĐO</span>Đếm tỷ lệ stop words / ký tự phi chữ cái lọt vào top 10 từ mô tả topic. S³, Top2Vec, ECRTM hiếm khi dính stop words; một số baseline trên corpus thô có thể ra topic toàn "the, of, to, and".</div>
-      <aside class="notes">Lưu ý: metric không hoàn hảo — số/ký tự đặc biệt đôi khi vẫn có nghĩa (vd "1917" trong topic về Cách mạng tháng Mười Nga).</aside>
+      <div class="box idea" style="font-size:.8em;"><span class="lbl">CÁCH ĐO</span>Kiểm tra tỷ lệ stop words và ký tự không phải alphabet lọt vào top 10 terms. S³, Top2Vec và ECRTM hiếm khi bị nhiễu; LDA, NMF, BERTopic dễ gặp vấn đề hơn trên raw corpus.</div>
+      <aside class="notes">Về robustness, paper kiểm tra topic descriptions có chứa nhiều stop words như “the”, “of”, “and”, “to” hay không. Nếu top 10 words chứa quá nhiều stop words thì topic gần như không có giá trị diễn giải. Ngoài ra tác giả kiểm tra cả các từ có ký tự không phải alphabet, dù họ cũng lưu ý metric này không hoàn hảo vì số hoặc ký tự đặc biệt đôi khi vẫn có ý nghĩa.</aside>
     </section>
     <section>
       <h2>Runtime <span class="act-badge">ACT 4 · BIỂU ĐỒ</span></h2>
-      <img src="/main/runtime.png" alt="Runtime tính bằng giây qua tất cả model, dataset, encoder và số topic" style="display:block;margin:.3em auto;max-height:430px;width:auto;max-width:85%;border-radius:8px;border:1px solid #e2e8f0;">
-      <p class="cap">Runtime (giây) trên tất cả model, dataset, encoder, số topic</p>
-      <aside class="notes">Bắc cầu sang slide "con số biết nói" ngay sau: 4.5× nhanh hơn BERTopic, 27.5× nhanh hơn trung bình baseline.</aside>
+      <img src="/thien_part/runtime.png" alt="Runtime in seconds for all models, datasets, encoders, and numbers of topics" style="display:block;margin:.3em auto;max-height:430px;width:auto;max-width:85%;border-radius:8px;border:1px solid #e2e8f0;">
+      <p class="cap">Runtime in seconds across models, datasets, encoders, and numbers of topics</p>
+      <div class="box key" style="font-size:.78em;"><span class="lbl">Ý NGHĨA THỰC TẾ</span>Một topic model tốt nhưng chạy quá chậm thì khó triển khai. S³ vừa giữ chất lượng topic, vừa giảm mạnh chi phí tính toán.</div>
+      <aside class="notes">Metric cuối cùng là Runtime. Runtime rất quan trọng trong thực tế vì topic modeling thường được dùng trên corpus lớn. Một model có chất lượng topic tốt nhưng chạy quá chậm thì khó triển khai. Vì vậy paper đánh giá cả chất lượng topic lẫn tốc độ chạy.</aside>
     </section>
   </section>
 
   <!-- S16 kết quả -->
   <section data-background-gradient="linear-gradient(135deg,#f0fdf4 0%,#eff6ff 100%)">
-    <h2>Kết quả: các con số biết nói <span class="act-badge">ACT 4</span></h2>
+    <h2>Kết quả tổng quát <span class="act-badge">ACT 4</span></h2>
     <div class="cols center" style="margin:.5em 0;">
-      <div><div class="big-number">4.5×<small>nhanh hơn á quân BERTopic</small></div></div>
+      <div><div class="big-number">4.5×<small>nhanh hơn BERTopic</small></div></div>
       <div><div class="big-number">27.5×<small>nhanh hơn baselines (trung bình)</small></div></div>
-      <div><div class="big-number">#1<small>hiệu năng tổng hợp</small></div></div>
+      <div><div class="big-number">#1<small>điểm tổng hợp cao nhất</small></div></div>
     </div>
     <div class="box key"><span class="lbl">CÂN BẰNG TỐI ƯU</span>
       <ul style="margin:0;">
-        <li><b>ECRTM, FASTopic:</b> đa dạng hơn nhưng <span class="lose">kém mạch lạc</span></li>
-        <li><b>Top2Vec:</b> rất mạch lạc nhưng <span class="lose">kém đa dạng</span></li>
-        <li><b>S³:</b> <span class="win">cân bằng tối ưu coherence ↔ diversity</span></li>
+        <li><b>Top2Vec:</b> topic khá mạch lạc nhưng nhiều trường hợp <span class="lose">diversity thấp</span>.</li>
+        <li><b>FASTopic, ECRTM:</b> có lúc diversity cao nhưng <span class="lose">coherence thấp hơn</span>.</li>
+        <li><b>S³:</b> <span class="win">nằm giữa hai cực: topic vừa khác nhau, vừa tương đối mạch lạc.</span></li>
       </ul>
     </div>
-    <aside class="notes">Slide đắt giá. Nếu có Figure 2 của bài thì chèn vào. Nhấn: mô hình khác giỏi một mặt, S³ giỏi cả hai.</aside>
+    <div class="box idea" style="font-size:.82em;"><span class="lbl">THÔNG ĐIỆP</span>S³ không phải lúc nào cũng đứng đầu trên từng metric riêng lẻ, nhưng khi xét tổng hợp giữa diversity, coherence và runtime, S³ là mô hình cân bằng nhất.</div>
+    <aside class="notes">Kết quả tổng quát cho thấy S³ là mô hình cân bằng nhất trong số các mô hình được so sánh. S³ đạt hiệu năng tổng hợp cao hơn các baseline và trung bình nhanh hơn các baseline khoảng 27.5 lần. Nếu so riêng với BERTopic, S³ được báo cáo nhanh hơn khoảng 4.5 lần. Một số mô hình có điểm mạnh riêng nhưng bị lệch: Top2Vec coherent nhưng diversity thấp hơn, FASTopic và ECRTM đôi khi diversity cao nhưng coherence thấp hơn. S³ giữ được sự cân bằng giữa diversity và coherence.</aside>
   </section>
 
-  <!-- S17 hồi quy -->
+  <!-- S17 kết quả theo corpus -->
   <section>
-    <h2>Kiểm định thống kê (rất mạnh) <span class="act-badge">ACT 4</span></h2>
-    <p><b>Linear regression</b> dự đoán interpretability \( \sqrt{\bar{C}\cdot d} \); mốc = S³_com; số topic/encoder/dataset là random intercepts.</p>
-    <div class="box key center"><b>F = 167.4 · p &lt; 0.001 · R² = 0.673</b> → <b>S³ vượt trội có ý nghĩa thống kê</b> so với mọi baseline.</div>
-    <table>
-      <thead><tr><th>Mô hình</th><th class="num">Hệ số</th><th>Mô hình</th><th class="num">Hệ số</th></tr></thead>
-      <tbody>
-        <tr class="rank1"><td><b>S³_com (mốc)</b></td><td class="num"><b>0.606</b></td><td>ZeroShotTM</td><td class="num lose">−0.117</td></tr>
-        <tr><td>ECRTM</td><td class="num lose">−0.031</td><td>CombinedTM</td><td class="num lose">−0.120</td></tr>
-        <tr><td>FASTopic</td><td class="num lose">−0.043</td><td>BERTopic</td><td class="num lose">−0.214</td></tr>
-        <tr><td>Top2Vec</td><td class="num lose">−0.046</td><td>NMF / LDA</td><td class="num lose">−0.222 / −0.272</td></tr>
-      </tbody>
-    </table>
-    <p><small>Càng âm = càng kém S³. 3 biến thể S³ đứng đầu; LDA/NMF/BERTopic ở đáy.</small></p>
-    <aside class="notes">Điểm mạnh khoa học: dùng mixed-effects regression để chứng minh khác biệt CÓ Ý NGHĨA sau khi kiểm soát biến.</aside>
+    <h2>Kết quả theo từng corpus <span class="act-badge">ACT 4</span></h2>
+    <div class="cols" style="align-items:center;">
+      <div style="flex:.92">
+        <img src="/thien_part/image.png" alt="Bảng kết quả theo corpus của các mô hình topic modeling" style="display:block;width:100%;max-height:565px;object-fit:contain;border-radius:8px;border:1px solid #e2e8f0;background:#fff;">
+        <p class="cap">Bảng kết quả: d, Cin, Cex và √(C̄·d)</p>
+      </div>
+      <div style="flex:1.08">
+        <div class="box key" style="font-size:.78em;"><span class="lbl">20NG RAW</span>Các biến thể S³ đạt diversity rất cao, khoảng <b>0.98–1.00</b>, và điểm tổng hợp cao hơn nhiều baseline cổ điển.</div>
+        <div class="box idea" style="font-size:.78em;"><span class="lbl">BBC &amp; ARXIV ML</span>S³ cạnh tranh sát với Top2Vec/FASTopic trên BBC, và giữ internal coherence tốt trên miền học thuật nhiều thuật ngữ.</div>
+        <div class="box tech" style="font-size:.78em;"><span class="lbl">STACKEXCHANGE &amp; WIKI MEDICAL</span>StackExchange khó vì câu ngắn nhưng S³ vẫn diversity gần 1.00. Wiki Medical có Top2Vec rất mạnh, còn S³ và ECRTM vẫn cạnh tranh.</div>
+      </div>
+    </div>
+    <aside class="notes">Nếu nhìn theo từng corpus, S³ hoạt động khá ổn định. Trên 20 Newsgroups Raw, các biến thể S³ đạt diversity gần như rất cao, khoảng 0.98 đến 1.00. Trên BBC News, S³ có điểm tổng hợp khoảng 0.64 đến 0.66, cạnh tranh sát với Top2Vec và FASTopic. Trên ArXiv ML Papers, S³ giữ được internal coherence cao vì hoạt động trực tiếp trên semantic embedding. Trên StackExchange, S³ cũng đạt diversity rất cao dù dữ liệu hỏi đáp ngắn và đa dạng. Trên Wiki Medical, Top2Vec có điểm tổng hợp cao, nhưng S³ và ECRTM vẫn ở mức cạnh tranh.</aside>
   </section>
 
   <!-- S18 preprocessing -->
   <section data-background-gradient="linear-gradient(135deg,#fefce8 0%,#f0fdf4 100%)">
-    <h2>Phát hiện phản trực giác nhất <span class="act-badge">ACT 4</span></h2>
-    <div class="box key center" style="font-size:1.15em;"><b>S³ là mô hình DUY NHẤT liên tục chạy TỐT HƠN trên văn bản thô</b><br>so với dữ liệu đã tiền xử lý.</div>
+    <h2>Ảnh hưởng của preprocessing <span class="act-badge">ACT 4</span></h2>
+    <div class="box key center" style="font-size:1.15em;"><b>S³ hoạt động tốt hơn trên dữ liệu raw</b><br>so với dữ liệu đã preprocessing.</div>
     <ul>
-      <li>Baseline nhìn chung <b>ngang hoặc kém đi</b> khi bỏ preprocessing.</li>
-      <li>S³ <b>hưởng lợi nhiều nhất</b> → chứng tỏ nó <b>thật sự khai thác thông tin thêm</b> trong văn bản thô.</li>
-      <li>Trên kho thô, S³ <b>cao hơn TẤT CẢ</b> — kể cả mô hình được train trên dữ liệu đã làm sạch.</li>
+      <li>Các model cổ điển hoặc Bag-of-Words thường cần loại stop words, chuẩn hóa từ, stemming/lemmatization.</li>
+      <li>Preprocessing đôi khi làm mất ngữ cảnh, đặc biệt với văn bản ngắn.</li>
+      <li>S³ dựa trên contextual embeddings nên tận dụng tốt văn bản tự nhiên, ít phụ thuộc pipeline thủ công.</li>
     </ul>
-    <div class="box say"><span class="lbl">CÂU DẪN</span>Mọi mô hình khác cần bạn làm sạch dữ liệu; S³ ngược lại — càng để nguyên càng tốt. Đây là câu trả lời cho câu hỏi ở đầu: contextual model có thật sự dùng ngữ cảnh? Có.</div>
-    <aside class="notes">Chèn Figure 4 nếu được. Đây là "vòng tròn khép kín" nối lại vấn đề nêu ở Act 2.</aside>
+    <div class="box say"><span class="lbl">CÂU DẪN</span>Các baseline thường cần dữ liệu đã làm sạch; S³ ngược lại, khi giữ văn bản tự nhiên thì mô hình có thêm ngữ cảnh để khai thác.</div>
+    <aside class="notes">Một kết quả quan trọng là S³ hoạt động tốt hơn trên dữ liệu raw so với dữ liệu đã preprocessing. Với LDA hoặc các model dựa trên Bag-of-Words, preprocessing thường rất cần thiết. Nhưng với S³, việc giữ văn bản tự nhiên lại giúp mô hình tận dụng được thông tin ngữ cảnh. Điều này ủng hộ lập luận chính của paper: S³ dựa trên contextual embeddings nên không phụ thuộc quá nhiều vào pipeline tiền xử lý thủ công.</aside>
   </section>
 
   <!-- Ảnh hưởng của embedding models -->
   <section>
     <h2>Ảnh hưởng của embedding models <span class="act-badge">ACT 4</span></h2>
-    <div class="box key" style="font-size:.9em;"><span class="lbl">S³ ỔN ĐỊNH</span>Chạy tốt trên cả 4 embeddings — kể cả <b>Averaged GloVe</b> (static, đơn giản nhất) — không phụ thuộc vào một encoder cụ thể.</div>
-    <div class="box warnx" style="font-size:.85em;"><span class="lbl">TOP2VEC NHẠY CẢM</span>Chất lượng giảm mạnh khi đổi embedding, đặc biệt với GloVe và E5-large-v2.</div>
-    <div class="box warnx" style="font-size:.85em;"><span class="lbl">FASTOPIC — CURSE OF DIMENSIONALITY</span>Hoạt động tốt hơn với GloVe (300d) nhưng giảm chất lượng khi embedding dimension tăng lên (768–1024d).</div>
-    <p class="center"><small>→ Tính linh hoạt với embedding là một lợi thế thực tế: người dùng không bị ép chọn một encoder cụ thể.</small></p>
-    <aside class="notes">Đối lập với S³: Top2Vec và FASTopic đều nhạy với lựa chọn embedding theo cách riêng.</aside>
+    <div class="box key" style="font-size:.83em;"><span class="lbl">S³ ỔN ĐỊNH</span>S³ hoạt động tương đối tốt trên nhiều embedding, kể cả <b>Averaged GloVe</b> không contextual. Điều này cho thấy mô hình không quá phụ thuộc vào một encoder cụ thể.</div>
+    <div class="two-col-tight">
+      <div class="box warnx" style="font-size:.78em;"><span class="lbl">TOP2VEC</span>Nhạy với lựa chọn embedding, đặc biệt khi đổi sang GloVe hoặc E5-large-v2.</div>
+      <div class="box warnx" style="font-size:.78em;"><span class="lbl">FASTOPIC</span>Có xu hướng tốt với GloVe hơn, nhưng giảm khi dimension tăng; paper liên hệ với <b>curse of dimensionality</b>.</div>
+    </div>
+    <div class="box idea" style="font-size:.78em;"><span class="lbl">3 BIẾN THỂ S³</span><b>Axial</b> thiên về coherence; <b>Angular</b> thiên về diversity; <b>Combined</b> cân bằng hai hướng và được khuyến nghị làm lựa chọn mặc định.</div>
+    <aside class="notes">Kết quả cho thấy S³ khá ổn định trên nhiều embedding models. Ngay cả khi dùng Averaged GloVe, S³ vẫn hoạt động tương đối tốt. Trong khi đó, Top2Vec nhạy hơn khi thay đổi embedding, đặc biệt với GloVe và E5. FASTopic có xu hướng hoạt động tốt hơn với GloVe nhưng giảm khi embedding size tăng, có thể liên quan đến curse of dimensionality. Paper cũng đánh giá ba biến thể của S³: axial coherent hơn, angular diversity cao hơn, combined cân bằng và được khuyến nghị làm mặc định.</aside>
   </section>
 
   <!-- S19 định tính + compass -->
-  <section>
-    <section>
-      <h2>So sánh định tính (20NG) <span class="act-badge">ACT 4</span></h2>
-      <div class="box warnx"><span class="lbl">KÉM — LDA, BERTopic</span>
-        <span class="chip">that</span><span class="chip">to</span><span class="chip">you</span><span class="chip">of</span><span class="chip">the</span><span class="chip">and</span> <small>(LDA — toàn function words)</small></div>
-      <div class="box" style="background:#fff7ed;border-left:5px solid var(--warn)"><span class="lbl" style="color:var(--warn)">NHIỄU — CTM, ECRTM</span>
-        <span class="chip">145</span><span class="chip">ax</span><span class="chip">0d</span><span class="chip">_o</span><span class="chip">a86</span> <small>(CombinedTM)</small></div>
-      <div class="box key"><span class="lbl">TỐT NHẤT — Top2Vec &amp; S³</span>
-        <span class="chip">epilepsy</span><span class="chip">medical</span><span class="chip">toxins</span><span class="chip">homeopathy</span> <small>(S³ — y khoa)</small></div>
-      <aside class="notes">FASTopic ở giữa — ít nhiễu nhưng đôi khi trộn 2 topic. Top2Vec bị E5 làm hại; S³ tốt nhất với E5.</aside>
-    </section>
-    <section>
-      <h2>Semantic Axes &amp; Concept Compass</h2>
-      <p><small>Mỗi topic có <b>top từ dương + âm</b>. Topic 0 &amp; 4 có từ dương giống nhau (đều "clustering") — chỉ từ <b>âm</b> mới phân biệt.</small></p>
-      <table>
-        <thead><tr><th>#</th><th>Positive</th><th>Negative</th></tr></thead>
-        <tbody>
-          <tr><td>0</td><td>clustering, histograms, classifying</td><td class="lose">reinforcement, exploration, planning</td></tr>
-          <tr><td>4</td><td>clustering, algorithm, dbscan</td><td class="lose">cnn, deepmind, convnet</td></tr>
-        </tbody>
-      </table>
-      <div class="box idea"><span class="lbl">CONCEPT COMPASS</span>Đặt 2 trục lên mặt phẳng 2D → "bản đồ ngữ nghĩa" để đặt bất kỳ từ nào lên và xem nó nằm đâu giữa các trục.</div>
-      <div class="box say"><span class="lbl">CÂU DẪN</span>S³ không chỉ liệt kê topic — nó cho một bản đồ ngữ nghĩa. Thứ mà mô hình cụm/xác suất không làm được.</div>
-      <aside class="notes">Slide đắt giá. Nếu có Figure 7 (concept compass) thì chèn.</aside>
-    </section>
-  </section>
-
   <!-- S20 kết luận -->
   <section data-background-gradient="linear-gradient(135deg,#eff6ff 0%,#f0fdfa 100%)">
-    <h2>Kết luận &amp; Hạn chế <span class="act-badge">ACT 4</span></h2>
+    <h2>Kết luận phần kết quả <span class="act-badge">ACT 4</span></h2>
     <div class="cols center" style="font-size:.92em;">
-      <div class="box key" style="flex:1"><b>Chất lượng</b><br>Mạch lạc + đa dạng, cân bằng tối ưu</div>
-      <div class="box key" style="flex:1"><b>Tốc độ</b><br>27.5× nhanh hơn TB baseline</div>
-      <div class="box key" style="flex:1"><b>Không preprocessing</b><br>Chạy tốt hơn trên text thô</div>
-      <div class="box key" style="flex:1"><b>Ổn định</b><br>Bền vững qua 4 embeddings</div>
+      <div class="box key" style="flex:1"><b>Chất lượng</b><br>Diversity cao + coherence tốt</div>
+      <div class="box key" style="flex:1"><b>Tốc độ</b><br>Trung bình nhanh hơn 27.5×</div>
+      <div class="box key" style="flex:1"><b>Ít preprocessing</b><br>Tận dụng natural text</div>
+      <div class="box key" style="flex:1"><b>Linh hoạt</b><br>Ổn định qua nhiều embedding</div>
     </div>
-    <div class="box idea" style="font-size:.82em;"><span class="lbl">ĐÁNH GIÁ ĐỊNH TÍNH</span>LDA, NMF, BERTopic → nhiều từ vô nghĩa · CTM, ECRTM → khá hơn nhưng vẫn nhiễu · FASTopic → đôi khi gộp nhầm 2 topic · <b>S³ &amp; Top2Vec → chủ đề rõ ràng, dễ hiểu nhất.</b></div>
-    <div class="box tech" style="font-size:.82em;"><span class="lbl">HẠN CHẾ (khách quan)</span>Metric có giả định mạnh · baseline được cài lại (CTM lệch nhỏ) · không tune hyperparameter · chỉ 1 seed · preprocessing thử trên 1 kho.</div>
-    <div class="box idea"><span class="lbl">ĐỌNG LẠI</span>Phương pháp <b>đơn giản, theory-driven</b> + thư viện <b>Turftopic</b> (MIT).</div>
-    <aside class="notes">Chốt 3+1 trụ + đánh giá định tính. Hạn chế thể hiện tính khách quan, tăng độ tin cậy.</aside>
+    <div class="box idea" style="font-size:.84em;"><span class="lbl">TÓM LẠI</span>S³ là một topic model đơn giản về mặt ý tưởng, hiệu quả về tính toán, và tạo ra topic vừa <b>đa dạng</b> vừa <b>mạch lạc</b> trong nhiều miền dữ liệu.</div>
+    <div class="box tech" style="font-size:.82em;"><span class="lbl">ĐÓNG GÓP ĐƯỢC ỦNG HỘ</span>Phần Results củng cố luận điểm chính: dùng semantic embeddings và ICA có thể tạo topic dễ diễn giải mà không cần phụ thuộc nặng vào preprocessing.</div>
+    <aside class="notes">Tóm lại, có ba kết luận chính. Thứ nhất, S³ đạt chất lượng topic tốt và cân bằng, không chỉ có diversity cao mà còn giữ coherence tốt. Thứ hai, S³ rất nhanh, đây là lợi thế lớn so với nhiều contextual topic models. Thứ ba, S³ ít phụ thuộc vào preprocessing, nên có thể áp dụng trực tiếp trên natural text. Vì vậy, phần Results ủng hộ mạnh cho đóng góp chính của tác giả: S³ là một topic model đơn giản về ý tưởng, hiệu quả về tính toán, và tạo ra topic vừa đa dạng vừa mạch lạc.</aside>
   </section>
 
   <!-- S21 Q&A -->
@@ -808,7 +788,7 @@ model.print_topics()</code></pre>
   <h4 style="margin:.6em 0 .4em;color:var(--accent2);font-size:12px;text-transform:uppercase;letter-spacing:.05em">Act 3 · Thuật toán</h4>
   <a href="#/11">Turftopic (dùng thử)</a><a href="#/12">Pipeline tổng thể</a><a href="#/13">6 bước (gồm word importance)</a><a href="#/14">Từ negative + ví dụ (§6.2)</a><a href="#/15">Inference tài liệu mới</a>
   <h4 style="margin:.6em 0 .4em;color:var(--accent2);font-size:12px;text-transform:uppercase;letter-spacing:.05em">Act 4 · Chốt hạ</h4>
-  <a href="#/16">Thiết lập</a><a href="#/17">Mô hình &amp; Baselines</a><a href="#/18">Biểu đồ kết quả</a><a href="#/19">Kết quả</a><a href="#/20">Hồi quy</a><a href="#/21">Preprocessing</a><a href="#/22">Ảnh hưởng embedding</a><a href="#/23">Định tính</a><a href="#/24">Kết luận</a><a href="#/25">Q&amp;A</a>
+  <a href="#/15">Datasets &amp; Metrics</a><a href="#/16">Embeddings &amp; Models</a><a href="#/17">Biểu đồ kết quả</a><a href="#/18">Kết quả tổng quát</a><a href="#/19">Theo từng corpus</a><a href="#/20">Preprocessing</a><a href="#/21">Ảnh hưởng embedding</a><a href="#/22">Định tính</a><a href="#/23">Kết luận kết quả</a><a href="#/24">Q&amp;A</a>
 </nav>
 <style>
   #quick-nav-panel.open{ transform:translateX(0)!important; } #quick-nav-overlay.open{ opacity:1!important; pointer-events:auto!important; }
