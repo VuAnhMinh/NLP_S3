@@ -7,3 +7,4 @@ main/topic_coherence.png,Aggregate coherence scores across all models datasets e
 main/robustness_wecin.png,WECin scores across all models datasets encoders and numbers of topics
 main/robustness_wecex.png,WECex scores across all models datasets encoders and numbers of topics
 main/runtime.png,Runtime in seconds for all models datasets encoders and numbers of topics
+main/stop_word.png,propotion of stop words
