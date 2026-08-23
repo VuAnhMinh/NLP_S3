@@ -1,18 +1,3 @@
-{
-  "$schema": "https://openapi.vercel.sh/vercel.json",
-  "rewrites": [
-    { "source": "/", "destination": "/NLP/main/main.html" },
-
-    { "source": "/nlp", "destination": "/NLP/main/main.html" },
-    { "source": "/main", "destination": "/NLP/main/main.html" },
-    { "source": "/2", "destination": "/NLP/main/main.html" },
-    { "source": "/1", "destination": "/NLP/temp/slides.html" },
-    { "source": "/3", "destination": "/NLP/temp/slides_3.html" },
-    { "source": "/g1", "destination": "/NLP/temp/google/google_slides_1.html" },
-    { "source": "/g2", "destination": "/NLP/temp/google/google_slides_1.html" },
-    { "source": "/g3", "destination": "/NLP/temp/google/google_slides.html" },
-
-    { "source": "/relation", "destination": "/relation/main/index.html" },
-    { "source": "/relation/main", "destination": "/relation/main/index.html" }
-  ]
-}
+version https://git-lfs.github.com/spec/v1
+oid sha256:24e058163af018c6c9686feb4a25ec4878d4283a812943eade102f8bd20f44a0
+size 857
