@@ -10,3 +10,11 @@ benchmark/cafebert_full/sources/
 benchmark/cafebert_full/pretrained/
 benchmark/cafebert_full/overnight_logs/
 .venv-cafebert/
+report/*.aux
+report/*.bbl
+report/*.blg
+report/*.log
+report/*.out
+report/*.fls
+report/*.fdb_latexmk
+report/*.synctex.gz
