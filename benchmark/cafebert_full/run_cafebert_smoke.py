@@ -453,7 +453,17 @@ def main() -> None:
     RESULTS.mkdir(parents=True, exist_ok=True)
     (RESULTS / "environment.json").write_text(json.dumps(environment(), ensure_ascii=False, indent=2), encoding="utf-8")
     (RESULTS / "run_config.json").write_text(json.dumps(config, ensure_ascii=False, indent=2), encoding="utf-8")
-    bundles = {name: load_corpus(name, config) for name in corpora}
+    bundles: dict[str, CorpusBundle] = {}
+    for name in corpora:
+        try:
+            bundles[name] = load_corpus(name, config)
+        except Exception as exc:
+            # e.g. vntc-it needs `unrar` on PATH to extract its source archive;
+            # skip a corpus whose source didn't fetch instead of crashing the
+            # whole smoke test over one missing corpus.
+            print(json.dumps({"SKIP_CORPUS": name, "reason": f"{type(exc).__name__}: {exc}"}), flush=True)
+    if not bundles:
+        raise SystemExit("No corpus loaded successfully -- check fetch_sources output above.")
     for name, bundle in bundles.items():
         (RESULTS / f"{name}_manifest.json").write_text(json.dumps(bundle.manifest, ensure_ascii=False, indent=2), encoding="utf-8")
         print(json.dumps({"prepared": name, "n_documents": len(bundle.docs), "document_ids_sha256": bundle.manifest["document_ids_sha256"]}, ensure_ascii=False), flush=True)

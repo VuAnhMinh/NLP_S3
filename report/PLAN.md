@@ -98,10 +98,34 @@ không có số liệu" — ở đây có số liệu thật nên nên giữ.
       bước, 3 công thức importance + Hình 3, bảng ý nghĩa âm (Table 2 gốc,
       dựng lại bằng LaTeX table thay vì nhúng ảnh), Concept Compass + Hình 7,
       công thức suy luận tài liệu mới Ŝ=X̂Cᵀ)
-- [x] Mục 4 — Kết quả gốc (tóm tắt): viết thẳng vào `report/paper.tex`
-      (thiết lập, metric, Hình runtime.png, kiểm định thống kê, phát hiện
-      robustness tiền xử lý + Hình robustness_wecex.png, định tính + hạn
-      chế do chính tác giả nêu)
+- [x] XONG (2026-08-24): đã đo lại tốc độ S³ thật bằng
+      `refit_transform()`/`estimate_components()`
+      (`benchmark/cafebert_full/run_cafebert_refit_optimized.py`), đã kiểm
+      chứng đúng (khớp bit-by-bit với fit độc lập, xem
+      `diagnose_refit.py`-style test trong lịch sử hội thoại), và đã cập
+      nhật Mục 4 của `paper.tex` với số liệu thật: nhanh hơn 3,7x
+      (Vietnamese-news) / 8,9x (UIT-ViSFD) / 5,4x (ViMedical). Thiếu
+      VNTC-CNTT (chưa có `unrar`). Bài học quan trọng: `compare_refit_
+      speedup.py` từng có bug so sánh trung bình 4-corpus (cũ) với 3-corpus
+      (mới), làm tưởng nhầm metric lệch lớn — đã sửa (chỉ so trên tập
+      corpus chung).
+- [x] Mục 4 — VIẾT LẠI (2026-08-23): không còn tóm tắt kết quả tiếng Anh
+      của paper gốc. Đổi tên thành "Benchmark của nhóm: chất lượng và tốc
+      độ trên tiếng Việt", dùng thẳng 480 run thật trong
+      `benchmark/cafebert_full/` (4 corpus VN × 6 model × 5 k × 4 seed, đã
+      audit PASS). Hình lấy từ `benchmark/cafebert_full/notebook_charts/`
+      (sinh bởi `build_charts.ipynb`), copy vào
+      `report/figures/vn_benchmark_coherence.png` +
+      `vn_benchmark_runtime.png`. Đã XOÁ khỏi `report/figures/`:
+      `runtime.png`, `robustness_wecex.png`, `robustness_wecin.png`,
+      `topic_coherence.png`, `topic_diversity.png` (bản tiếng Anh tái dựng
+      từ paper gốc — không dùng nữa theo yêu cầu). Có 1 phát hiện THẬT
+      quan trọng cần nhớ nếu viết Kết luận/Hạn chế: fit-only S³ CHẬM HƠN
+      LDA/NMF/BERTopic trên benchmark này (ngược paper gốc) — đã viết
+      trung thực vào báo cáo, không giấu. Đã sửa Mục 1 (đóng góp thứ 2 +
+      roadmap) và Mục 5 (định nghĩa lại Diversity/Coherence/Interpretability
+      tại chỗ thay vì trỏ về Mục 4, vì Mục 4 giờ dùng metric khác:
+      WEC-in/diversity/C_NPMI).
 - [x] Mục 5 — Thực nghiệm tiếng Việt (trọng tâm): viết vào `report/paper.tex`.
       Số liệu AUC (encoder comparison + validate ViSFD/VTSNLP) đã CHẠY LẠI
       trực tiếp trong phiên này (`python -m s3_reproduction.validate_visfd`
