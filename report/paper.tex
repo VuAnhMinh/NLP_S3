@@ -3,8 +3,8 @@
 % Tren Overleaf: Menu > Compiler > XeLaTeX (hoac LuaLaTeX), roi Recompile.
 \documentclass[11pt]{article}
 
-% "review" cho ban nop; doi thanh "final" khi nop ban cuoi (bo option nay).
-\usepackage[review]{acl}
+% Ban final -- hien ten tac gia that (khong con "review" an danh).
+\usepackage{acl}
 \usepackage{microtype}
 \usepackage{graphicx}
 \usepackage{booktabs}
@@ -19,29 +19,37 @@
 
 \title{S\textsuperscript{3} cho Tiếng Việt: Tái lập, Đánh giá và Đề xuất Ứng dụng của Semantic Signal Separation}
 
-% TODO: dien ten that + don vi cong tac truoc khi nop
 \author{
-  Tên Tác Giả 1 \\
-  Trường/Khoa \\
-  \texttt{email1@domain} \\\And
-  Tên Tác Giả 2 \\
-  Trường/Khoa \\
-  \texttt{email2@domain}
+  Đinh Trọng Hậu, Vũ Ánh Minh, Trần Đình Thiện, Ngô Quang Huy \\
+  Nhóm 7 -- Lớp Ngôn ngữ học máy tính (CS2202.CH201) \\
+  Giảng viên hướng dẫn: TS. Nguyễn Văn Kiệt
 }
 
 \begin{document}
 \maketitle
 
 \begin{abstract}
-% TODO: viet sau cung, ~150-200 tu, tom tat dong gop chinh.
 Semantic Signal Separation (S\textsuperscript{3}) là một phương pháp mô hình
 hoá chủ đề mới, coi mỗi chủ đề là một trục ngữ nghĩa độc lập được tách ra
 bằng Independent Component Analysis (ICA) trên không gian embedding ngữ
-cảnh. Báo cáo này tái lập S\textsuperscript{3} cho tiếng Việt, so sánh hai
-encoder (CafeBERT và multilingual-E5), đề xuất một phương pháp đánh giá độ
-chính xác bằng nhãn thật (điều paper gốc không thực hiện), và thử nghiệm
-trên hai bộ dữ liệu tiếng Việt (ViSFD, VTSNLP). Nhóm cũng đề xuất và dựng
-thử một ứng dụng định tuyến/giám sát dựa trên các trục ngữ nghĩa đã học.
+cảnh. Báo cáo này tái lập S\textsuperscript{3} cho tiếng Việt, giải quyết
+khác biệt kỹ thuật bắt buộc mà paper gốc không gặp (tách từ tiếng Việt
+trước khi xây từ vựng). Thay vì chỉ thuật lại số liệu tiếng Anh của paper
+gốc, nhóm xây dựng một benchmark định lượng riêng gồm 480 lần chạy thật
+trên bốn kho ngữ liệu tiếng Việt, so ba biến thể S\textsuperscript{3} với
+LDA/NMF/BERTopic: S\textsuperscript{3} dẫn đầu rõ rệt về coherence (WEC-in)
+và diversity, nhưng lại là cấu hình \emph{chậm nhất} ở giai đoạn fit --
+trái ngược claim tốc độ của paper gốc trên tiếng Anh. Nhóm truy ra nguyên
+nhân cụ thể (mã hoá từ vựng không được cache lại giữa các lần fit), kiểm
+chứng và đo lại tốc độ thật bằng \texttt{refit\_transform()}/
+\texttt{estimate\_components()} của turftopic, đạt cải thiện 3,7--8,9 lần
+đã kiểm chứng khớp bit-by-bit với fit độc lập. Nhóm còn so sánh trực tiếp
+hai encoder (CafeBERT và multilingual-E5, có BGE-M3 đối chứng), đề xuất một
+phương pháp đánh giá độ chính xác bằng nhãn thật -- điều paper gốc chủ động
+không làm -- trên hai bộ dữ liệu tiếng Việt có nhãn độc lập (ViSFD,
+VTSNLP), và dựng thử hai ứng dụng chạy thật (bảng điều khiển phát hiện bất
+thường, server định tuyến câu hỏi ngân hàng) dựa trên khả năng suy luận tài
+liệu mới không cần huấn luyện lại của S\textsuperscript{3}.
 \end{abstract}
 
 \section{Giới thiệu}
@@ -771,10 +779,79 @@ sau (tăng $n\_topics$, hoặc chuyển sang bộ phân loại gộp trục).
 
 \section{Kết luận}
 \label{sec:conclusion}
-% TODO.
+
+Báo cáo tái lập S\textsuperscript{3} \citep{kardos2025s3} cho tiếng Việt và
+mở rộng theo bốn hướng. Thứ nhất, nhóm giải quyết một khác biệt kỹ thuật mà
+paper gốc không gặp (tách từ tiếng Việt trước khi xây từ vựng, Mục~\ref{sec:vn-experiments})
+để pipeline hoạt động đúng trên một ngôn ngữ đơn lập. Thứ hai, thay vì chỉ
+thuật lại số liệu tiếng Anh của paper gốc, nhóm xây dựng và chạy thật một
+benchmark định lượng riêng gồm 480 lần chạy trên bốn kho ngữ liệu tiếng
+Việt (Mục~\ref{sec:original-results}): kết quả xác nhận S\textsuperscript{3}
+dẫn đầu về coherence và diversity, nhưng cũng phát hiện và báo cáo trung
+thực một điểm yếu thật -- S\textsuperscript{3} chậm hơn các baseline cổ
+điển ở giai đoạn fit, trái ngược claim tốc độ của paper gốc trên tiếng Anh.
+Nhóm không dừng ở việc ghi nhận phát hiện này mà truy tới tận mã nguồn thư
+viện \texttt{turftopic} để tìm nguyên nhân (mã hoá từ vựng không được cache
+lại giữa các lần fit), rồi tự viết lại pipeline benchmark dùng
+\texttt{refit\_transform()}/\texttt{estimate\_components()}, kiểm chứng kỹ
+lưỡng (khớp bit-by-bit với fit độc lập) trước khi báo cáo tốc độ cải thiện
+3,7--8,9 lần đã đo thật. Thứ ba, nhóm đề xuất và triển khai một phương pháp
+đánh giá độ chính xác bằng AUC so trục ICA với nhãn thật (Mục~\ref{sec:vn-experiments})
+-- điều paper gốc chủ động không làm -- cho thấy trục ngữ nghĩa của
+S\textsuperscript{3} khớp tốt với nhãn khía cạnh/domain thật trên cả ViSFD
+và VTSNLP khi gộp trục bằng hồi quy logistic. Thứ tư, nhóm dựng thử và chạy
+thật hai ứng dụng (Mục~\ref{sec:application}) khai thác trực tiếp công
+thức suy luận tài liệu mới của S\textsuperscript{3}, đồng thời phát hiện
+một hạn chế thật của cách hiệu chỉnh nhãn ngoại tuyến (trục phát hiện đúng
+tín hiệu bất thường nhưng gắn sai tên khía cạnh).
+
+Xuyên suốt báo cáo, nhóm ưu tiên báo cáo trung thực hơn là chọn lọc số liệu
+có lợi: giữ cả WEC-in lẫn C\_NPMI dù hai chỉ số không đồng thuận, giữ cả
+kết quả tốc độ ban đầu bất lợi cho S\textsuperscript{3} lẫn quá trình truy
+nguyên nhân và đo lại, và nêu rõ VTSNLP có AUC cao hơn ViSFD phản ánh khác
+biệt bài toán (nhãn đơn dễ tách hơn nhãn đa) chứ không phải S\textsuperscript{3}
+"tốt hơn". Cách tiếp cận này, theo nhóm, phù hợp với đúng tinh thần khoa
+học mà một báo cáo tái lập cần có.
 
 \section*{Hạn chế}
-% TODO: muc bat buoc theo template ACL -- neu that thang.
+
+\paragraph{Benchmark định lượng (Mục~\ref{sec:original-results}).} Bốn kho
+ngữ liệu không có nhãn chủ đề độc lập nên WEC-in/C\_NPMI chỉ đo mạch lạc
+nội tại, không đo độ chính xác so với nhãn thật. VNTC-CNTT bị bỏ qua khi đo
+lại tốc độ bằng \texttt{refit\_transform()} do máy chạy thiếu công cụ giải
+nén nguồn (\texttt{unrar}) -- kết luận tốc độ 3,7--8,9 lần mới xác nhận
+trên 3/4 corpus. Bốn seed chỉ đo được độ nhạy trên một khoảng hẹp, chưa
+phải phân tích thống kê đầy đủ như Bảng 3 của paper gốc. Baseline (LDA,
+NMF, BERTopic) được cài đặt lại chứ không dùng mã nguồn gốc của từng
+paper. Nguyên nhân tốc độ chậm ban đầu đã được xác định và đo lại ở giai
+đoạn fit-only, nhưng chưa đo lại chi phí pipeline đầy đủ (gồm mã hoá tài
+liệu) theo cách tối ưu này.
+
+\paragraph{Đánh giá bằng AUC (Mục~\ref{sec:vn-experiments}).} Cỡ mẫu kiểm
+định nhỏ (11 khía cạnh trên ViSFD, 25 domain trên VTSNLP), một số khía
+cạnh của ViSFD có rất ít tài liệu dương (STORAGE chỉ 132/11.122). Khía cạnh
+đa nhãn của ViSFD vốn chồng lấn trong dữ liệu gốc, không chỉ do
+S\textsuperscript{3}, nên so sánh trực tiếp AUC giữa ViSFD và VTSNLP không
+tương đương độ khó bài toán. Phương pháp AUC đánh giá được sự tồn tại của
+tương quan giữa trục và nhãn, không đánh giá được tính ổn định của trục đó
+qua các lần chạy khác nhau (chỉ một seed cho mỗi cấu hình encoder).
+
+\paragraph{Ứng dụng (Mục~\ref{sec:application}).} Cả hai ứng dụng dùng quy
+tắc định tuyến 1-trục đơn giản, AUC gộp trục cao hơn rõ rệt (Bảng~\ref{tab:bank-routing})
+cho thấy đây là đánh đổi thật giữa độ trễ và độ chính xác, chưa phải hướng
+triển khai tối ưu. Ví dụ phát hiện bất thường cho thấy việc hiệu chỉnh tên
+khía cạnh cho một trục có thể sai (gắn nhãn STORAGE cho trục thực chất về
+nhiệt/quá nhiệt) dù bản thân tín hiệu bất thường vẫn phát hiện đúng -- cả
+hai ứng dụng mới kiểm thử trên kịch bản mô phỏng/dữ liệu có sẵn, chưa triển
+khai thực tế với người dùng cuối.
+
+\paragraph{Phạm vi chung.} Toàn bộ thực nghiệm giới hạn ở tiếng Việt và các
+kho ngữ liệu đã chọn (đánh giá sản phẩm, tin tức, y tế, công nghệ thông
+tin, ngân hàng); không có cơ sở để suy rộng kết luận sang miền dữ liệu khác
+hay ngôn ngữ khác. Nhóm không tinh chỉnh siêu tham số cho bất kỳ mô hình
+nào (theo đúng nguyên tắc tránh p-hacking của paper gốc), nghĩa là kết quả
+phản ánh cấu hình mặc định/được đề xuất, không phải hiệu năng tối ưu có thể
+đạt được của từng mô hình.
 
 \bibliography{refs}
 
