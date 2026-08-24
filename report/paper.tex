@@ -29,388 +29,195 @@
 \maketitle
 
 \begin{abstract}
-Semantic Signal Separation (S\textsuperscript{3}) là một phương pháp mô hình
-hoá chủ đề mới, coi mỗi chủ đề là một trục ngữ nghĩa độc lập được tách ra
-bằng Independent Component Analysis (ICA) trên không gian embedding ngữ
-cảnh. Báo cáo này tái lập S\textsuperscript{3} cho tiếng Việt, giải quyết
-khác biệt kỹ thuật bắt buộc mà paper gốc không gặp (tách từ tiếng Việt
-trước khi xây từ vựng). Thay vì chỉ thuật lại số liệu tiếng Anh của paper
-gốc, nhóm xây dựng một benchmark định lượng riêng gồm 480 lần chạy thật
-trên bốn kho ngữ liệu tiếng Việt, so ba biến thể S\textsuperscript{3} với
-LDA/NMF/BERTopic: S\textsuperscript{3} dẫn đầu rõ rệt về coherence (WEC-in)
-và diversity, nhưng lại là cấu hình \emph{chậm nhất} ở giai đoạn fit --
-trái ngược claim tốc độ của paper gốc trên tiếng Anh. Nhóm truy ra nguyên
-nhân cụ thể (mã hoá từ vựng không được cache lại giữa các lần fit), kiểm
-chứng và đo lại tốc độ thật bằng \texttt{refit\_transform()}/
-\texttt{estimate\_components()} của turftopic, đạt cải thiện 3,7--8,9 lần
-đã kiểm chứng khớp bit-by-bit với fit độc lập. Nhóm còn so sánh trực tiếp
-hai encoder (CafeBERT và multilingual-E5, có BGE-M3 đối chứng), đề xuất một
-phương pháp đánh giá độ chính xác bằng nhãn thật -- điều paper gốc chủ động
-không làm -- trên hai bộ dữ liệu tiếng Việt có nhãn độc lập (ViSFD,
-VTSNLP), và dựng thử hai ứng dụng chạy thật (bảng điều khiển phát hiện bất
-thường, server định tuyến câu hỏi ngân hàng) dựa trên khả năng suy luận tài
-liệu mới không cần huấn luyện lại của S\textsuperscript{3}.
+Semantic Signal Separation (S\textsuperscript{3}) là một phương pháp mô
+hình hoá chủ đề mới, coi mỗi chủ đề là một trục ngữ nghĩa độc lập tách ra
+bằng Independent Component Analysis (ICA) trên không gian embedding. Báo
+cáo tái lập S\textsuperscript{3} cho tiếng Việt (bổ sung bước tách từ mà
+paper gốc không cần), rồi xây dựng một benchmark định lượng riêng gồm 480
+lần chạy thật trên bốn kho ngữ liệu tiếng Việt, so S\textsuperscript{3}
+với LDA/NMF/BERTopic: S\textsuperscript{3} dẫn đầu coherence và diversity
+nhưng chậm hơn các baseline ở giai đoạn fit do đặc thù thư viện triển
+khai; nhóm xác định các nguyên nhân và đo lại, đạt cải thiện 3,7--8,9 lần
+đã kiểm chứng khớp bit-by-bit với fit độc lập. Nhóm còn so sánh hai encoder
+(CafeBERT, multilingual-E5), đề xuất một phương pháp đánh giá độ chính xác
+bằng nhãn thật trên ViSFD/VTSNLP -- điều paper gốc chủ động không làm --
+và dựng thử hai ứng dụng chạy thật dựa trên khả năng suy luận tài liệu mới
+không cần huấn luyện lại của S\textsuperscript{3}.
 \end{abstract}
 
 \section{Giới thiệu}
 \label{sec:intro}
 
-Với sự bùng nổ dữ liệu văn bản tiếng Việt trên mạng xã hội, sàn thương mại
-điện tử, và các nền tảng tin tức, nhu cầu tự động khám phá chủ đề/khía
-cạnh ẩn trong khối lượng lớn văn bản -- mà không cần đọc thủ công từng tài
-liệu -- ngày càng cấp thiết cho cả nghiên cứu học thuật lẫn ứng dụng doanh
-nghiệp (giám sát phản hồi khách hàng, phân loại yêu cầu hỗ trợ...). Các mô
-hình topic modeling cổ điển (LDA, LSA) và các hướng hiện đại hơn dựa trên
-embedding ngữ cảnh (CTM, BERTopic, Top2Vec) đều đã được kiểm nghiệm rộng
-rãi trên tiếng Anh, nhưng gần như chưa có công trình nào đánh giá một cách
-có hệ thống trên tiếng Việt -- một ngôn ngữ đơn lập, viết cách âm tiết, đặt
-ra thách thức riêng cho các bước tiền xử lý mà hầu hết mô hình mượn nguyên
-từ tiếng Anh.
+Nhu cầu tự động khám phá chủ đề trong văn bản tiếng Việt (mạng xã hội,
+thương mại điện tử, tin tức) ngày càng lớn, nhưng các mô hình topic
+modeling hiện có (LDA, LSA, CTM, BERTopic, Top2Vec...) hầu như chỉ được
+kiểm nghiệm trên tiếng Anh -- một ngôn ngữ đơn lập, viết cách âm tiết như
+tiếng Việt đặt ra thách thức tiền xử lý riêng.
 
 Semantic Signal Separation (S\textsuperscript{3}) \citep{kardos2025s3},
-công bố tại ACL 2025, đề xuất một hướng tiếp cận khác biệt: thay vì coi
-chủ đề là một cụm tài liệu hay một phân phối xác suất trên từ vựng, S³
-định nghĩa chủ đề như một \emph{trục ngữ nghĩa} độc lập, tách ra từ không
-gian embedding tài liệu bằng Independent Component Analysis (ICA). Cách
-tiếp cận này không cần bước đếm từ (BoW/TF-IDF) để tìm chủ đề, chạy nhanh
-hơn hẳn các baseline thần kinh, và mang lại một tính chất diễn giải độc
-đáo mà các mô hình khác không có: \emph{định nghĩa âm} của chủ đề (từ khoá
-cho biết chủ đề \emph{không phải} là gì). Tuy nhiên, mọi thực nghiệm trong
-paper gốc đều chạy trên các kho ngữ liệu tiếng Anh, và paper cũng chủ động
-không đánh giá độ chính xác của các trục ngữ nghĩa bằng nhãn thật cho bất
-kỳ downstream task nào.
+công bố tại ACL 2025, định nghĩa chủ đề như một \emph{trục ngữ nghĩa} tách
+ra từ embedding tài liệu bằng ICA, thay vì một cụm hay một phân phối xác
+suất trên từ vựng. Cách này không cần đếm từ (BoW/TF-IDF), chạy nhanh hơn
+baseline thần kinh trên tiếng Anh, và cho phép \emph{định nghĩa âm} của
+chủ đề. Tuy nhiên mọi thực nghiệm gốc chỉ chạy trên tiếng Anh, và paper
+không đánh giá độ chính xác trục ngữ nghĩa bằng nhãn thật.
 
-Báo cáo này đóng góp trên năm khía cạnh, đúng theo yêu cầu đề tài. Thứ
-nhất, nhóm \textbf{tái lập S\textsuperscript{3} cho tiếng Việt}
-(Mục~\ref{sec:method} trình bày lại phương pháp gốc), giải quyết một khác
-biệt kỹ thuật bắt buộc mà paper gốc không gặp phải: tiếng Việt viết cách
-âm tiết, cần tách từ (word segmentation) trước khi xây từ vựng, nếu không
-bước chiếu từ lên trục ngữ nghĩa (Công thức~\ref{eq:projection}) sẽ vô
-nghĩa. Thứ hai, nhóm dựng một \textbf{benchmark định lượng quy mô 480 lần
-chạy thật} (Mục~\ref{sec:original-results}) trên bốn kho ngữ liệu tiếng
-Việt, so ba biến thể S\textsuperscript{3} với LDA/NMF/BERTopic theo đúng
-protocol paper gốc -- và báo cáo trung thực cả điểm mạnh (coherence,
-diversity) lẫn một phát hiện trái ngược paper gốc (tốc độ). Thứ ba, nhóm
-\textbf{so sánh trực tiếp hai encoder} CafeBERT và multilingual-E5 (có
-thêm BGE-M3 làm đối chứng) về cả tốc độ mã hoá lẫn độ chính xác trục ngữ
-nghĩa, trên hai bộ dữ liệu tiếng Việt có nhãn thật độc lập: ViSFD (khía
-cạnh đánh giá điện thoại, đa nhãn) và VTSNLP (domain nội dung, đơn nhãn).
-Thứ tư, nhóm đề xuất và triển khai \textbf{một phương pháp đánh giá độ
-chính xác bằng AUC} so trục ICA với nhãn thật -- điều paper gốc chủ động
-không làm -- trả lời trực tiếp câu hỏi "một trục tìm được thuần tuý từ
-phương sai embedding có thực sự trùng khớp với một khái niệm ngữ nghĩa có
-thật hay không?" (Mục~\ref{sec:vn-experiments}). Thứ năm, nhóm dựng thử
-\textbf{hai ứng dụng chạy thật} dựa trên khả năng suy luận tài liệu mới
-không cần huấn luyện lại của S\textsuperscript{3} (Mục~\ref{sec:application}):
-một bảng điều khiển phát hiện bất thường và một server định tuyến câu hỏi
-cho tổng đài ngân hàng.
-
-Phần còn lại của báo cáo tổ chức như sau: Mục~\ref{sec:related-work} điểm
-qua các hướng tiếp cận topic modeling hiện có và động lực dẫn tới
-S\textsuperscript{3}; Mục~\ref{sec:method} trình bày chi tiết phương pháp
-S\textsuperscript{3}; Mục~\ref{sec:original-results} trình bày benchmark
-định lượng của nhóm trên bốn kho ngữ liệu tiếng Việt (coherence, diversity,
-tốc độ, robustness); Mục~\ref{sec:vn-experiments} là phần thực nghiệm
-trọng tâm còn lại của nhóm, tập trung vào đánh giá độ chính xác bằng nhãn
-thật; Mục~\ref{sec:application} trình bày hai ứng dụng đề xuất;
-Mục~\ref{sec:conclusion} kết luận và nêu hạn chế.
+Báo cáo đóng góp trên bốn hướng: (1) \textbf{tái lập S\textsuperscript{3}
+cho tiếng Việt} (Mục~\ref{sec:method}), bổ sung bước tách từ tiếng Việt
+trước khi xây từ vựng; (2) một \textbf{benchmark định lượng 480 lần chạy
+thật} trên bốn kho ngữ liệu tiếng Việt (Mục~\ref{sec:original-results}),
+cho thấy cả điểm mạnh (coherence, diversity) lẫn hạn chế thật của
+S\textsuperscript{3} trên tiếng Việt (tốc độ); (3) \textbf{so sánh hai
+encoder} CafeBERT
+và multilingual-E5, cùng một \textbf{phương pháp đánh giá độ chính xác
+bằng AUC} so trục ICA với nhãn thật trên ViSFD/VTSNLP -- điều paper gốc
+chủ động không làm (Mục~\ref{sec:vn-experiments}); (4) \textbf{hai ứng
+dụng chạy thật} khai thác khả năng suy luận tài liệu mới của
+S\textsuperscript{3} (Mục~\ref{sec:application}).
 
 \section{Công trình liên quan}
 \label{sec:related-work}
-% Nguon: report/section2_related_work.md (da duyet noi dung tieng Viet o do truoc,
-% doan duoi day la ban da chuyen sang cu phap LaTeX).
 
-Mô hình hoá chủ đề (topic modeling) là nhóm phương pháp thống kê không giám
-sát nhằm khám phá các chủ đề ẩn trong một kho văn bản lớn mà không cần đọc
-thủ công từng tài liệu, mỗi chủ đề thường được biểu diễn bằng một tập từ
-khoá đại diện. Các phương pháp cổ điển như Latent Semantic Analysis (LSA)
-\citep{deerwester1988lsa} và Latent Dirichlet Allocation (LDA)
-\citep{blei2003lda} đều xây dựng trên biểu diễn Bag-of-Words (BoW) -- đếm
-tần suất xuất hiện của từ, bỏ qua ngữ pháp và thứ tự từ. LSA nén ma trận
-đếm từ xuống không gian có số chiều thấp hơn bằng phân tích giá trị kỳ dị
-(SVD), trong khi LDA là một mô hình sinh xác suất, giả định mỗi tài liệu là
-một phân phối Dirichlet trên các chủ đề rồi suy luận ngược bằng thống kê
-Bayes. Cách tiếp cận dựa trên BoW gặp ba hạn chế cố hữu: (i) nhạy cảm với
-các từ dừng (stop words) có tần suất cao nhưng không mang nội dung, khiến
-chủ đề sinh ra thường lẫn nhiều từ vô nghĩa; (ii) đòi hỏi một khâu tiền xử
-lý (loại bỏ từ dừng, chuẩn hoá từ...) không có chuẩn thống nhất, làm giảm
-khả năng tái lập giữa các nghiên cứu; (iii) biểu diễn BoW rất thưa và có số
-chiều cao, gây tốn kém tính toán và không nắm bắt được quan hệ ngữ nghĩa
-giữa các từ đồng nghĩa hoặc đa nghĩa.
+Mô hình hoá chủ đề khám phá chủ đề ẩn trong kho văn bản lớn không cần đọc
+thủ công. Các phương pháp cổ điển như LSA \citep{deerwester1988lsa} và LDA
+\citep{blei2003lda} xây dựng trên Bag-of-Words (BoW), gặp ba hạn chế cố
+hữu: nhạy cảm với từ dừng, cần tiền xử lý không chuẩn hoá (khó tái lập),
+và biểu diễn thưa/nhiều chiều không nắm được quan hệ ngữ nghĩa.
 
-Sự xuất hiện của các mô hình biểu diễn ngữ cảnh dựa trên mạng nơ-ron sâu,
-tiêu biểu là BERT \citep{devlin2019bert} và các biến thể tối ưu cho câu như
-Sentence-BERT \citep{reimers2019sbert}, mở ra hướng đi mới: biểu diễn tài
-liệu bằng vector đặc (dense embedding) mang thông tin ngữ cảnh, bền vững
-hơn trước lỗi chính tả, và tận dụng được học chuyển giao (transfer learning)
-từ mô hình đã huấn luyện trước trên kho ngữ liệu khổng lồ. Tuy nhiên, bản
-thân embedding chỉ là một biểu diễn -- chưa phải là một mô hình chủ đề --
-nên các phương pháp xây dựng trên nền tảng này chia thành hai nhánh chính.
+Embedding ngữ cảnh (BERT \citep{devlin2019bert}, Sentence-BERT
+\citep{reimers2019sbert}) mở ra hướng khác: biểu diễn tài liệu bằng vector
+đặc mang ngữ cảnh. Các mô hình xây trên nền này chia hai nhánh.
+\textbf{Nhánh neural}: CTM \citep{bianchi2021ctm} dùng VAE tái tạo phân
+phối từ từ embedding; ECRTM \citep{wu2023ecrtm} thêm điều chuẩn phân cụm
+embedding; FASTopic \citep{wu2024fastopic} dùng optimal transport -- cả ba
+vẫn cần decoder/hàm mất mát trên không gian BoW nên preprocessing nặng và
+huấn luyện lặp chậm. \textbf{Nhánh clustering}: Top2Vec
+\citep{angelov2020top2vec} và BERTopic \citep{grootendorst2022bertopic}
+dùng UMAP \citep{mcinnes2018umap} giảm chiều rồi HDBSCAN
+\citep{campello2013hdbscan} phân cụm, suy chủ đề hậu kỳ bằng cosine hoặc
+class-based TF-IDF -- pipeline nhiều siêu tham số, lỗi ở bước UMAP không
+sửa được ở bước sau.
 
-\paragraph{Nhánh mạng nơ-ron (neural).} Contextualized Topic Models (CTM)
-\citep{bianchi2021ctm} dùng một bộ tự mã hoá biến phân (VAE) nhận đầu vào là
-embedding ngữ cảnh (có thể kết hợp thêm BoW) để tái tạo lại phân phối từ.
-ECRTM \citep{wu2023ecrtm} bổ sung một cơ chế điều chuẩn phân cụm embedding
-(embedding clustering regularization) để buộc các chủ đề tách biệt nhau rõ
-hơn, còn FASTopic \citep{wu2024fastopic} mô hình hoá quan hệ tài liệu -- chủ
-đề -- từ như một bài toán vận chuyển tối ưu (optimal transport). Điểm chung
-của các mô hình này là vẫn cần một bộ giải mã hoặc hàm mất mát định nghĩa
-trên không gian BoW, nên preprocessing nặng vẫn là một khâu khó tránh; đồng
-thời quá trình huấn luyện lặp (nhiều epoch, tối ưu hoá hai giai đoạn) khiến
-tốc độ chạy chậm và kết quả có thể không ổn định giữa các lần chạy.
-
-\paragraph{Nhánh phân cụm (clustering).} Top2Vec \citep{angelov2020top2vec}
-và BERTopic \citep{grootendorst2022bertopic} đi theo hướng hình học: dùng
-UMAP \citep{mcinnes2018umap} để giảm chiều embedding xuống một không gian
-vài chục chiều, sau đó dùng HDBSCAN \citep{campello2013hdbscan} để phân cụm
-mật độ (density-based clustering) mà không cần định trước số cụm. Chủ đề
-của mỗi cụm được suy ra hậu kỳ: Top2Vec dùng độ tương đồng cosine giữa
-embedding từ và tâm cụm, còn BERTopic dùng một biến thể TF-IDF theo lớp
-(class-based TF-IDF) -- tức là vẫn quay lại đếm từ ở bước cuối cùng.
-Pipeline hai giai đoạn này (UMAP rồi HDBSCAN) có tổng cộng 5--6 siêu tham số
-không có hướng dẫn lựa chọn rõ ràng, số cụm sinh ra không kiểm soát được
-(có thể cần thêm bước gộp cụm), và một tài liệu bị phân sai cụm ở bước UMAP
-sẽ không thể sửa được ở các bước sau.
-
-\paragraph{Ba thách thức chung.} Nhìn xuyên suốt cả hai nhánh, các mô hình
-chủ đề ngữ cảnh hiện có đối mặt với ba vấn đề: (1) nhạy cảm với lựa chọn
-siêu tham số, khiến kết quả khó tái lập; (2) vẫn phụ thuộc vào một hình
-thức đếm từ nào đó (BoW trong decoder của CTM, hay TF-IDF trong BERTopic),
-nên chưa thực sự thoát khỏi hạn chế của cách tiếp cận cổ điển; (3) chưa có
-bằng chứng rõ ràng cho thấy các mô hình này tận dụng được thông tin ngữ
-cảnh thật sự, vì phần lớn được đánh giá trên dữ liệu đã qua tiền xử lý kỹ
-lưỡng. Ba thách thức này chính là động lực trực tiếp dẫn tới Semantic
-Signal Separation (S\textsuperscript{3}) \citep{kardos2025s3} -- phương
-pháp mà nhóm tái lập và mở rộng cho tiếng Việt trong báo cáo này, được
+Cả hai nhánh đối mặt ba vấn đề chung: nhạy siêu tham số (khó tái lập), vẫn
+phụ thuộc một hình thức đếm từ nào đó (chưa thoát hạn chế cổ điển), và
+chưa có bằng chứng rõ ràng khai thác được ngữ cảnh thật sự (đánh giá chủ
+yếu trên dữ liệu đã tiền xử lý kỹ). Đây là động lực trực tiếp dẫn tới
+Semantic Signal Separation (S\textsuperscript{3}) \citep{kardos2025s3},
 trình bày ở Mục~\ref{sec:method}.
 
 \section{Phương pháp: Semantic Signal Separation}
 \label{sec:method}
-% Nguon: main/content.md Act 3 (S10-S24).
 
-\paragraph{Ý tưởng cốt lõi.} Khác với các mô hình được điểm qua ở
-Mục~\ref{sec:related-work} -- vốn coi chủ đề là một phân phối xác suất trên
-từ vựng (LDA) hoặc một cụm tài liệu (BERTopic, Top2Vec) -- S\textsuperscript{3}
-\citep{kardos2025s3} định nghĩa lại chủ đề như một \emph{trục ngữ nghĩa}
-(semantic axis): một hướng trong không gian embedding mà dọc theo đó, ý
-nghĩa của văn bản biến thiên độc lập với các hướng khác. Định nghĩa này lấy
-cảm hứng trực tiếp từ bài toán kinh điển trong xử lý tín hiệu gọi là
-"cocktail party problem": khi nhiều nguồn âm thanh trộn lẫn vào nhau ở micro,
-Independent Component Analysis (ICA) \citep{jutten1991ica,hyvarinen2000fastica}
-có thể tách ngược lại các nguồn gốc độc lập chỉ từ tín hiệu trộn quan sát
-được, không cần biết trước nguồn nào phát ra gì. S\textsuperscript{3} áp
-dụng đúng nguyên lý đó cho embedding văn bản: coi mỗi embedding tài liệu là
-một "bản trộn" của nhiều tín hiệu ngữ nghĩa độc lập (mỗi tín hiệu là một chủ
-đề), rồi dùng ICA để tách các tín hiệu đó ra.
+\paragraph{Ý tưởng cốt lõi.} Khác với LDA (phân phối xác suất) hay
+BERTopic/Top2Vec (cụm tài liệu), S\textsuperscript{3}
+\citep{kardos2025s3} định nghĩa chủ đề như một \emph{trục ngữ nghĩa}: một
+hướng trong không gian embedding mà dọc theo đó ý nghĩa văn bản biến
+thiên độc lập với các hướng khác -- lấy cảm hứng từ "cocktail party
+problem" trong xử lý tín hiệu: Independent Component Analysis (ICA)
+\citep{jutten1991ica,hyvarinen2000fastica} tách các nguồn âm độc lập từ
+tín hiệu trộn quan sát được, không cần biết trước nguồn nào phát ra gì.
+S\textsuperscript{3} áp dụng nguyên lý này cho embedding văn bản, coi mỗi
+embedding tài liệu là bản trộn của nhiều tín hiệu ngữ nghĩa độc lập.
 
-\paragraph{Quy trình sáu bước.} Gọi $X \in \mathbb{R}^{n \times d}$ là ma
-trận embedding của $n$ tài liệu (mỗi hàng là vector $d$ chiều do một mô hình
-encoder ngữ cảnh sinh ra, ví dụ Sentence-BERT). S\textsuperscript{3} tìm chủ
-đề qua sáu bước:
-\begin{enumerate}
-    \item[(1)] \textbf{Mã hoá tài liệu}: dùng một encoder câu để biến $n$
-    tài liệu thành ma trận $X$.
-    \item[(2)] \textbf{Phân rã ICA}: áp dụng FastICA lên $X$ để thu được
-    \begin{equation}
-        X = A S,
-        \label{eq:generative}
-    \end{equation}
-    trong đó $S \in \mathbb{R}^{n \times k}$ là ma trận $k$ thành phần độc
-    lập (mỗi cột là một trục ngữ nghĩa -- một "chủ đề"), còn
-    $A \in \mathbb{R}^{d \times k}$ là ma trận trộn (mixing matrix) biến các
-    trục ngữ nghĩa trở lại không gian embedding gốc.
-    \item[(3)] \textbf{Mã hoá từ vựng}: dùng cùng encoder ở bước (1) để mã
-    hoá toàn bộ từ vựng của kho ngữ liệu thành ma trận
-    $V \in \mathbb{R}^{m \times d}$ ($m$ là số từ).
-    \item[(4)] \textbf{Ma trận giải trộn}: tính giả nghịch đảo
-    Moore--Penrose của $A$,
-    \begin{equation}
-        C = A^{+},
-        \label{eq:unmixing}
-    \end{equation}
-    đóng vai trò ánh xạ ngược từ không gian embedding về không gian trục
-    ngữ nghĩa.
-    \item[(5)] \textbf{Chiếu từ lên trục ngữ nghĩa}: dùng chính ma trận giải
-    trộn $C$ để chiếu embedding từ vựng $V$ sang cùng không gian $k$ chiều
-    với các trục chủ đề,
-    \begin{equation}
-        W = V C^{\top}, \quad W \in \mathbb{R}^{m \times k}.
-        \label{eq:projection}
-    \end{equation}
-    \item[(6)] \textbf{Chấm điểm quan trọng của từ}: với mỗi trục $t$, sắp
-    xếp các từ theo một trong ba công thức importance (trình bày dưới đây)
-    tính từ cột $t$ của $W$, để chọn ra từ khoá đại diện cho chủ đề $t$.
-\end{enumerate}
-Vì bước (2) chỉ cần chạy FastICA -- một thuật toán hội tụ nhanh, không lặp
-qua nhiều epoch như huấn luyện mạng nơ-ron -- toàn bộ pipeline có độ phức
-tạp thấp hơn hẳn CTM hay ECRTM, và không cần bất kỳ bước đếm từ (BoW/TF-IDF)
-nào để \emph{tìm} chủ đề: từ vựng chỉ được dùng ở bước (3)--(5) để
-\emph{diễn giải} các trục đã tìm được. Nhóm dùng cấu hình FastICA đúng theo
-Appendix C.1 của paper gốc (\texttt{algorithm="parallel"},
-\texttt{whiten="unit-variance"}, \texttt{whiten\_solver="svd"}), triển khai
-qua thư viện mã nguồn mở \texttt{turftopic} do chính nhóm tác giả
-S\textsuperscript{3} công bố -- nhóm dùng lại thư viện này cho cả tái lập
-lẫn thực nghiệm tiếng Việt ở Mục~\ref{sec:vn-experiments}.
+\paragraph{Quy trình sáu bước.} Gọi $X \in \mathbb{R}^{n \times d}$ là
+embedding của $n$ tài liệu. S\textsuperscript{3} tìm chủ đề qua: (1) mã
+hoá tài liệu thành $X$ bằng một encoder câu; (2) phân rã FastICA
+\begin{equation}
+    X = A S,
+    \label{eq:generative}
+\end{equation}
+với $S \in \mathbb{R}^{n\times k}$ là ma trận $k$ trục ngữ nghĩa độc lập
+và $A \in \mathbb{R}^{d\times k}$ là ma trận trộn; (3) mã hoá từ vựng
+thành $V \in \mathbb{R}^{m\times d}$; (4) giả nghịch đảo Moore--Penrose
+\begin{equation}
+    C = A^{+};
+    \label{eq:unmixing}
+\end{equation}
+(5) chiếu từ lên trục ngữ nghĩa
+\begin{equation}
+    W = V C^{\top}, \quad W \in \mathbb{R}^{m \times k};
+    \label{eq:projection}
+\end{equation}
+(6) chấm điểm quan trọng của mỗi từ trên mỗi trục để chọn từ khoá đại
+diện. Vì bước (2) chỉ cần FastICA -- hội tụ nhanh, không lặp qua nhiều
+epoch -- pipeline không cần đếm từ để \emph{tìm} chủ đề (từ vựng chỉ dùng
+ở bước (3)--(5) để \emph{diễn giải}), đơn giản và nhanh hơn CTM/ECRTM về
+lý thuyết. Nhóm dùng cấu hình FastICA theo Appendix C.1 paper gốc
+(\texttt{algorithm="parallel"}, \texttt{whiten="unit-variance"},
+\texttt{whiten\_solver="svd"}), triển khai qua thư viện mã nguồn mở
+\texttt{turftopic} do chính tác giả S\textsuperscript{3} công bố -- dùng
+lại cho cả tái lập lẫn thực nghiệm tiếng Việt ở Mục~\ref{sec:vn-experiments}.
 
-\paragraph{Ba công thức chấm điểm quan trọng của từ.} Gọi $W_{jt}$ là toạ độ
-của từ $j$ trên trục $t$ (phần tử hàng $j$, cột $t$ của $W$), và $\|W_j\|$
-là độ dài vector embedding đã chiếu của từ $j$ trên toàn bộ $k$ trục (hình
-chiếu của từ đó lên \emph{mọi} chủ đề, không riêng trục $t$). Hình~\ref{fig:word-importance}
-minh hoạ trực giác hình học của ba công thức mà S\textsuperscript{3} đề
-xuất:
+\paragraph{Ba công thức chấm điểm quan trọng của từ.} Gọi $W_{jt}$ là toạ
+độ từ $j$ trên trục $t$, $\|W_j\|$ là độ dài chiếu của từ đó lên toàn bộ
+$k$ trục. Hình~\ref{fig:word-importance} minh hoạ ba công thức:
 \begin{align}
     \beta_{ax|t} &= W_{jt}, \label{eq:beta-axial}\\
     \beta_{ang|t} &= \frac{W_{jt}}{\|W_j\|}, \label{eq:beta-angular}\\
     \beta_{com|t} &= \frac{(W_{jt})^{3}}{\|W_j\|}. \label{eq:beta-combined}
 \end{align}
-Công thức \emph{axial} (\ref{eq:beta-axial}) chỉ lấy toạ độ thô trên trục
-$t$, ưu tiên các từ có hình chiếu lớn nhất bất kể từ đó còn liên quan mạnh
-đến các trục khác hay không. Công thức \emph{angular} (\ref{eq:beta-angular})
-chuẩn hoá theo góc $\Theta$ giữa vector từ và trục $t$ (xem
-Hình~\ref{fig:word-importance}), ưu tiên các từ mà gần như toàn bộ ý nghĩa
-nằm dọc trục $t$, nhưng dễ bị nhiễu bởi các từ hiếm có $\|W_j\|$ rất nhỏ.
-Công thức \emph{combined} (\ref{eq:beta-combined}) -- được paper gốc chọn
-làm mặc định và cũng là công thức nhóm dùng xuyên suốt báo cáo này -- lấy
-luỹ thừa bậc ba của $W_{jt}$ (giữ nguyên dấu vì số mũ lẻ, đồng thời khuếch
-đại các giá trị lớn) rồi chuẩn hoá theo $\|W_j\|$ như công thức angular,
-dung hoà giữa hai thái cực trên.
+\emph{Axial} ưu tiên hình chiếu lớn nhất bất kể liên quan tới trục khác;
+\emph{angular} chuẩn hoá theo góc, ưu tiên từ mà gần như toàn bộ ý nghĩa
+nằm dọc trục $t$ nhưng dễ nhiễu với từ hiếm ($\|W_j\|$ nhỏ); \emph{combined}
+-- mặc định của paper gốc và của báo cáo này -- lấy luỹ thừa bậc ba của
+$W_{jt}$ (giữ dấu, khuếch đại giá trị lớn) rồi chuẩn hoá như angular.
 
 \begin{figure}[t]
     \centering
     \includegraphics[width=\linewidth]{figures/figure3.png}
-    \caption{Trực giác hình học của ba công thức chấm điểm quan trọng từ
-    (axial, angular, combined). Tái hiện từ \citep{kardos2025s3}.}
+    \caption{Trực giác hình học của ba công thức chấm điểm quan trọng từ.
+    Tái hiện từ \citep{kardos2025s3}.}
     \label{fig:word-importance}
 \end{figure}
 
-\paragraph{Ý nghĩa âm: một chủ đề không chỉ được định nghĩa bởi những gì nó
-là.} Vì $\beta$ có thể âm, mỗi trục ngữ nghĩa mang theo cả một tập từ có
-trọng số dương lớn (\emph{định nghĩa dương} -- chủ đề \emph{là} gì) lẫn một
-tập từ có trọng số âm lớn (\emph{định nghĩa âm} -- chủ đề \emph{không phải}
-là gì, hay đối lập với nó). Đây là điểm khác biệt rõ rệt so với LDA hay
-BERTopic, vốn chỉ liệt kê được từ khoá dương (xác suất hoặc tần suất luôn
-không âm). Bảng~\ref{tab:arxiv-topics} minh hoạ điều này trên năm trục đầu
-tiên mà S\textsuperscript{3} trích xuất từ một kho tóm tắt bài báo ArXiv về
-Machine Learning: trục~3 chẳng hạn có định nghĩa dương xoay quanh đồ thị
-(subgraph, graphsage) và định nghĩa âm xoay quanh tấn công đối kháng
-(adversarial, security) -- hai chủ đề khác nhau nhưng cùng nằm trên một trục
-lưỡng cực, cho thấy chúng có xu hướng \emph{loại trừ nhau} trong kho ngữ
-liệu này.
+\paragraph{Ý nghĩa âm và Concept Compass.} Vì $\beta$ có thể âm, mỗi trục
+mang cả định nghĩa dương (chủ đề \emph{là} gì) lẫn định nghĩa âm (chủ đề
+\emph{không phải} là gì) -- khác biệt rõ so với LDA/BERTopic, vốn chỉ
+liệt kê được từ khoá dương. Chọn hai trục làm hai chiều của một biểu đồ
+phân tán (\emph{Concept Compass}) cho phép quan sát trực tiếp cách các
+khái niệm sắp xếp trong không gian ngữ nghĩa hai chiều mà không cần bất kỳ
+nhãn giám sát nào \citep{kardos2025s3}.
 
-\begin{table}[t]
-    \centering
-    \small
-    \begin{tabular}{@{}c p{3.3cm} p{3.3cm}@{}}
-        \toprule
-         & \textbf{Từ trọng số dương} & \textbf{Từ trọng số âm} \\
-        \midrule
-        0 & clustering, histograms, clusterings, histogram, classifying &
-        reinforcement, exploration, planning, tactics, reinforce \\
-        1 & textual, pagerank, litigants, marginalizing, entailment &
-        matlab, waveforms, microcontroller, accelerometers,
-        microcontrollers \\
-        2 & sparsestmax, denoiseing, denoising, minimizers, minimizes &
-        automation, affective, chatbots, questionnaire, attitudes \\
-        3 & rebmigraph, subgraph, subgraphs, graphsage, graph &
-        adversarial, adversarially, adversarialization, adversary,
-        security \\
-        4 & clustering, estimations, algorithm, dbscan, estimation &
-        cnn, deepmind, deeplabv3, convnet, deepseenet \\
-        \bottomrule
-    \end{tabular}
-    \caption{Năm chủ đề đầu tiên trích xuất từ kho ArXiv ML Papers, mỗi chủ
-    đề đi kèm định nghĩa dương và âm. Tái hiện từ \citep{kardos2025s3}.}
-    \label{tab:arxiv-topics}
-\end{table}
-
-\paragraph{Concept Compass: trực quan hoá hai trục cùng lúc.} Vì mỗi từ và
-mỗi tài liệu đều có toạ độ trên mọi trục, chọn hai trục bất kỳ làm hai trục
-của một biểu đồ phân tán (scatter plot) cho phép quan sát trực tiếp cách các
-khái niệm sắp xếp trong không gian ngữ nghĩa hai chiều đó -- tác giả gốc gọi
-công cụ này là \emph{Concept Compass}. Hình~\ref{fig:concept-compass} là ví
-dụ trên cùng kho ArXiv ML Papers, dùng trục 4 ("Deep Learning vs.\
-Algorithms") làm trục tung và trục 1 ("Physical/Biological/Vision vs.\
-Linguistic Problems") làm trục hoành: các từ liên quan đến thị giác máy
-tính và robot học tụ ở góc trên-trái, các từ liên quan đến embedding và
-ngôn ngữ tụ ở góc dưới-phải, trong khi các từ thống kê/thuật toán chung tụ
-dọc trục tung phía trên -- một cấu trúc ngữ nghĩa mạch lạc mà không cần bất
-kỳ nhãn giám sát nào.
-
-\begin{figure*}[t]
-    \centering
-    \includegraphics[width=0.75\linewidth]{figures/figure7.png}
-    \caption{Concept Compass: các khái niệm được S\textsuperscript{3} sắp
-    xếp theo hai trục ngữ nghĩa trên kho ArXiv ML Papers. Tái hiện từ
-    \citep{kardos2025s3}.}
-    \label{fig:concept-compass}
-\end{figure*}
-
-\paragraph{Suy luận cho tài liệu mới.} Một ưu điểm thực dụng của
-S\textsuperscript{3} là suy luận toạ độ ngữ nghĩa cho một tài liệu chưa
-từng thấy không đòi hỏi huấn luyện lại mô hình. Với một tài liệu mới được
-mã hoá thành embedding $\hat{x} \in \mathbb{R}^{d}$ (hoặc một lô
-$\hat{X} \in \mathbb{R}^{n' \times d}$), toạ độ trên $k$ trục ngữ nghĩa
-được suy ra chỉ bằng một phép nhân ma trận với ma trận giải trộn $C$ đã
-tính ở bước (4):
+\paragraph{Suy luận cho tài liệu mới.} Với embedding tài liệu mới
+$\hat{X}$, toạ độ trên $k$ trục ngữ nghĩa suy ra chỉ bằng một phép nhân
+ma trận với $C$:
 \begin{equation}
-    \hat{S} = \hat{X} C^{\top}.
+    \hat{S} = \hat{X} C^{\top},
     \label{eq:inference}
 \end{equation}
-Vì Công thức~\ref{eq:inference} chỉ là một phép nhân ma trận không tốn kém,
-S\textsuperscript{3} có thể suy luận theo thời gian thực cho luồng dữ liệu
-mới -- tính chất mà nhóm khai thác trực tiếp cho đề xuất ứng dụng ở
-Mục~\ref{sec:application}.
+không cần huấn luyện lại -- tính chất nhóm khai thác trực tiếp cho đề
+xuất ứng dụng ở Mục~\ref{sec:application}.
 
 \section{Benchmark của nhóm: chất lượng và tốc độ trên tiếng Việt}
 \label{sec:original-results}
-% Nguon: benchmark/cafebert_full/ (480 run that, da audit PASS). Thay the
-% hoan toan cho ban tom tat ket qua tieng Anh cua paper goc -- xem
-% benchmark/cafebert_full/README.md va reference/S3_CAFEBERT_FULL_VIETNAMESE_REPORT.md.
-% Hinh lay tu benchmark/cafebert_full/notebook_charts/ (build_charts.ipynb).
 
-Thay vì chỉ thuật lại số liệu tiếng Anh của paper gốc (đã trình bày khái
-quát cách đo ở Mục~\ref{sec:method}), nhóm xây dựng một benchmark định
-lượng của riêng mình, thiết kế theo đúng protocol paper gốc (Mục 4--5 của
-\citep{kardos2025s3}) nhưng chạy thật trên dữ liệu và encoder tiếng Việt.
-Mã nguồn, cấu hình khoá cứng và toàn bộ 480 kết quả đã audit \texttt{PASS}
+Nhóm xây dựng một benchmark định lượng riêng, chạy thật trên dữ liệu và
+encoder tiếng Việt theo protocol Mục 4--5 của \citep{kardos2025s3}. Mã
+nguồn, cấu hình khoá cứng và toàn bộ 480 kết quả đã audit \texttt{PASS}
 được commit tại \texttt{benchmark/cafebert\_full/} để tái lập độc lập.
 
-\paragraph{Thiết lập.} Bốn kho ngữ liệu tiếng Việt -- Vietnamese-news,
-UIT-ViSFD, ViMedical Disease, VNTC-CNTT -- được đánh giá với sáu cấu hình
-mô hình: ba biến thể S\textsuperscript{3} (axial, angular, combined) và ba
-baseline (LDA, NMF, BERTopic + UMAP + KMeans). Encoder cho S\textsuperscript{3}
-và BERTopic là \texttt{uitnlp/CafeBERT} (mean-pooling theo attention mask,
-chuẩn hoá L2); LDA/NMF dùng \texttt{CountVectorizer} (\texttt{min\_df=10})
--- đây là so sánh giữa các lớp mô hình, không phải ablation encoder, vì
-LDA/NMF vốn không dùng embedding ngữ cảnh. Mỗi cấu hình chạy ở
-$k \in \{10,20,30,40,50\}$, bốn seed (11, 29, 42, 47; seed 42 là seed
-chính), tổng cộng $4 \times 6 \times 5 \times 4 = 480$ lần chạy thật, không
-tinh chỉnh siêu tham số (tránh p-hacking, giống nguyên tắc của paper gốc).
+\paragraph{Thiết lập.} Bốn kho ngữ liệu tiếng Việt (Vietnamese-news,
+UIT-ViSFD, ViMedical Disease, VNTC-CNTT) được đánh giá với ba biến thể
+S\textsuperscript{3} (axial, angular, combined) và ba baseline (LDA, NMF,
+BERTopic+UMAP+KMeans); encoder cho S\textsuperscript{3}/BERTopic là
+\texttt{uitnlp/CafeBERT}, LDA/NMF dùng \texttt{CountVectorizer} (so sánh
+giữa các lớp mô hình, không phải ablation encoder). Mỗi cấu hình chạy ở
+$k \in \{10,20,30,40,50\}$, bốn seed, tổng $4\times6\times5\times4=480$
+lần chạy thật, không tinh chỉnh siêu tham số (tránh p-hacking).
 
-\paragraph{Cách đo.} Chỉ số coherence chính là \emph{WEC-in} (Word-Embedding
-Coherence nội tại) -- cosine trung bình giữa các cặp top-term trong từng
-chủ đề, dùng Word2Vec huấn luyện trên chính kho ngữ liệu (không dùng
-Google-News Word2Vec như paper gốc vì không phù hợp tiếng Việt). \emph{Topic
-diversity} đo tỷ lệ từ khoá không trùng lặp. \emph{C\_NPMI} (Gensim) được
-giữ như chỉ số phụ để kiểm tra tính bền vững -- \textbf{không} dùng để chọn
-"người thắng", vì dựa trên nguyên lý khác (đồng xuất hiện từ) và có thể cho
-thứ hạng khác WEC-in. Thời gian chạy được tách bạch: \emph{fit-only} (chỉ
-fit mô hình, sau khi embedding/CountVectorizer đã sẵn sàng -- con số công
-bằng nhất để so sánh tốc độ thuật toán) và \emph{pipeline} (cộng thêm chi
-phí mã hoá/vector hoá) -- không được gộp hai con số này khi trình bày.
-
-\paragraph{Coherence: S\textsuperscript{3} dẫn đầu và cải thiện diversity
-đồng thời.} Hình~\ref{fig:vn-coherence} cho thấy ba biến thể
-S\textsuperscript{3} có WEC-in cao nhất trên hầu hết tổ hợp corpus/$k$.
-Tổng hợp cả 480 dòng: S\textsuperscript{3} đạt WEC-in cao nhất trong 59/80 ô
-\emph{corpus~$\times$~seed~$\times$~$k$} (74\%), phân rã theo corpus là
-Vietnamese-news 0/20, UIT-ViSFD 19/20, ViMedical 20/20 và VNTC-CNTT 20/20 --
-tức là S\textsuperscript{3} thắng gần như tuyệt đối trên ba kho, nhưng
-\emph{không} trên Vietnamese-news (LDA/NMF thắng ở đó, xem
-Bảng~\ref{tab:cafebert-benchmark}). Đáng chú ý, S\textsuperscript{3} cũng
-đạt diversity trung bình cao nhất (0,73--0,76, so với 0,43--0,59 của ba
-baseline) -- tức là không rơi vào đánh đổi "mạch lạc nhưng trùng lặp" mà
-Mục~\ref{sec:related-work} đã nêu là hạn chế phổ biến của các mô hình khác.
+\paragraph{Coherence và diversity: S\textsuperscript{3} dẫn đầu.} Chỉ số
+coherence chính là \emph{WEC-in} (cosine trung bình giữa các cặp top-term,
+Word2Vec huấn luyện trên chính corpus); \emph{diversity} đo tỷ lệ từ khoá
+không trùng lặp; \emph{C\_NPMI} (Gensim) là chỉ số phụ, không dùng chọn
+"người thắng" vì dựa trên nguyên lý khác (đồng xuất hiện từ). Hình~\ref{fig:vn-coherence}
+và Bảng~\ref{tab:cafebert-benchmark} cho thấy S\textsuperscript{3} đạt
+WEC-in cao nhất trong 59/80 ô \emph{corpus~$\times$~seed~$\times$~$k$}
+(74\%, thắng gần tuyệt đối trên 3/4 corpus, thua trên Vietnamese-news) và
+diversity trung bình cao nhất (0,73--0,76 so với 0,43--0,59 của ba
+baseline) -- không rơi vào đánh đổi "mạch lạc nhưng trùng lặp". C\_NPMI
+lại cho thứ hạng ngược hoàn toàn (S\textsuperscript{3} âm $\approx-0{,}38$,
+LDA/NMF dương $\approx0{,}08$--$0{,}09$), vì hai chỉ số coherence dựa
+trên nguyên lý khác nhau (embedding similarity vs. đồng xuất hiện từ).
 
 \begin{figure*}[t]
     \centering
@@ -419,90 +226,6 @@ Mục~\ref{sec:related-work} đã nêu là hạn chế phổ biến của các m
     Việt $\times$ 6 mô hình (CafeBERT). Số liệu và hình của nhóm, từ 480
     lần chạy thật trong \texttt{benchmark/cafebert\_full/}.}
     \label{fig:vn-coherence}
-\end{figure*}
-
-\paragraph{Tốc độ: một phát hiện trái ngược paper gốc, được báo cáo trung
-thực.} Đây là điểm khác biệt rõ nhất so với Mục~\ref{sec:method}: paper gốc
-báo cáo S\textsuperscript{3} nhanh hơn baseline 4,5--27,5 lần trên dữ liệu
-tiếng Anh. Trên benchmark tiếng Việt này, ở giai đoạn \emph{fit-only},
-S\textsuperscript{3} lại là cấu hình \textbf{chậm nhất}: trung bình 43,0s,
-so với LDA 18,9s, BERTopic 16,4s và NMF chỉ 2,3s (xem
-Hình~\ref{fig:vn-runtime} và Bảng~\ref{tab:cafebert-benchmark}) -- chậm hơn
-NMF khoảng 18,7 lần. Nhóm thừa nhận thẳng thắn: về hiệu năng tốc độ,
-S\textsuperscript{3} trên tiếng Việt hiện \textbf{chưa tốt} so với các
-baseline cổ điển, và đã truy được nguyên nhân cụ thể thay vì chỉ suy đoán.
-
-\paragraph{Nguyên nhân: mã hoá từ vựng không được cache lại giữa các lần
-fit.} Đọc mã nguồn thư viện \texttt{turftopic} (\texttt{models/decomp.py},
-bản cài trên máy nhóm) cho thấy \texttt{fit\_transform()} luôn tự mã hoá
-lại toàn bộ từ vựng qua encoder ngay trong lời gọi fit
-(\texttt{self.vocab\_embeddings = self.encode\_documents(vocab)}), bất kể
-embedding tài liệu đã được truyền sẵn (cache) hay chưa -- đây chính là Bước
-3 "Mã hoá từ vựng" ở Mục~\ref{sec:method}, và \textbf{không} phải lỗi của
-turftopic: bước này bắt buộc phải chạy ít nhất một lần để có
-$V$~(Công thức~\ref{eq:unmixing}--\ref{eq:projection}). Nhóm kiểm chứng
-định lượng bằng cách đối chiếu kích thước từ vựng thật của bốn corpus (từ
-ma trận CountVectorizer đã cache) với fit\_seconds trung bình của
-S\textsuperscript{3}: Vietnamese-news (245 từ, 7,1s) $<$ ViMedical (984 từ,
-28,4s) $<$ UIT-ViSFD (1.696 từ, 46,6s) $<$ VNTC-CNTT (3.343 từ, 90,0s) --
-hệ số tương quan Pearson giữa kích thước từ vựng và fit\_seconds là
-$r=0{,}9998$, với tỷ lệ giây/từ gần như hằng số ($\approx 0{,}028$s/từ)
-trên cả bốn corpus. Điều này giải thích trọn vẹn cả hai quan sát ở trên:
-fit\_seconds không đổi theo $k$ (mã hoá từ vựng không phụ thuộc số trục) và
-tương quan với độ dài văn bản/độ phong phú từ vựng của corpus chứ không
-phải số tài liệu (VNTC-CNTT có ít tài liệu nhất nhưng từ vựng lớn nhất, vì
-là bài báo dài, nên chậm nhất). Ngược lại, BERTopic dùng c-TF-IDF (đếm từ
-thuần tuý) để đặt tên chủ đề nên không cần bước mã hoá từ vựng qua
-CafeBERT, và LDA/NMF không dùng encoder ngữ cảnh ở bất kỳ bước nào -- đó là
-lý do cả ba baseline đều nhanh hơn hẳn dù BERTopic dùng chung encoder với
-S\textsuperscript{3}.
-
-Điều thú vị là bản thân tác giả turftopic cũng nhận ra chi phí này: thư
-viện có sẵn hàm \texttt{refit\_transform()}, với docstring ghi rõ
-\emph{"significantly faster than fitting a new model from scratch"}, tái
-sử dụng \texttt{vocab\_embeddings} đã cache từ lần fit trước để chỉ chạy
-lại FastICA khi đổi $k$/seed, cùng \texttt{estimate\_components()} để suy
-ra 3 biến thể axial/angular/combined từ một lần fit duy nhất (chỉ là hậu xử
-lý trên cùng \texttt{axial\_components\_}, không cần fit lại). Kịch bản
-benchmark gốc của nhóm không dùng hai lối tắt này -- tạo
-\texttt{SemanticSignalSeparation} mới và gọi \texttt{.fit()} riêng cho cả
-20 tổ hợp seed$\times k$ trên mỗi corpus, thay vì fit một lần rồi
-\texttt{refit\_transform()} cho 19 lần còn lại. Nhóm đã viết lại pipeline
-benchmark S\textsuperscript{3} theo đúng lối tắt này
-(\texttt{run\_cafebert\_refit\_optimized.py}) và \textbf{chạy lại thật, đo
-tốc độ thật} trên ba corpus (Vietnamese-news, UIT-ViSFD, ViMedical --
-VNTC-CNTT bỏ qua vì máy chạy chưa có \texttt{unrar} để giải nén nguồn).
-Trước khi tin số liệu, nhóm kiểm chứng \texttt{refit\_transform()} và
-\texttt{estimate\_components()} không làm sai kết quả: so trực tiếp với
-một lần fit độc lập hoàn toàn mới cùng tham số, ma trận
-\texttt{axial\_components\_} khớp \emph{bit-by-bit tuyệt đối} (sai lệch
-$=0$); so WEC-in đo được với số đã ghi trong benchmark gốc cho đúng ô dữ
-liệu đó, lệch $0{,}0004$ -- nằm trong nhiễu số học bình thường giữa hai lần
-chạy (BLAS/phần cứng khác nhau), không phải sai số hệ thống. Sau khi kiểm
-chứng, tốc độ đo được: nhanh hơn \textbf{3,7 lần} trên Vietnamese-news,
-\textbf{8,9 lần} trên UIT-ViSFD, và \textbf{5,4 lần} trên ViMedical (tổng
-thời gian fit thật của 3 biến thể S\textsuperscript{3} qua toàn bộ 20 tổ
-hợp seed$\times k$ mỗi corpus, không tính thời gian mã hoá tài liệu vì bước
-đó dùng embedding đã cache như nhau ở cả hai cách đo). Mức tăng tốc thấp
-hơn ước tính lý thuyết ban đầu (dựa thuần trên tỷ lệ mã hoá từ vựng), có
-thể do trạng thái CPU/hệ điều hành khác nhau giữa các lần chạy -- nhóm báo
-cáo đúng con số đo được, không làm tròn lên theo ước tính lý thuyết.
-
-\paragraph{Chi phí pipeline đầy đủ.} Ở cấp độ \emph{pipeline} (cộng chi phí
-mã hoá), cả S\textsuperscript{3} và BERTopic đều bị chi phí CafeBERT chi
-phối (trung bình lần lượt 2266s và 2239s -- gần như nhau, vì cùng encoder),
-trong khi LDA/NMF vẫn dưới 20s do không cần mã hoá ngữ cảnh; đây là chênh
-lệch giữa \emph{lớp mô hình}, không phải giữa các encoder cùng loại, đúng
-như README của benchmark đã cảnh báo.
-
-\begin{figure*}[t]
-    \centering
-    \includegraphics[width=0.85\linewidth]{figures/vn_benchmark_runtime.png}
-    \caption{Thời gian fit-only (trục tung, thang log, giây) theo số
-    trục/chủ đề, trên 4 corpus tiếng Việt $\times$ 6 mô hình. Ngược lại với
-    Hình chạy trên dữ liệu tiếng Anh của paper gốc, S\textsuperscript{3}
-    ở đây là nhóm \emph{chậm nhất}, không phải nhanh nhất.}
-    \label{fig:vn-runtime}
 \end{figure*}
 
 \begin{table}[t]
@@ -520,77 +243,78 @@ như README của benchmark đã cảnh báo.
         BERTopic+UMAP+KMeans          & 0,513 & 0,428 & $-$0,207 & 16,4 \\
         \bottomrule
     \end{tabular}
-    \caption{Trung bình trên toàn bộ 480 lần chạy (4 corpus $\times$ 5 $k$
-    $\times$ 4 seed). WEC-in/Diversity: càng cao càng tốt. C\_NPMI: chỉ số
-    phụ, không dùng chọn winner (xem văn bản). Fit: giây, fit-only warm.}
+    \caption{Trung bình trên 480 lần chạy. WEC-in/Diversity: càng cao càng
+    tốt. C\_NPMI: chỉ số phụ. Fit: giây, fit-only warm.}
     \label{tab:cafebert-benchmark}
 \end{table}
 
-\paragraph{Robustness (C\_NPMI): một chỉ số không đồng thuận với WEC-in.}
-Bảng~\ref{tab:cafebert-benchmark} cho thấy C\_NPMI của ba biến thể
-S\textsuperscript{3} là số \emph{âm} ($\approx -0{,}38$), trong khi LDA/NMF
-lại dương ($\approx 0{,}08$--$0{,}09$) -- ngược thứ hạng hoàn toàn so với
-WEC-in. Đây chính xác là lý do paper gốc và benchmark của nhóm đều không
-dùng C\_NPMI để chọn mô hình thắng: hai chỉ số coherence dựa trên nguyên
-lý khác nhau (embedding similarity vs. đồng xuất hiện từ trong cửa sổ
-trượt) và không nhất thiết đồng thuận. Nhóm giữ nguyên cả hai con số thay
-vì chỉ trích dẫn chỉ số có lợi cho S\textsuperscript{3}.
+\paragraph{Tốc độ: S\textsuperscript{3} chậm nhất trên tiếng Việt.} Ở
+giai đoạn \emph{fit-only}, S\textsuperscript{3} là cấu hình chậm nhất
+trong sáu mô hình (trung bình 43,0s, so với LDA 18,9s, BERTopic 16,4s,
+NMF chỉ 2,3s -- Hình~\ref{fig:vn-runtime}). Có ba nguyên do chính:
 
-\paragraph{Hạn chế của benchmark này.} Bốn kho ngữ liệu không có nhãn chủ
-đề độc lập (đó là lý do Mục~\ref{sec:vn-experiments} dùng ViSFD/VTSNLP
-riêng để đánh giá bằng AUC); WEC-in/C\_NPMI đo mạch lạc nội tại, không đo
-độ chính xác so với nhãn thật. Baseline được cài đặt lại (không dùng mã
-nguồn gốc của từng paper baseline). Bốn seed chỉ đo được độ nhạy trên một
-khoảng hẹp, chưa phải phân tích thống kê đầy đủ như Bảng 3 của paper gốc.
-Nguyên nhân tốc độ chậm đã truy ra và đã đo lại thật bằng
-\texttt{refit\_transform()}/\texttt{estimate\_components()} (xem trên) --
-nhưng phép đo tối ưu này mới chạy trên 3/4 corpus (thiếu VNTC-CNTT do thiếu
-\texttt{unrar}) và chỉ ở giai đoạn fit-only; chưa đo lại chi phí pipeline
-đầy đủ (bao gồm mã hoá tài liệu) theo cách tối ưu này.
+\begin{itemize}
+    \item \textbf{Mã hoá lại từ vựng ở mỗi lần fit.} Do đặc thù thư viện
+    \texttt{turftopic}, mỗi lần fit đều tự mã hoá lại toàn bộ từ vựng qua
+    encoder như một bước bắt buộc của thuật toán (Bước 3, Mục~\ref{sec:method}),
+    thay vì chỉ mã hoá một lần rồi tái sử dụng. Chi phí này tương quan
+    gần như tuyệt đối với kích thước từ vựng của corpus ($r=0{,}9998$,
+    $\approx0{,}028$s/từ), không phụ thuộc số trục $k$ -- đây là lý do
+    VNTC-CNTT (từ vựng lớn nhất vì văn bản dài) chậm nhất dù có ít tài
+    liệu nhất.
+    \item \textbf{Ba biến thể được fit riêng lẻ.} Thiết lập ban đầu tạo
+    mô hình mới và fit độc lập cho cả ba biến thể axial/angular/combined ở
+    mỗi tổ hợp seed$\times k$, dù cả ba chia sẻ cùng một phép phân rã
+    FastICA.
+    \item \textbf{Các baseline không cần mã hoá ngữ cảnh.} LDA/NMF chỉ
+    đếm từ (CountVectorizer); BERTopic dùng c-TF-IDF để đặt tên chủ đề
+    thay vì mã hoá qua CafeBERT -- nên dù dùng chung encoder với
+    S\textsuperscript{3}, BERTopic vẫn nhanh hơn nhiều.
+\end{itemize}
+
+Turftopic có sẵn hai hàm \texttt{refit\_transform()} và
+\texttt{estimate\_components()} giúp tránh hai nguyên do đầu (tái sử
+dụng vocabulary đã mã hoá; suy ba biến thể từ một lần fit). Nhóm viết lại
+pipeline benchmark theo hướng này, kiểm chứng kết quả không đổi trước khi
+báo cáo (so với fit độc lập hoàn toàn mới: ma trận
+\texttt{axial\_components\_} khớp bit-by-bit tuyệt đối, sai lệch $=0$;
+WEC-in đo được lệch $0{,}0004$ -- mức nhiễu số học bình thường giữa hai
+môi trường), rồi đo lại tốc độ: nhanh hơn \textbf{3,7--8,9 lần} trên ba
+corpus (Vietnamese-news, UIT-ViSFD, ViMedical; VNTC-CNTT bỏ qua vì máy
+chạy thiếu \texttt{unrar}).
+
+\begin{figure*}[t]
+    \centering
+    \includegraphics[width=0.85\linewidth]{figures/vn_benchmark_runtime.png}
+    \caption{Thời gian fit-only (trục tung, thang log, giây) theo số
+    trục/chủ đề. S\textsuperscript{3} là nhóm \emph{chậm nhất} trong sáu
+    mô hình được so sánh.}
+    \label{fig:vn-runtime}
+\end{figure*}
+
+Ở cấp độ \emph{pipeline} đầy đủ (cộng chi phí mã hoá), cả
+S\textsuperscript{3} và BERTopic đều bị chi phí CafeBERT chi phối
+($\approx$2,2--2,3 nghìn giây, gần bằng nhau vì cùng encoder), trong khi
+LDA/NMF vẫn dưới 20s -- chênh lệch giữa \emph{lớp mô hình}, không phải
+giữa các encoder cùng loại.
 
 \section{Thực nghiệm trên tiếng Việt}
 \label{sec:vn-experiments}
-% Nguon: report/PLAN.md muc 5. So lieu AUC chay lai truc tiep trong phien nay
-% (s3_reproduction.validate_visfd / validate_curated) de doi chieu voi PLAN.md,
-% khop chinh xac. So lieu diversity/coherence/aggregate lay tu
-% artifacts/visualizations/metrics.csv.
 
-\paragraph{Bộ dữ liệu.} Nhóm thực nghiệm trên hai bộ dữ liệu tiếng Việt có
-nhãn thật, phù hợp với hai kiểu bài toán khác nhau: (1) \textbf{ViSFD} --
-11.122 đánh giá điện thoại di động, mỗi câu được gán nhãn khía cạnh đa nhãn
-(multi-label) trong 11 khía cạnh (BATTERY, CAMERA, DESIGN, FEATURES,
-GENERAL, OTHERS, PERFORMANCE, PRICE, SCREEN, SER\&ACC, STORAGE), phù hợp
-bài toán phân tích khía cạnh trong đánh giá sản phẩm; (2) \textbf{VTSNLP}
-(Vietnamese curated corpus) -- kho ngữ liệu quy mô lớn với 12.169.131 tài
-liệu, nhóm lấy mẫu ngẫu nhiên 20.000 tài liệu (seed cố định để tái lập)
-cho khả thi về mặt tính toán, mỗi tài liệu có đúng một nhãn domain thật
-(đơn nhãn) trong 25 domain (Health, Sports, Real\_Estate,
-Business\_and\_Industrial...). Việc có nhãn thật độc lập với chính
-S\textsuperscript{3} trên cả hai bộ là điều kiện tiên quyết cho phương
-pháp đánh giá độ chính xác trình bày ở đoạn dưới.
+\paragraph{Bộ dữ liệu và tiền xử lý.} Nhóm dùng hai bộ dữ liệu tiếng Việt
+có nhãn thật độc lập, phù hợp hai kiểu bài toán: \textbf{ViSFD} (11.122
+đánh giá điện thoại, đa nhãn trên 11 khía cạnh: BATTERY, CAMERA, DESIGN...)
+và \textbf{VTSNLP} (mẫu 20.000/12.169.131 tài liệu, đơn nhãn trên 25
+domain). Vì tiếng Việt viết cách âm tiết, một CountVectorizer thông
+thường sẽ chặt vụn từ ghép (ví dụ "trầy xước"); nhóm dùng \texttt{pyvi}
+để tách từ trước khi xây từ vựng $V$ (Công thức~\ref{eq:unmixing}--\ref{eq:projection})
+-- khác biệt bắt buộc mà paper gốc (chỉ thử tiếng Anh) không cần.
 
-\paragraph{Tiền xử lý: tách từ tiếng Việt.} Khác với tiếng Anh, tiếng Việt
-viết cách âm tiết bằng khoảng trắng nên một từ ghép nhiều âm tiết (ví dụ
-"trầy xước", "bảo hành") sẽ bị một CountVectorizer thông thường (tách theo
-khoảng trắng) chặt vụn thành các âm tiết rời rạc vô nghĩa, làm hỏng bước mã
-hoá từ vựng $V$ ở Công thức~\ref{eq:unmixing}--\ref{eq:projection}. Nhóm
-dùng \texttt{pyvi} (\texttt{ViTokenizer}) để tách từ trước khi xây từ
-vựng, nối các âm tiết cùng một từ bằng dấu gạch dưới (\texttt{trầy\_xước})
-để CountVectorizer giữ nguyên là một token duy nhất; danh sách từ khoá hiển
-thị cho người dùng sau đó được khôi phục lại dấu cách. Đây là một khác
-biệt bắt buộc so với pipeline gốc của paper (vốn chỉ thử nghiệm trên tiếng
-Anh) mà nhóm phải tự bổ sung để S\textsuperscript{3} hoạt động đúng trên
-tiếng Việt.
-
-\paragraph{So sánh encoder: CafeBERT vs.\ multilingual-E5.} Đúng theo yêu
-cầu đề tài, nhóm so sánh trực tiếp hai encoder trên ViSFD ở cùng
-$n\_topics=40$: CafeBERT (\texttt{uitnlp/CafeBERT}, tự cài masked-mean
-pooling) và multilingual-E5 (\texttt{intfloat/multilingual-e5-base},
-sentence-transformer chuẩn); \texttt{BAAI/bge-m3} được thêm làm đối chứng
-thứ ba. Bảng~\ref{tab:encoder-comparison} tổng hợp ba tiêu chí: tốc độ mã
-hoá (encode toàn bộ 11.122 tài liệu), độ chính xác trung bình khi dùng một
-trục tốt nhất cho mỗi khía cạnh, và độ chính xác khi gộp tất cả trục bằng
-hồi quy logistic 5-fold (xem định nghĩa AUC ở đoạn dưới).
+\paragraph{So sánh encoder.} Bảng~\ref{tab:encoder-comparison} so
+CafeBERT, multilingual-E5 và BGE-M3 (đối chứng) trên ViSFD ($k=40$). E5
+nhanh hơn CafeBERT 1,6 lần và cho AUC cao hơn ở cả hai cách tính; BGE-M3
+cao nhất nhưng chậm gấp ba E5. Nhóm dùng E5 làm encoder mặc định cho các
+thực nghiệm còn lại.
 
 \begin{table}[t]
     \centering
@@ -604,140 +328,66 @@ hồi quy logistic 5-fold (xem định nghĩa AUC ở đoạn dưới).
         BGE-M3 (đối chứng) & 69,6 & 0,719 & 0,898 \\
         \bottomrule
     \end{tabular}
-    \caption{So sánh encoder trên ViSFD, $n\_topics=40$, 11.122 tài liệu.
-    AUC trung bình trên 11 khía cạnh gốc.}
+    \caption{So sánh encoder trên ViSFD, $n\_topics=40$. AUC trung bình
+    trên 11 khía cạnh gốc.}
     \label{tab:encoder-comparison}
 \end{table}
 
-E5 vừa nhanh hơn CafeBERT khoảng 1,6 lần, vừa cho AUC cao hơn ở cả hai
-cách tính -- cho thấy một sentence-transformer đa ngữ tổng quát (không
-chuyên biệt hoá cho tiếng Việt như CafeBERT) vẫn tạo được không gian
-embedding phù hợp hơn cho S\textsuperscript{3} trên dữ liệu này. BGE-M3
-cho AUC gộp trục cao nhất nhưng chậm hơn CafeBERT gấp đôi, chậm hơn E5 gấp
-ba -- đánh đổi không đáng nếu tốc độ là ưu tiên. Vì lý do này, nhóm dùng E5
-làm encoder mặc định cho các thực nghiệm còn lại trong mục này.
+\paragraph{Đóng góp phương pháp luận: đánh giá độ chính xác bằng AUC.}
+Paper gốc chủ động không đánh giá tỷ lệ chủ đề trong tài liệu cho bất kỳ
+downstream task nào (Mục 8.6); ViSFD/VTSNLP lấp khoảng trống này nhờ có
+nhãn độc lập với S\textsuperscript{3}. Với mỗi nhãn, nhóm coi "tài liệu
+có mang nhãn này không" là bài toán phân loại nhị phân, dùng điểm trên
+một trục (hoặc hồi quy logistic gộp mọi trục) làm điểm phân loại, tính
+ROC-AUC theo chiều tương quan tốt nhất ($\max(\text{AUC},1-\text{AUC})$).
+Trên ViSFD ($k=40$, E5): 4/11 khía cạnh đạt AUC~$\geq$~0,75 với một trục,
+tăng lên 10/11 khi gộp trục bằng hồi quy logistic. Trên VTSNLP ($k=30$,
+E5): 21/25 domain đạt ngưỡng với một trục, toàn bộ 25/25 khi gộp trục
+(Real\_Estate=0,993, Sports=0,985) -- kết quả mạnh hơn \emph{không} phải
+vì S\textsuperscript{3} "tốt hơn" trên VTSNLP, mà vì domain là nhãn đơn,
+còn khía cạnh ViSFD là nhãn đa (một câu có thể vừa nói PIN vừa nói GIÁ),
+vốn đã chồng lấn ngay trong dữ liệu.
 
-\paragraph{Đóng góp phương pháp luận: đánh giá độ chính xác bằng nhãn
-thật.} Paper gốc chủ động không đánh giá tỷ lệ chủ đề trong tài liệu
-(document-topic proportions) cho bất kỳ downstream task nào (Mục 8.6 của
-paper gốc), vì hai bộ dữ liệu benchmark của paper không có nhãn chủ đề độc
-lập để đối chiếu. ViSFD và VTSNLP lấp đúng khoảng trống này: cả hai đều có
-nhãn con người gán độc lập với S\textsuperscript{3}, cho phép nhóm trả lời
-câu hỏi mà paper gốc không trả lời được -- \emph{một trục ICA tìm được
-thuần tuý từ phương sai embedding có thực sự trùng khớp với một khái niệm
-ngữ nghĩa có thật hay không?} Với mỗi nhãn (khía cạnh ở ViSFD, domain ở
-VTSNLP), nhóm coi bài toán "tài liệu có mang nhãn này không" như một bài
-toán phân loại nhị phân, dùng điểm số của tài liệu trên một trục ICA (hoặc
-tổ hợp tuyến tính mọi trục qua hồi quy logistic) làm điểm phân loại, rồi
-tính ROC-AUC (0,5 = ngẫu nhiên, 1,0 = hoàn hảo) theo chiều tương quan tốt
-nhất của trục đó (tương đương $\max(\text{AUC}, 1-\text{AUC})$), cùng hệ
-số tương quan điểm-nhị phân (point-biserial $r$) để kiểm định ý nghĩa
-thống kê.
-
-Kết quả trên ViSFD ($n\_topics=40$, E5): 4/11 khía cạnh đạt AUC~$\geq$~0,75
-chỉ với một trục tốt nhất (CAMERA=0,864, PRICE=0,830, SCREEN=0,811,
-STORAGE=0,753), nhưng khi gộp toàn bộ 40 trục vào một mô hình hồi quy
-logistic, con số này tăng lên 10/11 (chỉ OTHERS dưới ngưỡng, AUC=0,744) --
-cho thấy tín hiệu của một khía cạnh thường trải rộng trên nhiều trục thay
-vì tập trung ở một trục duy nhất. Trên VTSNLP ($n\_topics=30$, E5), kết quả
-mạnh hơn hẳn: 21/25 domain đạt AUC~$\geq$~0,75 chỉ với một trục, và toàn
-bộ 25/25 domain đạt ngưỡng này khi gộp trục, với một số domain gần như
-tách hoàn hảo (Real\_Estate AUC=0,993, Sports AUC=0,985). Nhóm nhấn mạnh
-đây \emph{không} phải bằng chứng S\textsuperscript{3} "hoạt động tốt hơn"
-trên VTSNLP, mà phản ánh sự khác biệt về bản chất bài toán: domain trong
-VTSNLP là nhãn đơn (single-label), tách bạch theo chủ đề nội dung -- rất
-gần với định nghĩa "trục ngữ nghĩa" của S\textsuperscript{3}; trong khi
-khía cạnh trong ViSFD là nhãn đa nhãn (multi-label, một câu có thể vừa nói
-về PIN vừa nói về GIÁ), nên ranh giới giữa các khía cạnh vốn đã chồng lấn
-ngay trong chính dữ liệu, không phải do S\textsuperscript{3} yếu hơn.
-
-\paragraph{Quét số lượng trục.} Bảng~\ref{tab:ntopics-sweep} tổng hợp ba chỉ
-số do công cụ tái lập \texttt{turftopic} của nhóm tính trực tiếp -- khác
-với WEC-in/C\_NPMI của benchmark riêng ở Mục~\ref{sec:original-results},
-tuy cùng thuộc họ chỉ số dựa trên embedding: \emph{Diversity} ($d$, tỷ lệ
-từ khoá không trùng lặp), \emph{Coherence} ($\bar{C}=\sqrt{C_{ex}\cdot
-C_{in}}$, trung bình nhân hai thành phần coherence nội/ngoại corpus), và
-\emph{Interpretability} tổng hợp ($=\sqrt{\bar{C}\cdot d}$) -- khi quét
-$n\_topics \in \{10,20,30,40,50\}$ trên ViSFD (CafeBERT) và VTSNLP (E5). Xu hướng chung: diversity gần như
-không đổi (luôn trên 0,8), trong khi coherence và điểm tổng hợp đạt đỉnh ở
-một giá trị trung gian ($n\_topics=20$ cho ViSFD, $n\_topics=30$ cho
-VTSNLP) rồi giảm nhẹ khi $n\_topics$ tiếp tục tăng. Điều này khớp với trực
-giác: tăng số trục cho phép tách các khía cạnh hiếm gặp (ví dụ STORAGE ở
-ViSFD chỉ xuất hiện trong 132/11.122 tài liệu) thành trục riêng, nhưng vượt
-quá một ngưỡng, các trục mới sinh ra bắt đầu trùng lặp hoặc bám vào biến
-thể chính tả/nhiễu thay vì tín hiệu ngữ nghĩa mới, kéo coherence xuống.
-
-\begin{table}[t]
-    \centering
-    \small
-    \begin{tabular}{@{}l r r r r@{}}
-        \toprule
-        \textbf{Dataset} & \textbf{$n$} & \textbf{Div.} & \textbf{Coh.} & \textbf{Interp.} \\
-        \midrule
-        ViSFD (CafeBERT) & 10 & 0,88 & 0,855 & 0,867 \\
-                          & 20 & 0,93 & 0,866 & \textbf{0,897} \\
-                          & 30 & 0,84 & 0,833 & 0,838 \\
-                          & 40 & 0,84 & 0,866 & 0,853 \\
-                          & 50 & 0,81 & 0,856 & 0,835 \\
-        \midrule
-        VTSNLP (E5) & 10 & 0,97 & 0,848 & 0,907 \\
-                     & 20 & 0,98 & 0,844 & 0,910 \\
-                     & 30 & 0,99 & 0,853 & \textbf{0,919} \\
-                     & 40 & 0,985 & 0,847 & 0,913 \\
-                     & 50 & 0,99 & 0,847 & 0,916 \\
-        \bottomrule
-    \end{tabular}
-    \caption{Quét số trục $n$: Diversity, Coherence, Interpretability tổng
-    hợp $=\sqrt{\bar{C}\cdot d}$ trên ViSFD và VTSNLP.}
-    \label{tab:ntopics-sweep}
-\end{table}
+\paragraph{Quét số lượng trục.} Diversity gần như không đổi theo $k$
+(luôn trên 0,8); coherence và điểm tổng hợp Interpretability
+$=\sqrt{\bar{C}\cdot d}$ đạt đỉnh ở $k$ trung gian ($k=20$ cho ViSFD,
+$k=30$ cho VTSNLP) rồi giảm nhẹ -- tăng $k$ giúp tách khía cạnh hiếm (ví
+dụ STORAGE chỉ 132/11.122 tài liệu) thành trục riêng, nhưng vượt ngưỡng
+sẽ sinh trục trùng lặp hoặc bám nhiễu thay vì tín hiệu ngữ nghĩa mới.
 
 \section{Đề xuất ứng dụng}
 \label{sec:application}
-% Nguon: report/PLAN.md muc 6. So lieu routing (Bang~\ref{tab:bank-routing})
-% va z-score chay lai truc tiep trong phien nay tren checkpoint that
-% (s3_reproduction.validate_uts_bank, s3_reproduction.monitor).
 
 Công thức suy luận tài liệu mới $\hat{S}=\hat{X}C^{\top}$
-(Công thức~\ref{eq:inference}) có nghĩa là một checkpoint
-S\textsuperscript{3} đã huấn luyện có thể chấm điểm văn bản mới theo thời
-gian thực, không cần huấn luyện lại. Nhóm tận dụng tính chất này để dựng
-thử hai ứng dụng nhỏ, chạy thật (không phải mock) trên các checkpoint đã
-huấn luyện ở Mục~\ref{sec:vn-experiments}.
+(Công thức~\ref{eq:inference}) cho phép chấm điểm văn bản mới theo thời
+gian thực, không cần huấn luyện lại. Nhóm dựng thử hai ứng dụng chạy
+thật trên các checkpoint đã huấn luyện ở Mục~\ref{sec:vn-experiments}.
 
 \paragraph{Ứng dụng 1: Bảng điều khiển phát hiện bất thường.} Với một
-luồng bình luận/đánh giá mới, nhóm tính điểm trung bình theo lô trên từng
-trục ($\hat{S}$), rồi so với phân phối "bình thường" của trục đó trên tập
-huấn luyện bằng kiểm định $z$ hai mẫu (độ lệch tính theo sai số chuẩn của
-trung bình lô). Trục nào có $|z|$ vượt ngưỡng được coi là tín hiệu bất
-thường; nếu trục đó đã được hiệu chỉnh nhãn ngoại tuyến (offline) qua
-phương pháp AUC ở Mục~\ref{sec:vn-experiments}, cảnh báo còn kèm theo tên
-khía cạnh diễn giải được thay vì chỉ "Trục 27". Trên kịch bản mô phỏng một
-đợt pin điện thoại quá nhiệt/phát nổ (51 bình luận giả lập), hệ thống thật
-sự bắt được tín hiệu: trục mạnh nhất có $z=-12{,}79$ (gấp gần bốn lần trục
-mạnh nhì, $z=-3{,}27$), với các từ khoá đặc trưng \emph{nóng, nóng bỏng,
-nóng hổi, tản nhiệt, nhiệt} -- đúng chủ đề nhiệt/quá nhiệt của kịch bản.
-Đáng chú ý, nhãn hiệu chỉnh ngoại tuyến gắn cho trục này lại là STORAGE
-(AUC=0,71) chứ không phải BATTERY -- một minh chứng trung thực cho hạn chế
-đã nêu ở Mục~\ref{sec:vn-experiments}: việc phát hiện bất thường (dựa trên
-độ lệch thống kê thuần tuý) hoạt động tốt hơn hẳn việc gán đúng tên gọi
-con người cho trục đó.
+luồng bình luận mới, nhóm so điểm trung bình theo lô trên từng trục với
+phân phối huấn luyện bằng kiểm định $z$ hai mẫu; trục vượt ngưỡng được
+cảnh báo, kèm tên khía cạnh nếu trục đó đã hiệu chỉnh nhãn ngoại tuyến
+qua phương pháp AUC ở Mục~\ref{sec:vn-experiments}. Trên kịch bản mô
+phỏng pin quá nhiệt/phát nổ (51 bình luận giả lập), hệ thống bắt đúng tín
+hiệu: trục mạnh nhất $z=-12{,}79$ (gấp gần bốn lần trục mạnh nhì), với từ
+khoá \emph{nóng, nóng bỏng, tản nhiệt, nhiệt}. Đáng chú ý, nhãn hiệu
+chỉnh ngoại tuyến gắn cho trục này lại là STORAGE (AUC=0,71) chứ không
+phải BATTERY -- cho thấy phát hiện bất thường (dựa trên độ lệch thống kê)
+hoạt động tốt hơn hẳn việc gán đúng tên khía cạnh.
 
-\paragraph{Ứng dụng 2: Định tuyến câu hỏi cho tổng đài ngân hàng.} Nhóm
-dựng một server FastAPI/WebSocket riêng (đóng gói Docker), nạp checkpoint
-S\textsuperscript{3} huấn luyện trên UTS2017\_Bank (2.471 câu hỏi/phản ánh,
-14 nhãn phòng ban thật: CARD, LOAN, SECURITY...), nhận câu hỏi mới qua
-HTTP, định tuyến bằng đúng phép chiếu $\hat{S}=\hat{X}C^{\top}$ vào trục đã
-hiệu chỉnh nhãn phòng ban, rồi phát qua WebSocket cho client đang theo dõi
-đúng phòng ban đó (đã kiểm chứng bằng client thật -- \texttt{server/simulate.py}
-bắn câu hỏi thật lấy từ UTS2017\_Bank và so trực tiếp với nhãn thật trên
-console). Bảng~\ref{tab:bank-routing} là độ chính xác định tuyến (AUC) đo
-trên đúng checkpoint server đang dùng ($n\_topics=30$): 12/14 nhãn đủ mẫu
-để kiểm định (ACCOUNT, SECURITY quá ít mẫu), trong đó 6/12 đã đạt
-AUC~$\geq$~0,75 chỉ với quy tắc định tuyến 1-trục hiện dùng trên server
-(đơn giản, không cần huấn luyện thêm classifier), và toàn bộ 12/12 đạt
-ngưỡng đó nếu thay bằng hồi quy logistic gộp trục -- hướng cải thiện rõ
-ràng cho bản sau nếu ưu tiên độ chính xác hơn tốc độ triển khai.
+\paragraph{Ứng dụng 2: Định tuyến câu hỏi cho tổng đài ngân hàng.} Một
+server FastAPI/WebSocket (đóng gói Docker) nạp checkpoint
+S\textsuperscript{3} huấn luyện trên UTS2017\_Bank (2.471 câu hỏi, 14
+nhãn phòng ban thật), định tuyến câu hỏi mới bằng đúng phép chiếu
+$\hat{S}=\hat{X}C^{\top}$, đã kiểm chứng bằng client thật
+(\texttt{server/simulate.py}). Bảng~\ref{tab:bank-routing} là AUC định
+tuyến trên đúng checkpoint server đang dùng: 6/12 nhãn đủ mẫu đạt
+AUC~$\geq$~0,75 chỉ với quy tắc 1-trục hiện dùng (đơn giản, không cần
+huấn luyện thêm classifier), toàn bộ 12/12 nếu gộp trục bằng hồi quy
+logistic -- đánh đổi thật giữa độ trễ và độ chính xác. Một số phòng ban
+còn dùng chung một trục (ví dụ CUSTOMER\_SUPPORT và INTEREST\_RATE cùng
+ánh xạ vào Topic~13), là hạn chế thật của độ phân giải mô hình, không
+phải lỗi cài đặt.
 
 \begin{table}[t]
     \centering
@@ -760,98 +410,45 @@ ràng cho bản sau nếu ưu tiên độ chính xác hơn tốc độ triển k
         TRADEMARK        & 0,726 & 0,944 \\
         \bottomrule
     \end{tabular}
-    \caption{Độ chính xác định tuyến câu hỏi ngân hàng (AUC) trên
-    UTS2017\_Bank, $n\_topics=30$ (đúng checkpoint server đang chạy). 12/12
-    nhãn đủ mẫu vượt ngưỡng 0,75 khi gộp trục.}
+    \caption{AUC định tuyến câu hỏi ngân hàng trên UTS2017\_Bank,
+    $n\_topics=30$.}
     \label{tab:bank-routing}
 \end{table}
-
-\paragraph{Hạn chế đã ghi nhận.} Cả hai ứng dụng hiện dùng quy tắc 1-trục
-đơn giản (không train thêm classifier) để giữ độ trễ thấp và không cần lưu
-thêm mô hình phụ; Bảng~\ref{tab:bank-routing} cho thấy đây là đánh đổi thật
--- AUC gộp trục cao hơn rõ rệt ở gần như mọi nhãn. Một số phòng ban còn
-dùng chung một trục (ví dụ CUSTOMER\_SUPPORT và INTEREST\_RATE cùng ánh xạ
-vào Topic~13 ở $n\_topics=30$), nghĩa là câu hỏi khớp trục đó sẽ được
-thông báo cho cả hai phòng ban thay vì định tuyến dứt khoát về một nơi.
-Đây là hạn chế thật của độ phân giải mô hình ở mức $n\_topics$ hiện dùng,
-không phải lỗi cài đặt, và là hướng cải thiện rõ ràng cho các phiên bản
-sau (tăng $n\_topics$, hoặc chuyển sang bộ phân loại gộp trục).
 
 \section{Kết luận}
 \label{sec:conclusion}
 
-Báo cáo tái lập S\textsuperscript{3} \citep{kardos2025s3} cho tiếng Việt và
-mở rộng theo bốn hướng. Thứ nhất, nhóm giải quyết một khác biệt kỹ thuật mà
-paper gốc không gặp (tách từ tiếng Việt trước khi xây từ vựng, Mục~\ref{sec:vn-experiments})
-để pipeline hoạt động đúng trên một ngôn ngữ đơn lập. Thứ hai, thay vì chỉ
-thuật lại số liệu tiếng Anh của paper gốc, nhóm xây dựng và chạy thật một
-benchmark định lượng riêng gồm 480 lần chạy trên bốn kho ngữ liệu tiếng
-Việt (Mục~\ref{sec:original-results}): kết quả xác nhận S\textsuperscript{3}
-dẫn đầu về coherence và diversity, nhưng cũng phát hiện và báo cáo trung
-thực một điểm yếu thật -- S\textsuperscript{3} chậm hơn các baseline cổ
-điển ở giai đoạn fit, trái ngược claim tốc độ của paper gốc trên tiếng Anh.
-Nhóm không dừng ở việc ghi nhận phát hiện này mà truy tới tận mã nguồn thư
-viện \texttt{turftopic} để tìm nguyên nhân (mã hoá từ vựng không được cache
-lại giữa các lần fit), rồi tự viết lại pipeline benchmark dùng
-\texttt{refit\_transform()}/\texttt{estimate\_components()}, kiểm chứng kỹ
-lưỡng (khớp bit-by-bit với fit độc lập) trước khi báo cáo tốc độ cải thiện
-3,7--8,9 lần đã đo thật. Thứ ba, nhóm đề xuất và triển khai một phương pháp
-đánh giá độ chính xác bằng AUC so trục ICA với nhãn thật (Mục~\ref{sec:vn-experiments})
--- điều paper gốc chủ động không làm -- cho thấy trục ngữ nghĩa của
-S\textsuperscript{3} khớp tốt với nhãn khía cạnh/domain thật trên cả ViSFD
-và VTSNLP khi gộp trục bằng hồi quy logistic. Thứ tư, nhóm dựng thử và chạy
-thật hai ứng dụng (Mục~\ref{sec:application}) khai thác trực tiếp công
-thức suy luận tài liệu mới của S\textsuperscript{3}, đồng thời phát hiện
-một hạn chế thật của cách hiệu chỉnh nhãn ngoại tuyến (trục phát hiện đúng
-tín hiệu bất thường nhưng gắn sai tên khía cạnh).
-
-Xuyên suốt báo cáo, nhóm ưu tiên báo cáo trung thực hơn là chọn lọc số liệu
-có lợi: giữ cả WEC-in lẫn C\_NPMI dù hai chỉ số không đồng thuận, giữ cả
-kết quả tốc độ ban đầu bất lợi cho S\textsuperscript{3} lẫn quá trình truy
-nguyên nhân và đo lại, và nêu rõ VTSNLP có AUC cao hơn ViSFD phản ánh khác
-biệt bài toán (nhãn đơn dễ tách hơn nhãn đa) chứ không phải S\textsuperscript{3}
-"tốt hơn". Cách tiếp cận này, theo nhóm, phù hợp với đúng tinh thần khoa
-học mà một báo cáo tái lập cần có.
+Báo cáo tái lập S\textsuperscript{3} \citep{kardos2025s3} cho tiếng Việt
+và mở rộng theo bốn hướng: (1) giải quyết khác biệt kỹ thuật bắt buộc
+(tách từ tiếng Việt) để pipeline hoạt động đúng trên một ngôn ngữ đơn
+lập; (2) xây dựng và chạy thật một benchmark 480 lần trên bốn kho ngữ
+liệu tiếng Việt, xác nhận S\textsuperscript{3} dẫn đầu coherence/diversity
+nhưng chậm hơn các baseline ở giai đoạn fit do đặc thù thư viện triển
+khai; nhóm xác định các nguyên nhân cụ thể và đo lại tốc độ đã kiểm chứng
+(cải thiện 3,7--8,9 lần); (3) đề xuất một phương pháp đánh giá độ chính
+xác bằng AUC so trục ICA với nhãn thật -- điều paper gốc chủ động không
+làm; (4) dựng thử và chạy thật hai ứng dụng khai thác khả năng suy luận
+tài liệu mới của S\textsuperscript{3}, đồng thời phát hiện một hạn chế
+thật của cách hiệu chỉnh nhãn ngoại tuyến.
 
 \section*{Hạn chế}
 
-\paragraph{Benchmark định lượng (Mục~\ref{sec:original-results}).} Bốn kho
-ngữ liệu không có nhãn chủ đề độc lập nên WEC-in/C\_NPMI chỉ đo mạch lạc
-nội tại, không đo độ chính xác so với nhãn thật. VNTC-CNTT bị bỏ qua khi đo
-lại tốc độ bằng \texttt{refit\_transform()} do máy chạy thiếu công cụ giải
-nén nguồn (\texttt{unrar}) -- kết luận tốc độ 3,7--8,9 lần mới xác nhận
-trên 3/4 corpus. Bốn seed chỉ đo được độ nhạy trên một khoảng hẹp, chưa
-phải phân tích thống kê đầy đủ như Bảng 3 của paper gốc. Baseline (LDA,
-NMF, BERTopic) được cài đặt lại chứ không dùng mã nguồn gốc của từng
-paper. Nguyên nhân tốc độ chậm ban đầu đã được xác định và đo lại ở giai
-đoạn fit-only, nhưng chưa đo lại chi phí pipeline đầy đủ (gồm mã hoá tài
-liệu) theo cách tối ưu này.
-
-\paragraph{Đánh giá bằng AUC (Mục~\ref{sec:vn-experiments}).} Cỡ mẫu kiểm
-định nhỏ (11 khía cạnh trên ViSFD, 25 domain trên VTSNLP), một số khía
-cạnh của ViSFD có rất ít tài liệu dương (STORAGE chỉ 132/11.122). Khía cạnh
-đa nhãn của ViSFD vốn chồng lấn trong dữ liệu gốc, không chỉ do
-S\textsuperscript{3}, nên so sánh trực tiếp AUC giữa ViSFD và VTSNLP không
-tương đương độ khó bài toán. Phương pháp AUC đánh giá được sự tồn tại của
-tương quan giữa trục và nhãn, không đánh giá được tính ổn định của trục đó
-qua các lần chạy khác nhau (chỉ một seed cho mỗi cấu hình encoder).
-
-\paragraph{Ứng dụng (Mục~\ref{sec:application}).} Cả hai ứng dụng dùng quy
-tắc định tuyến 1-trục đơn giản, AUC gộp trục cao hơn rõ rệt (Bảng~\ref{tab:bank-routing})
-cho thấy đây là đánh đổi thật giữa độ trễ và độ chính xác, chưa phải hướng
-triển khai tối ưu. Ví dụ phát hiện bất thường cho thấy việc hiệu chỉnh tên
-khía cạnh cho một trục có thể sai (gắn nhãn STORAGE cho trục thực chất về
-nhiệt/quá nhiệt) dù bản thân tín hiệu bất thường vẫn phát hiện đúng -- cả
-hai ứng dụng mới kiểm thử trên kịch bản mô phỏng/dữ liệu có sẵn, chưa triển
-khai thực tế với người dùng cuối.
-
-\paragraph{Phạm vi chung.} Toàn bộ thực nghiệm giới hạn ở tiếng Việt và các
-kho ngữ liệu đã chọn (đánh giá sản phẩm, tin tức, y tế, công nghệ thông
-tin, ngân hàng); không có cơ sở để suy rộng kết luận sang miền dữ liệu khác
-hay ngôn ngữ khác. Nhóm không tinh chỉnh siêu tham số cho bất kỳ mô hình
-nào (theo đúng nguyên tắc tránh p-hacking của paper gốc), nghĩa là kết quả
-phản ánh cấu hình mặc định/được đề xuất, không phải hiệu năng tối ưu có thể
-đạt được của từng mô hình.
+Benchmark định lượng (Mục~\ref{sec:original-results}) dùng chỉ số
+coherence nội tại (WEC-in/C\_NPMI), không đo độ chính xác so với nhãn
+thật; VNTC-CNTT bị bỏ qua khi đo lại tốc độ (thiếu \texttt{unrar}); bốn
+seed chỉ đo được độ nhạy hẹp; baseline được cài đặt lại, không dùng mã
+nguồn gốc; tốc độ tối ưu mới đo ở giai đoạn fit-only, chưa đo chi phí
+pipeline đầy đủ. Đánh giá bằng AUC (Mục~\ref{sec:vn-experiments}) có cỡ
+mẫu kiểm định nhỏ, một số khía cạnh ViSFD rất ít tài liệu dương (STORAGE
+132/11.122), và không đánh giá được độ ổn định của trục qua nhiều seed.
+Hai ứng dụng (Mục~\ref{sec:application}) dùng quy tắc 1-trục đơn giản
+(AUC thấp hơn rõ rệt so với gộp trục), một số phòng ban dùng chung trục,
+và mới kiểm thử trên kịch bản mô phỏng/dữ liệu có sẵn, chưa triển khai
+thực tế. Cuối cùng, toàn bộ thực nghiệm giới hạn ở tiếng Việt và các kho
+ngữ liệu đã chọn, không tinh chỉnh siêu tham số cho bất kỳ mô hình nào
+(tránh p-hacking theo đúng nguyên tắc paper gốc), nên kết quả phản ánh
+cấu hình mặc định, không phải hiệu năng tối ưu có thể đạt được của từng
+mô hình.
 
 \bibliography{refs}
 
