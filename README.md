@@ -25,62 +25,91 @@ Mọi chỉnh sửa cho buổi báo cáo → sửa 2 file trong `NLP/main/`. Cá
 ## Cấu trúc thư mục
 
 ```
-NLP/                     ← TẤT CẢ NỘI DUNG S³ NẰM Ở ĐÂY
-  main/                  ← LÀM VIỆC Ở ĐÂY
-    main.html            slide chính (thuyết trình)
-    content.md           kịch bản/ghi chú cho main.html
+NLP/                     ← NỘI DUNG SLIDE S³
+  main/                  ← LÀM VIỆC Ở ĐÂY (main.html + content.md)
   temp/                  ← bản nháp & tài liệu học (tham khảo)
-    slides.html          bản HỌC đầy đủ (có mục "Kiến thức nền")
-    slides_3.html        bản HỌC SÂU Phần 3 (thuật toán, cho Người 3)
-    content.md           bản chắt lọc nội dung chi tiết từng thuật ngữ
-    google/              các bản slide phụ (google_slides*.html)
-  example/               bản mẫu tham khảo
-  thien_part/            hình + nội dung phần đánh giá
+  example/  thien_part/  bản mẫu / hình phần đánh giá
   2025.acl-long.32.pdf   bài báo gốc
 
 relation/                ← bộ slide LeWorldModel (giữ nguyên, không đụng tới)
-  main/index.html        slide chính
-  images/                hình minh hoạ
 
-Makefile                 lệnh chạy/mở/deploy nhanh
+s3_reproduction/         ← code tái lập S³ + CLI train checkpoint (cli.py)
+demo/                    ← Streamlit demo phân tích trục topic (app.py)
+server/                  ← server FastAPI/WebSocket định tuyến câu hỏi ngân hàng
+benchmark/cafebert_full/ ← pipeline benchmark 480 run (4 corpus × 6 model)
+report/                  ← báo cáo ACL (paper.tex → paper.pdf)
+artifacts/               ← checkpoint + embedding (KHÔNG commit, tạo lại bằng make train-*)
+
+Makefile                 lệnh chạy/train/build nhanh — xem `make help`
 vercel.json              cấu hình đường dẫn khi deploy Vercel
 ```
 
 ---
 
-## Lệnh Make (chạy & mở nhanh)
+## Lệnh Make
 
-Gõ `make help` để xem danh sách. Đổi cổng bằng `PORT=xxxx` (mặc định 8000).
+Gõ `make help` để xem đầy đủ. Đổi cổng slide bằng `PORT=xxxx` (mặc định 8000).
+Các lệnh Python dùng `.venv/Scripts/python.exe` — đổi bằng biến `PY=...` nếu cần.
+
+### ⭐ Quan trọng (code / thực nghiệm)
 
 | Lệnh | Việc |
 |---|---|
-| `make main` | Chạy server + mở **NLP/main/main.html** — *slide chính, dùng cái này để trình bày* |
-| `make run2` | Alias của `make main` (giữ tương thích cũ) |
-| `make run` | Chạy server + mở **NLP/temp/slides.html** (bản HỌC đầy đủ) |
-| `make run3` | Chạy server + mở **NLP/temp/slides_3.html** (HỌC SÂU Phần 3) |
-| `make rungoogle` | Chạy server + mở **NLP/temp/google/google_slides.html** |
-| `make rungoogle1` | Chạy server + mở **NLP/temp/google/google_slides_1.html** |
-| `make open` | Mở **NLP/temp/slides.html** trực tiếp (không qua server) |
-| `make open2` | Mở **NLP/main/main.html** trực tiếp (không qua server) |
-| `make opengoogle` | Mở **NLP/temp/google/google_slides.html** trực tiếp |
-| `make opengoogle1` | Mở **NLP/temp/google/google_slides_1.html** trực tiếp |
-| `make serve` | Chỉ chạy local server tại `http://localhost:8000/` (tự vào đường dẫn) |
-| `make deploy` | Deploy lên **Vercel production** (`vercel deploy --prod`) |
-| `make relation` | Chạy server + mở **relation/main/index.html** |
-| `make openrelation` | Mở **relation/main/index.html** trực tiếp |
+| `make demo` | Chạy **Streamlit demo** phân tích trục topic S³ (`demo/app.py`) — cần có checkpoint trước (xem `make train-*`) |
+| `make train-all` | Tạo lại **toàn bộ** checkpoint S³: `visfd` + `vietnamese-news` + `uts-bank` |
+| `make train-visfd` | Tạo lại checkpoint **visfd** (encoder CafeBERT, k = 10…50) |
+| `make train-news` | Tạo lại checkpoint **vietnamese-news** (encoder CafeBERT, k = 10…50) |
+| `make train-bank` | Tạo lại checkpoint **uts-bank** (encoder E5, k = 10/14/20/30) — cho tab định tuyến ngân hàng trong demo |
+| `make paper` | Biên dịch **`report/paper.pdf`** (XeLaTeX + bibtex, chạy 3 lượt) |
+
+> Checkpoint `.joblib` **không** được commit vào git (nằm trong `artifacts/`). Nếu mất, chạy `make train-*` để tạo lại — nhanh (visfd ~1 phút, vietnamese-news ~6 phút, uts-bank ~20 giây khi có GPU + model đã cache). `uts-bank` sẽ tự tải dataset từ HuggingFace.
+
+### Benchmark CafeBERT/S³ (`benchmark/cafebert_full/`)
+
+Pipeline này dùng **virtualenv riêng** (`.venv-cafebert`, xem [README benchmark](benchmark/cafebert_full/README.md)).
+
+| Lệnh | Việc |
+|---|---|
+| `make cafebert-sources` | Tải và khoá revision 4 nguồn dữ liệu benchmark |
+| `make cafebert-checkpoint` | Tải CafeBERT pretrained (revision đã pin) + manifest |
+| `make cafebert-smoke` | Chạy smoke grid trước khi chạy full benchmark |
+| `make cafebert-seed42` | Chạy primary seed 42 |
+| `make cafebert-sensitivity` | Chạy seed 11, 29, 47 |
+| `make cafebert-audit` | Audit coverage, metric và provenance |
+| `make cafebert-report` | Sinh report, biểu đồ và bảng LaTeX timing |
+| `make cafebert-reference-audit` | Audit artifact 480 run đã commit |
+| `make cafebert-reference-report` | Tái sinh report/LaTeX từ artifact đã commit |
+
+### Slide (chạy & mở nhanh)
+
+| Lệnh | Việc |
+|---|---|
+| `make main` | Server + mở **NLP/main/main.html** — *slide chính để trình bày* |
+| `make run2` | Alias của `make main` |
+| `make run` | Server + mở **NLP/temp/slides.html** (bản HỌC đầy đủ) |
+| `make run3` | Server + mở **NLP/temp/slides_3.html** (HỌC SÂU Phần 3) |
+| `make rungoogle` / `rungoogle1` | Server + mở **NLP/temp/google/google_slides*.html** |
+| `make open` / `open2` | Mở **slides.html** / **main.html** trực tiếp (`file://`, không qua server) |
+| `make opengoogle` / `opengoogle1` | Mở google slides trực tiếp |
+| `make pptx` / `openpptx` | Dựng lại / mở **NLP/main/main.pptx** |
+| `make relation` / `openrelation` | Server + mở / mở trực tiếp **relation/main/index.html** |
+| `make serve` | Chỉ chạy local server tại `http://localhost:8000/` |
+| `make deploy` | Deploy lên **Vercel production** |
 | `make clean` | Xoá file tạm (`.vercel/`) |
 
 Ví dụ:
 ```bash
-make main            # mở slide chính để tập thuyết trình
-make run3 PORT=9000  # mở bản học sâu Phần 3 ở cổng 9000
-make deploy          # đẩy bản mới nhất lên web
+make demo                 # mở demo phân tích trục topic
+make train-all            # tạo lại toàn bộ checkpoint đã mất
+make paper                # biên dịch lại report/paper.pdf
+make main                 # mở slide chính để tập thuyết trình
+make run3 PORT=9000       # mở bản học sâu Phần 3 ở cổng 9000
 ```
 
 Ghi chú:
-- `make main / run / run3 / ...` tự khởi động một local server rồi mở trình duyệt; nhấn `Ctrl+C` để dừng server.
-- `make open* ` mở thẳng file (`file://`) — nhanh hơn nhưng vài trình duyệt có thể chặn tính năng do CORS; khi đó dùng `make main`/`make run` (qua server) cho chắc.
-- Lệnh dùng `python3` và `open` (macOS). Máy khác chỉnh `open` thành `xdg-open` (Linux) hoặc `start` (Windows).
+- `make main / run / run3 / ...` tự khởi động local server rồi mở trình duyệt; `Ctrl+C` để dừng.
+- `make open*` mở thẳng file (`file://`) — nhanh hơn nhưng vài trình duyệt chặn do CORS; khi đó dùng bản qua server.
+- Các lệnh slide dùng `python3` và `open` (macOS). Máy khác chỉnh `open` → `xdg-open` (Linux) / `start` (Windows).
 
 ---
 

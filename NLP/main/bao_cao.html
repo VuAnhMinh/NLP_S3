@@ -1,0 +1,544 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>S³ cho Tiếng Việt — Nhóm 7 · CS2202.CH201</title>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reveal.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/theme/white.css" id="theme">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/plugin/highlight/monokai.css">
+
+<style>
+:root{
+  --accent:#2563eb; --accent2:#0891b2; --good:#16a34a; --warn:#d97706; --bad:#dc2626;
+  --ink:#1e293b; --muted:#64748b;
+}
+.reveal { font-family: -apple-system, "Segoe UI", "Helvetica Neue", "Noto Sans", Arial, sans-serif; color:var(--ink); --r-main-font-size:30px; font-size:30px; }
+.reveal h1,.reveal h2,.reveal h3,.reveal h4 { color:var(--accent); font-weight:800; letter-spacing:-.01em; text-transform:none; }
+.reveal h1{ font-size:2.1em; line-height:1.1; }
+.reveal h2{ font-size:1.5em; }
+.reveal h3{ font-size:1.15em; color:var(--accent2); }
+.reveal section { text-align:left; }
+.reveal p, .reveal li { line-height:1.4; }
+.reveal ul, .reveal ol { display:block; margin-left:.5em; }
+.reveal li { margin:.28em 0; }
+.reveal small { color:var(--muted); }
+.tag{ display:inline-block; padding:.12em .6em; border-radius:999px; font-size:.5em; font-weight:700; vertical-align:middle; color:#fff; }
+.tag.blue{background:var(--accent);} .tag.cyan{background:var(--accent2);}
+.tag.green{background:var(--good);} .tag.amber{background:var(--warn);} .tag.red{background:var(--bad);}
+/* act-badge / section-banner */
+.act-badge, .section-banner { display:inline-block; background:var(--accent2); color:#fff; font-size:.42em; font-weight:700; padding:.15em .7em; border-radius:999px; vertical-align:middle; letter-spacing:.03em; margin-bottom:.4em; }
+.box{ border-radius:12px; padding:.7em 1em; margin:.4em 0; font-size:.9em; }
+/* main.html names */
+.box.idea{ background:#eff6ff; border-left:5px solid var(--accent); }
+.box.tech{ background:#f0fdfa; border-left:5px solid var(--accent2); }
+.box.say { background:#fefce8; border-left:5px solid var(--warn); }
+.box.key { background:#f0fdf4; border-left:5px solid var(--good); }
+.box.warnx{ background:#fef2f2; border-left:5px solid var(--bad); }
+/* bao_cao aliases */
+.box.blue  { background:#eff6ff; border-left:5px solid var(--accent); }
+.box.cyan  { background:#f0fdfa; border-left:5px solid var(--accent2); }
+.box.amber { background:#fefce8; border-left:5px solid var(--warn); }
+.box.green { background:#f0fdf4; border-left:5px solid var(--good); }
+.box.red   { background:#fef2f2; border-left:5px solid var(--bad); }
+.box .lbl{ font-weight:800; font-size:.8em; letter-spacing:.03em; display:block; margin-bottom:.2em; }
+.box.idea .lbl,.box.blue .lbl  { color:var(--accent); }
+.box.tech .lbl,.box.cyan .lbl  { color:var(--accent2); }
+.box.say .lbl,.box.amber .lbl  { color:var(--warn); }
+.box.key .lbl,.box.green .lbl  { color:var(--good); }
+.box.warnx .lbl,.box.red .lbl  { color:var(--bad); }
+.reveal table{ font-size:.62em; margin:.3em auto; border-collapse:collapse; width:100%; }
+.reveal table th{ background:var(--accent); color:#fff; padding:.35em .6em; text-align:left; }
+.reveal table td{ padding:.3em .6em; border-bottom:1px solid #f1f5f9; }
+.reveal table tr:nth-child(even) td{ background:#f8fafc; }
+.num{ text-align:right; font-variant-numeric:tabular-nums; }
+.hl td{ background:#dcfce7 !important; }
+.win{ color:var(--good); font-weight:800; } .lose{ color:var(--bad); font-weight:700; }
+.cols{ display:flex; gap:1.2em; align-items:flex-start; }
+.cols > div{ flex:1; }
+.grid2{ display:grid; grid-template-columns:1fr 1fr; gap:.7em; }
+.grid3{ display:grid; grid-template-columns:1fr 1fr 1fr; gap:.7em; }
+.full{ grid-column:1/-1; }
+.step{ background:#f8fafc; border:1px solid #e2e8f0; border-radius:10px; padding:.5em .8em; margin:.35em 0; }
+.step b{ color:var(--accent); }
+.kw{ color:var(--accent2); font-weight:700; }
+.chip{ display:inline-block; background:#f1f5f9; border-radius:6px; padding:.15em .5em; margin:.1em; font-size:.8em; font-family:ui-monospace,Menlo,monospace; }
+.big{ font-size:2.6em; font-weight:900; color:var(--accent); line-height:1; text-align:center; }
+.big small{ font-size:.28em; color:var(--muted); display:block; font-weight:600; }
+.formula{ font-family:ui-monospace,Menlo,monospace; background:#f1f5f9; border-radius:6px; padding:.15em .45em; font-size:.85em; }
+.cap{ display:block; text-align:center; color:var(--muted); font-size:.62em; margin:.15em 0 0; }
+.img-box{ background:#f1f5f9; border-radius:8px; overflow:hidden; text-align:center; }
+.img-box img{ max-width:100%; max-height:280px; display:block; margin:0 auto; object-fit:contain; }
+.reveal .progress{ color:var(--accent); height:6px; }
+.reveal .slide-number{ background-color:rgba(37,99,235,.9); color:#fff; font-weight:700; font-size:14px; border-radius:6px; padding:.15em .6em; right:12px; bottom:12px; }
+/* agenda */
+.agenda-grid{ display:grid; grid-template-columns:1fr 1fr; gap:.9em; margin-top:.8em; }
+.agi{ background:#f8fafc; border:1px solid #e2e8f0; border-radius:10px; padding:.9em 1em; display:flex; gap:.8em; align-items:center; }
+.agi .nbadge{ min-width:2em; height:2em; border-radius:50%; background:var(--accent); color:#fff; font-weight:800; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+.agi b{ display:block; color:var(--accent); }
+.agi small{ color:var(--muted); font-size:.78em; }
+</style>
+</head>
+<body>
+<div class="reveal">
+<div class="slides">
+
+<!-- ────────────────────────── SLIDE 1 — TIÊU ĐỀ ────────────────────────── -->
+<section data-background-gradient="linear-gradient(135deg,#eff6ff 0%,#ecfeff 100%)" style="text-align:center">
+  <div><span class="tag blue">ACL 2025 · Long Papers</span> <span class="tag cyan">Tái lập &amp; Mở rộng</span></div>
+  <h1 style="margin:.35em 0 .1em;font-size:1.9em">S³ cho Tiếng Việt</h1>
+  <p style="color:var(--muted);font-size:.75em;margin-bottom:.8em">Tái lập, Đánh giá và Đề xuất Ứng dụng của Semantic Signal Separation</p>
+  <table style="display:inline-table;border:none;font-size:.68em;line-height:1.9;width:auto;margin:0 auto;text-align:left">
+    <tr><td style="border:none;background:transparent;font-weight:700;padding-right:1.2em">Lớp</td><td style="border:none;background:transparent">CS2308.CH203 - Chuyên đề nghiên cứu và ứng dụng về Xử lý ngôn ngữ tự nhiên</td></tr>
+    <tr><td style="border:none;background:transparent;font-weight:700;padding-right:1.2em">GVHD</td><td style="border:none;background:transparent">TS. Nguyễn Văn Kiệt</td></tr>
+    <tr><td style="border:none;background:transparent;font-weight:700;padding-right:1.2em;vertical-align:top">Nhóm 7</td><td style="border:none;background:transparent">Đinh Trọng Hậu · Vũ Ánh Minh · Trần Đình Thiện · Ngô Quang Huy</td></tr>
+  </table>
+  <p style="margin-top:.7em;font-size:.42em;color:#94a3b8">← → chuyển slide · F toàn màn hình · ESC tổng quan</p>
+</section>
+
+<!-- ────────────────────────── SLIDE 2 — AGENDA ────────────────────────── -->
+<section data-background-gradient="linear-gradient(135deg,#f0fdfa 0%,#eff6ff 100%)">
+  <h2>Nội dung trình bày</h2>
+  <div class="agenda-grid">
+    <div class="agi"><div class="nbadge">1</div><div><b>S³ là gì?</b><small>Pipeline tổng thể, 6 bước, 3 biến thể β</small></div></div>
+    <div class="agi"><div class="nbadge">2</div><div><b>Tái lập cho tiếng Việt</b><small>pyvi tách từ, CafeBERT vs multilingual-E5</small></div></div>
+    <div class="agi"><div class="nbadge">3</div><div><b>Thiết lập &amp; kết quả thực nghiệm</b><small>4 corpus VN, coherence &amp; diversity, tốc độ, refit_transform()</small></div></div>
+    <div class="agi"><div class="nbadge">4</div><div><b>Đánh giá bằng nhãn thật</b><small>AUC trục ICA, ViSFD, VTSNLP, ảnh hưởng n_topics</small></div></div>
+    <div class="agi full" style="border:2px solid var(--accent2)">
+      <div class="nbadge" style="background:var(--accent2)">5</div>
+      <div><b>Ứng dụng thực tế</b><small>Dashboard phát hiện bất thường (z-score trục ICA)</small></div>
+    </div>
+  </div>
+</section>
+
+<!-- ────────────────────────── SLIDE 3 — PIPELINE TỔNG THỂ ────────────────────────── -->
+<section>
+  <span class="section-banner">Phần 1 — S³ là gì</span>
+  <h2>Pipeline S³ tổng thể</h2>
+  <svg viewBox="0 0 800 280" style="width:100%;max-height:36vh" role="img" aria-label="Sơ đồ luồng toàn bộ thuật toán S³">
+    <defs>
+      <marker id="fa2" markerWidth="9" markerHeight="9" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#64748b"/></marker>
+    </defs>
+    <rect x="10" y="30" width="90" height="40" rx="7" fill="#eff6ff" stroke="#2563eb"/><text x="55" y="55" font-size="12" text-anchor="middle" fill="#1e293b">Tài liệu</text>
+    <line x1="100" y1="50" x2="122" y2="50" stroke="#64748b" stroke-width="2" marker-end="url(#fa2)"/>
+    <rect x="122" y="28" width="100" height="44" rx="7" fill="#ecfeff" stroke="#0891b2"/><text x="172" y="48" font-size="11" text-anchor="middle" fill="#1e293b">Encoder</text><text x="172" y="63" font-size="8.5" text-anchor="middle" fill="#64748b">sentence-transformers</text>
+    <line x1="222" y1="50" x2="242" y2="50" stroke="#64748b" stroke-width="2" marker-end="url(#fa2)"/>
+    <rect x="242" y="30" width="80" height="40" rx="7" fill="#eff6ff" stroke="#2563eb"/><text x="282" y="48" font-size="10" text-anchor="middle" fill="#2563eb" font-weight="800">X</text><text x="282" y="61" font-size="8" text-anchor="middle" fill="#64748b">embedding docs</text>
+    <line x1="322" y1="50" x2="342" y2="50" stroke="#64748b" stroke-width="2" marker-end="url(#fa2)"/>
+    <rect x="342" y="24" width="110" height="52" rx="7" fill="#fefce8" stroke="#d97706"/><text x="397" y="48" font-size="11" text-anchor="middle" fill="#1e293b">Whitening</text><text x="397" y="63" font-size="8" text-anchor="middle" fill="#64748b">giảm chiều → N topic</text>
+    <line x1="452" y1="50" x2="472" y2="50" stroke="#64748b" stroke-width="2" marker-end="url(#fa2)"/>
+    <rect x="472" y="24" width="100" height="52" rx="7" fill="#f0fdf4" stroke="#16a34a"/><text x="522" y="50" font-size="13" text-anchor="middle" fill="#16a34a" font-weight="800">FastICA</text><text x="522" y="65" font-size="7.5" text-anchor="middle" fill="#64748b">phân tích trục độc lập</text>
+    <line x1="572" y1="42" x2="606" y2="30" stroke="#64748b" stroke-width="2" marker-end="url(#fa2)"/>
+    <line x1="572" y1="58" x2="606" y2="74" stroke="#64748b" stroke-width="2" marker-end="url(#fa2)"/>
+    <rect x="606" y="12" width="80" height="34" rx="7" fill="#f0fdf4" stroke="#16a34a"/><text x="646" y="33" font-size="11" text-anchor="middle" fill="#1e293b" font-weight="700">A (topic)</text>
+    <rect x="606" y="60" width="80" height="34" rx="7" fill="#ecfeff" stroke="#0891b2"/><text x="646" y="81" font-size="11" text-anchor="middle" fill="#1e293b" font-weight="700">S (source)</text>
+    <rect x="10" y="180" width="90" height="40" rx="7" fill="#eff6ff" stroke="#2563eb"/><text x="55" y="205" font-size="12" text-anchor="middle" fill="#1e293b">Từ điển</text>
+    <line x1="100" y1="200" x2="122" y2="200" stroke="#64748b" stroke-width="2" marker-end="url(#fa2)"/>
+    <rect x="122" y="178" width="100" height="44" rx="7" fill="#ecfeff" stroke="#0891b2"/><text x="172" y="198" font-size="11" text-anchor="middle" fill="#1e293b">Encoder</text><text x="172" y="213" font-size="8.5" text-anchor="middle" fill="#64748b">cùng sentence-transformer</text>
+    <line x1="222" y1="200" x2="242" y2="200" stroke="#64748b" stroke-width="2" marker-end="url(#fa2)"/>
+    <rect x="242" y="178" width="140" height="44" rx="7" fill="#fff7ed" stroke="#d97706"/><text x="312" y="198" font-size="11" text-anchor="middle" fill="#1e293b">C = A⁺ ; W = V·Cᵀ</text><text x="312" y="213" font-size="8" text-anchor="middle" fill="#64748b">chiếu từ lên trục chủ đề</text>
+    <line x1="382" y1="200" x2="402" y2="200" stroke="#64748b" stroke-width="2" marker-end="url(#fa2)"/>
+    <rect x="402" y="178" width="110" height="44" rx="7" fill="#fef2f2" stroke="#dc2626"/><text x="457" y="198" font-size="12" text-anchor="middle" fill="#1e293b">β filter</text><text x="457" y="213" font-size="8" text-anchor="middle" fill="#64748b">word importance</text>
+    <line x1="512" y1="200" x2="532" y2="200" stroke="#64748b" stroke-width="2" marker-end="url(#fa2)"/>
+    <rect x="532" y="178" width="130" height="44" rx="7" fill="#f0fdf4" stroke="#16a34a"/><text x="597" y="198" font-size="11" text-anchor="middle" fill="#16a34a" font-weight="700">Từ mô tả topic</text><text x="597" y="213" font-size="8.5" text-anchor="middle" fill="#64748b">(+ từ negative)</text>
+    <line x1="646" y1="46" x2="646" y2="108" stroke="#16a34a" stroke-width="1.5" stroke-dasharray="4 3"/>
+    <path d="M646,108 C646,140 312,140 312,178" fill="none" stroke="#16a34a" stroke-width="1.5" stroke-dasharray="4 3" marker-end="url(#fa2)"/>
+    <text x="450" y="135" font-size="9" fill="#16a34a">A dùng để tính C = A⁺</text>
+  </svg>
+  <div class="cols" style="gap:.8em;margin-top:.4em">
+    <div class="box blue" style="flex:1;font-size:.78em"><span class="lbl">X = A · S</span><b>X</b> = embedding tài liệu · <b>A</b> = trục topic · <b>S</b> = tỷ lệ topic/tài liệu</div>
+    <div class="box cyan" style="flex:1;font-size:.78em"><span class="lbl">W = V · Cᵀ &nbsp;(C = A⁺)</span><b>W</b> = toạ độ từ trên trục topic · <b>V</b> = embedding từ điển</div>
+  </div>
+</section>
+
+<!-- ────────────────────────── SLIDE 4 — THUẬT TOÁN S³ 6 BƯỚC ────────────────────────── -->
+<section>
+  <span class="section-banner">Phần 1 — S³ là gì</span>
+  <h2>Thuật toán S³ — 6 bước</h2>
+  <div class="cols" style="gap:1em;align-items:flex-start">
+    <div style="flex:1.15">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:.5em;margin-bottom:.6em">
+        <div class="step"><b>① Mã hoá tài liệu</b><br><small>Encoder → ma trận <b>X</b></small></div>
+        <div class="step"><b>② FastICA</b><br><small>Phân rã <b>X = A · S</b></small></div>
+        <div class="step"><b>③ Mã hoá từ vựng</b><br><small>Cùng encoder → <b>V</b></small></div>
+        <div class="step"><b>④ Ma trận giải trộn</b><br><small><b>C = A⁺</b> (Moore–Penrose)</small></div>
+        <div class="step"><b>⑤ Chiếu từ lên trục</b><br><small><b>W = V · Cᵀ</b></small></div>
+        <div class="step"><b>⑥ Word importance β</b><br><small>Top-k từ mô tả mỗi topic</small></div>
+      </div>
+      <div class="box amber" style="font-size:.78em">
+        <span class="lbl">ĐIỂM ÂM — ĐẶC TRƯNG RIÊNG CỦA S³</span>
+        β có thể âm → mỗi trục có <b>định nghĩa âm</b> (đối lập chủ đề). LDA/BERTopic không làm được.
+      </div>
+    </div>
+    <div style="flex:.9">
+      <div class="img-box" style="margin-bottom:.5em">
+        <img src="../../report/figures/figure3.png" alt="Hình 1 — Trực giác hình học 3 công thức word importance" loading="lazy">
+        <span class="cap">Hình 1 — Trực giác hình học: axial / angular / combined</span>
+      </div>
+      <div class="box blue" style="margin-bottom:.4em;font-size:.78em"><span class="lbl">① AXIAL</span>β = W<sub>jt</sub> — Coherence cao</div>
+      <div class="box cyan" style="margin-bottom:.4em;font-size:.78em"><span class="lbl">② ANGULAR</span>β = W<sub>jt</sub>/‖W<sub>j</sub>‖ — Diversity cao</div>
+      <div class="box green" style="font-size:.78em"><span class="lbl">③ COMBINED ✓ mặc định</span>β = (W<sub>jt</sub>)³/‖W<sub>j</sub>‖ — Mũ lẻ giữ dấu</div>
+    </div>
+  </div>
+</section>
+
+<!-- ────────────────────────── SLIDE 5 — PYVI TÁCH TỪ ────────────────────────── -->
+<section>
+  <span class="section-banner">Phần 2 — Tái lập tiếng Việt</span>
+  <h2>Tiền xử lý: tách từ tiếng Việt với pyvi</h2>
+  <div class="box red" style="margin-bottom:.6em">
+    <span class="lbl">VẤN ĐỀ — CountVectorizer mặc định vỡ từ ghép</span>
+    <span class="chip">"trầy xước"</span> → tách theo khoảng trắng → <span class="chip">"trầy"</span> + <span class="chip">"xước"</span> — hai âm tiết <em>vô nghĩa riêng lẻ</em><br>
+    → Bước mã hoá từ vựng V (W = V·Cᵀ) cho kết quả sai
+  </div>
+  <div style="background:#1e293b;border-radius:8px;padding:.8em 1.1em;margin:.5em 0;font-family:ui-monospace,Menlo,monospace;font-size:.72em;color:#e2e8f0;line-height:1.7">
+    <span style="color:#94a3b8"># Tiền xử lý bắt buộc cho tiếng Việt</span><br>
+    <span style="color:#7dd3fc">from</span> pyvi <span style="color:#7dd3fc">import</span> ViTokenizer<br>
+    segmented = [ViTokenizer.tokenize(doc) <span style="color:#7dd3fc">for</span> doc <span style="color:#7dd3fc">in</span> documents]<br>
+    <span style="color:#94a3b8"># "trầy xước"  →  "trầy_xước"   (CountVectorizer giữ _ là ký tự hợp lệ)</span>
+  </div>
+  <div class="box green">
+    <span class="lbl">GIẢI PHÁP — pyvi ViTokenizer</span>
+    Nối âm tiết bằng <span class="chip">_</span> → CountVectorizer giữ nguyên là 1 token.<br>
+    <span class="chip">token_pattern=r"(?u)\b[^\W\d][^\W]*\b"</span> để giữ underscore.<br>
+    <b>Thay đổi bắt buộc — paper gốc chỉ thử nghiệm tiếng Anh.</b>
+  </div>
+</section>
+
+<!-- ────────────────────────── SLIDE 6 — ENCODER ────────────────────────── -->
+<section>
+  <span class="section-banner">Phần 2 — Tái lập tiếng Việt</span>
+  <h2>CafeBERT vs multilingual-E5</h2>
+  <div class="cols" style="gap:.8em;margin-bottom:.8em">
+    <div class="box cyan" style="flex:1">
+      <span class="lbl">CafeBERT (uitnlp/CafeBERT)</span>
+      BERT masked-LM pretrained tiếng Việt.<br>
+      <b>Không phải</b> sentence embedder → tự cài masked-mean pooling + L2 normalize.
+    </div>
+    <div class="box green" style="flex:1">
+      <span class="lbl">multilingual-E5-base (intfloat/)</span>
+      Sentence-transformer thật — pooling &amp; normalize sẵn.<br>
+      Thêm prefix <span class="chip">"query: "</span> theo convention E5.
+    </div>
+  </div>
+  <table>
+    <thead><tr><th>Encoder</th><th class="num">Mã hoá 11.122 doc (s)</th><th class="num">AUC 1 trục tốt nhất</th><th class="num">AUC gộp trục</th></tr></thead>
+    <tbody>
+      <tr><td>CafeBERT</td><td class="num">34,9</td><td class="num">0,689</td><td class="num">0,867</td></tr>
+      <tr class="hl"><td><b>E5 multilingual-base ✓</b></td><td class="num win">21,9</td><td class="num win">0,722</td><td class="num win">0,887</td></tr>
+      <tr><td>BGE-M3 (đối chứng)</td><td class="num lose">69,6</td><td class="num">0,719</td><td class="num">0,898</td></tr>
+    </tbody>
+  </table>
+  <p style="font-size:.65em;color:var(--muted);margin-top:.4em">ViSFD · n_topics=40 · AUC trung bình 11 khía cạnh. E5 vừa nhanh hơn 1,6× vừa AUC cao hơn → dùng làm encoder mặc định.</p>
+</section>
+
+<!-- ────────────────────────── SLIDE 7 — BENCHMARK SETUP ────────────────────────── -->
+<section>
+  <span class="section-banner">Phần 3 — Thiết lập &amp; kết quả thực nghiệm</span>
+  <h2>Thiết lập thực nghiệm</h2>
+  <div class="cols" style="gap:1em;margin-bottom:.6em;align-items:stretch">
+    <div class="box blue" style="flex:1;font-size:.86em">
+      <span class="lbl">4 KHO NGỮ LIỆU TIẾNG VIỆT</span>
+      <table style="font-size:.82em;margin:.3em 0 0;width:100%">
+        <thead><tr><th>Corpus</th><th class="num" style="white-space:nowrap;width:5.5em">Tài liệu</th><th>Loại</th></tr></thead>
+        <tbody>
+          <tr><td>Vietnamese-news</td><td class="num">858</td><td>Tin tức đa chủ đề</td></tr>
+          <tr><td>UIT-ViSFD</td><td class="num">10.000</td><td>Review điện thoại, 11 khía cạnh</td></tr>
+          <tr><td>ViMedical Disease</td><td class="num">12.060</td><td>Văn bản y tế</td></tr>
+          <tr><td>VNTC-CNTT</td><td class="num">3.571</td><td>Chủ đề chuyên ngành CNTT</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="box amber" style="flex:1;font-size:.86em">
+      <span class="lbl">ĐỘ ĐO</span>
+      <table style="font-size:.82em;margin:.3em 0 0;width:100%">
+        <thead><tr><th>Metric</th><th>Đo gì</th><th style="white-space:nowrap;width:4.5em">Vai trò</th></tr></thead>
+        <tbody>
+          <tr><td><b>WEC-in ↑</b></td><td>Cosine top-term (Word2Vec nội tại)</td><td>Chính</td></tr>
+          <tr><td><b>Diversity ↑</b></td><td>Tỷ lệ từ khoá không trùng</td><td>Chính</td></tr>
+          <tr><td>C_NPMI</td><td>Đồng xuất hiện từ (Gensim)</td><td>Phụ</td></tr>
+          <tr><td>Fit-only (s) ↓</td><td>Thời gian fit sau khi embed cache</td><td>Tốc độ</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:.45em 1em;font-size:.72em;color:var(--muted)">
+    <div><b style="color:var(--ink)">Cấu hình:</b> S³ axial / angular / combined (CafeBERT) · LDA · NMF · BERTopic+UMAP+KMeans</div>
+    <div style="margin-top:.2em"><b style="color:var(--ink)">Protocol:</b> k ∈ {10, 20, 30, 40, 50} · 4 seed (11, 29, 42, 47) · <b style="color:var(--accent)">4 × 6 × 5 × 4 = 480 run</b> · không tinh chỉnh siêu tham số</div>
+  </div>
+</section>
+
+<!-- ────────────────────────── SLIDE 8 — COHERENCE ────────────────────────── -->
+<section>
+  <span class="section-banner">Phần 3 — Thiết lập &amp; kết quả thực nghiệm</span>
+  <h2>Kết quả coherence &amp; diversity</h2>
+  <div class="cols" style="gap:1em;align-items:flex-start">
+    <div style="flex:1.3">
+      <div class="img-box">
+        <img src="../../report/figures/vn_benchmark_coherence.png" alt="WEC-in coherence benchmark" loading="lazy" style="max-height:510px">
+      </div>
+      <p class="cap">Hình 2 — WEC-in theo số trục/chủ đề · 4 corpus VN × 6 mô hình · 480 lần chạy (CafeBERT)</p>
+    </div>
+    <div style="flex:.85;font-size:.88em">
+      <div class="box green" style="margin-bottom:.4em">
+        <span class="lbl">S³ THẮNG 74% Ô</span>
+        59/80 ô corpus×seed×k<br>ViSFD: 19/20 · ViMedical: 20/20 · VNTC-CNTT: 20/20
+      </div>
+      <div class="box red" style="margin-bottom:.4em">
+        <span class="lbl">NGOẠI LỆ: VIETNAMESE-NEWS</span>
+        LDA/NMF thắng trên corpus này (S³: 0/20 ô)
+      </div>
+      <div class="box blue" style="margin:0">
+        <span class="lbl">DIVERSITY CAO ĐỒNG THỜI</span>
+        S³: 0,73–0,76 · LDA: 0,48 · BERTopic: 0,43
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ────────────────────────── SLIDE 9 — RUNTIME ────────────────────────── -->
+<section>
+  <span class="section-banner">Phần 3 — Thiết lập &amp; kết quả thực nghiệm</span>
+  <h2>Kết quả tốc độ</h2>
+  <div class="cols" style="gap:1em;align-items:flex-start">
+    <div style="flex:1.3">
+      <div class="img-box">
+        <img src="../../report/figures/vn_benchmark_runtime.png" alt="Fit-only runtime" loading="lazy" style="max-height:510px">
+      </div>
+      <p class="cap">Hình 3 — Fit-only time (thang log) — ngược kết quả paper gốc</p>
+    </div>
+    <div style="flex:.85;position:relative;min-height:420px">
+      <table style="font-size:.65em;margin-bottom:.4em">
+        <thead><tr><th>Mô hình</th><th class="num">Fit TB (s)</th></tr></thead>
+        <tbody>
+          <tr><td class="lose"><b>S³ combined</b></td><td class="num lose"><b>42,9</b></td></tr>
+          <tr><td>LDA</td><td class="num">18,9</td></tr>
+          <tr><td>BERTopic</td><td class="num">16,4</td></tr>
+          <tr class="hl"><td><b>NMF</b></td><td class="num win"><b>2,3</b></td></tr>
+        </tbody>
+      </table>
+      <div style="position:absolute;bottom:0;left:0;right:0;font-size:.72em">
+        <div class="box red" style="margin-bottom:.4em">
+          <span class="lbl">TRÁI PAPER GỐC</span>
+          Paper gốc: S³ nhanh hơn 4,5–27,5×. Tiếng Việt: chậm hơn NMF ~<b>18,7×</b>.
+        </div>
+        <div class="box green" style="margin:0">
+          <span class="lbl">NGUYÊN NHÂN</span>
+          <span class="chip">fit_transform()</span> mã hoá lại toàn bộ từ vựng mỗi lần — không cache. Pearson r = <b>0,9998</b>.
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ────────────────────────── SLIDE 10 — REFIT ────────────────────────── -->
+<section>
+  <span class="section-banner">Phần 3 — Thiết lập &amp; kết quả thực nghiệm</span>
+  <h2>Tối ưu tốc độ: refit_transform()</h2>
+  <p style="text-align:center;margin:.3em 0 .6em;font-size:.9em">
+    Speedup: <b style="font-size:1.25em">3,7×</b> <span style="color:var(--muted);font-size:.85em">Vietnamese-news</span>
+    &nbsp;·&nbsp;
+    <b style="font-size:1.25em;color:var(--good)">8,9×</b> <span style="color:var(--muted);font-size:.85em">UIT-ViSFD</span>
+    &nbsp;·&nbsp;
+    <b style="font-size:1.25em;color:var(--accent2)">5,4×</b> <span style="color:var(--muted);font-size:.85em">ViMedical</span>
+  </p>
+  <table style="font-size:.88em">
+    <thead><tr><th>Mô hình</th><th class="num">WEC-in ↑</th><th class="num">Diversity ↑</th><th class="num">C_NPMI</th><th class="num">Fit (s) ↓</th></tr></thead>
+    <tbody>
+      <tr class="hl"><td><b>S³ angular</b></td><td class="num win">0,580</td><td class="num win">0,759</td><td class="num lose">−0,380</td><td class="num lose">43,0</td></tr>
+      <tr class="hl"><td><b>S³ combined</b></td><td class="num win">0,576</td><td class="num win">0,744</td><td class="num lose">−0,379</td><td class="num lose">42,9</td></tr>
+      <tr class="hl"><td><b>S³ axial</b></td><td class="num win">0,574</td><td class="num win">0,733</td><td class="num lose">−0,380</td><td class="num lose">43,2</td></tr>
+      <tr><td>BERTopic</td><td class="num">0,513</td><td class="num lose">0,428</td><td class="num">−0,207</td><td class="num">16,4</td></tr>
+      <tr><td>NMF</td><td class="num">0,456</td><td class="num">0,587</td><td class="num win">0,093</td><td class="num win">2,3</td></tr>
+      <tr><td>LDA</td><td class="num">0,412</td><td class="num">0,478</td><td class="num">0,080</td><td class="num">18,9</td></tr>
+    </tbody>
+  </table>
+  <p style="font-size:.6em;color:var(--muted);margin-top:.3em">Trung bình 480 run — <b>chưa áp dụng refit</b>, nên cột Fit(s) của S³ vẫn là ~43s. Speedup 3,7–8,9× đo riêng sau khi vá turftopic (xem số liệu ở trên). C_NPMI âm của S³ phản ánh khác biệt nguyên lý đo — không dùng để chọn winner.</p>
+</section>
+
+<!-- ────────────────────────── SLIDE 11 — PHƯƠNG PHÁP AUC ────────────────────────── -->
+<section>
+  <span class="section-banner">Phần 4 — Đánh giá bằng nhãn thật</span>
+  <h2>Phương pháp đánh giá AUC với nhãn thật</h2>
+  <div class="box blue" style="margin-bottom:.7em">
+    <span class="lbl">PAPER GỐC KHÔNG ĐO VỚI NHÃN THẬT (§8.6)</span>
+    Paper gốc không đánh giá document-topic proportions với nhãn thật.<br>
+    <b>Câu hỏi nhóm đặt ra:</b> <em>"Trục ICA có thực sự trùng khớp với khái niệm ngữ nghĩa trong dữ liệu thật không?"</em>
+  </div>
+  <div class="cols" style="gap:.8em;margin-bottom:.7em">
+    <div class="box cyan" style="flex:1">
+      <span class="lbl">ViSFD</span>
+      11.122 đánh giá điện thoại · 11 khía cạnh <b>đa nhãn</b><br>
+      (BATTERY, CAMERA, PRICE, SCREEN, STORAGE…)
+    </div>
+    <div class="box green" style="flex:1">
+      <span class="lbl">VTSNLP</span>
+      Lấy mẫu 20.000 / 12,17M tài liệu, 25 domain <b>đơn nhãn</b><br>
+      (Health, Sports, Real_Estate, Business…)
+    </div>
+  </div>
+  <div class="box amber">
+    <span class="lbl">PHƯƠNG PHÁP AUC</span>
+    Mỗi nhãn → bài toán nhị phân "có nhãn này không?"<br>
+    → Điểm trục ICA làm score → <b>ROC-AUC</b> (0,5 = ngẫu nhiên · 1,0 = hoàn hảo)<br>
+    → Hoặc gộp tất cả trục bằng <b>logistic regression 5-fold CV</b>
+  </div>
+</section>
+
+<!-- ────────────────────────── SLIDE 12 — KẾT QUẢ AUC ────────────────────────── -->
+<section>
+  <span class="section-banner">Phần 4 — Đánh giá bằng nhãn thật</span>
+  <h2>Kết quả AUC — ViSFD &amp; VTSNLP</h2>
+  <div class="cols" style="gap:1.2em;align-items:flex-start">
+    <div style="flex:1">
+      <h3>ViSFD (E5, n_topics=40) <small style="color:var(--muted);font-weight:400;font-size:.7em">— k=40 cố định để so sánh cross-corpus</small></h3>
+      <table>
+        <thead><tr><th>Khía cạnh</th><th class="num">AUC 1 trục</th><th class="num">n tài liệu</th></tr></thead>
+        <tbody>
+          <tr class="hl"><td>CAMERA</td><td class="num win">0,864</td><td class="num">1.043</td></tr>
+          <tr class="hl"><td>PRICE</td><td class="num win">0,830</td><td class="num">4.285</td></tr>
+          <tr class="hl"><td>SCREEN</td><td class="num win">0,811</td><td class="num">1.540</td></tr>
+          <tr class="hl"><td>STORAGE</td><td class="num win">0,753</td><td class="num">132</td></tr>
+          <tr><td colspan="3" style="color:var(--muted);font-style:italic;font-size:.85em">7 khía cạnh còn lại &lt; 0,75</td></tr>
+        </tbody>
+      </table>
+      <div class="box green" style="margin-top:.5em">
+        <b>1 trục tốt nhất:</b> 4 / 11 ≥ 0,75<br>
+        <b>Gộp 40 trục (logistic CV):</b> <span class="win">10 / 11 ≥ 0,75</span><br>
+        <small>(chỉ OTHERS dưới ngưỡng, AUC = 0,744)</small>
+      </div>
+    </div>
+    <div style="flex:1">
+      <h3>VTSNLP (E5, n_topics=30)</h3>
+      <table>
+        <thead><tr><th>Domain</th><th class="num">AUC 1 trục</th></tr></thead>
+        <tbody>
+          <tr class="hl"><td>Real_Estate</td><td class="num win">0,993</td></tr>
+          <tr class="hl"><td>Sports</td><td class="num win">0,985</td></tr>
+          <tr><td colspan="2" style="color:var(--muted);font-style:italic;font-size:.85em">… và 19 domain khác ≥ 0,75 (tổng 21/25)</td></tr>
+        </tbody>
+      </table>
+      <div class="box green" style="margin-top:.5em">
+        <b>1 trục tốt nhất:</b> 21 / 25 ≥ 0,75<br>
+        <b>Gộp 30 trục:</b> <span class="win">25 / 25 ≥ 0,75</span>
+      </div>
+      <div class="box amber" style="margin-top:.4em">
+        <span class="lbl">LƯU Ý</span>
+        VTSNLP AUC cao hơn vì nhãn đơn — domain tách bạch.<br>
+        <em>Không</em> có nghĩa S³ "tốt hơn" trên VTSNLP.
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ────────────────────────── SLIDE 13 — N_TOPICS SWEEP ────────────────────────── -->
+<section>
+  <span class="section-banner">Phần 4 — Đánh giá bằng nhãn thật</span>
+  <h2>Ảnh hưởng của n_topics lên chất lượng chủ đề</h2>
+  <div class="cols" style="gap:1em;align-items:flex-start;margin-top:.9em">
+    <div style="flex:1.4">
+      <div class="img-box">
+        <img src="../../artifacts/visualizations/s3_topic_quality.png" alt="S³ topic quality sweep: coherence, diversity, aggregate vs n_topics" loading="lazy" style="max-height:400px">
+      </div>
+      <p class="cap">Coherence · Diversity · Aggregate theo k — 3 corpus (CafeBERT)</p>
+    </div>
+    <div style="flex:1;font-size:.88em">
+      <div class="box green" style="margin-bottom:.5em">
+        <span class="lbl">DIVERSITY — KHÔNG ĐỔI THEO K</span>
+        Luôn &gt;0,8 với mọi k — S³ không mất diversity khi tăng số topic.
+      </div>
+      <div class="box blue" style="margin-bottom:.5em">
+        <span class="lbl">K TỐI ƯU</span>
+        <b>ViSFD</b>: k = 20 · <b>VTSNLP</b>: k = 30
+      </div>
+      <div class="box amber">
+        <span class="lbl">ĐÁNH ĐỔI KHI TĂNG K</span>
+        ✅ Tách khía cạnh hiếm (STORAGE: 132/11k doc)<br>
+        ❌ Vượt ngưỡng → trục trùng / bám nhiễu
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ────────────────────────── SLIDE 14 — DASHBOARD ────────────────────────── -->
+<section>
+  <span class="section-banner">Phần 5 — Ứng dụng thực tế</span>
+  <h2>Ứng dụng 1 — Dashboard phát hiện bất thường</h2>
+  <div class="cols" style="gap:1.2em;align-items:flex-start;margin-top:2em">
+    <div style="flex:1.35">
+      <p style="font-size:.72em;font-weight:700;color:#dc2626;margin:0 0 .4em">KỊCH BẢN: PIN ĐIỆN THOẠI QUÁ NHIỆT — 51 bình luận giả lập</p>
+      <svg viewBox="0 0 360 148" style="width:100%;max-height:148px" role="img">
+        <line x1="124" y1="2" x2="124" y2="146" stroke="#e2e8f0" stroke-width="1"/>
+        <!-- Trục 1: z=-12.79, bar=210px (max) -->
+        <text x="120" y="24" font-size="9.5" text-anchor="end" fill="#dc2626" font-weight="700">Trục 1 — nóng/nhiệt</text>
+        <rect x="126" y="12" width="210" height="20" rx="3" fill="#dc2626"/>
+        <text x="340" y="26" font-size="11" fill="#dc2626" font-weight="900">z = −12,79</text>
+        <!-- Trục 2: z=-3.27, bar=54px -->
+        <text x="120" y="55" font-size="9.5" text-anchor="end" fill="#6b7280">Trục 2</text>
+        <rect x="126" y="43" width="54" height="20" rx="3" fill="#f97316" opacity=".8"/>
+        <text x="184" y="57" font-size="9.5" fill="#6b7280" dx="4">z = −3,27</text>
+        <text x="340" y="55" font-size="9" fill="#f97316" text-anchor="end">gấp ~4×</text>
+        <!-- Trục 3 -->
+        <text x="120" y="84" font-size="9.5" text-anchor="end" fill="#9ca3af">Trục 3</text>
+        <rect x="126" y="72" width="25" height="16" rx="3" fill="#cbd5e1"/>
+        <text x="155" y="84" font-size="9" fill="#9ca3af" dx="3">z = −1,5</text>
+        <!-- Trục 4-N -->
+        <text x="120" y="110" font-size="9.5" text-anchor="end" fill="#9ca3af">Trục 4–N</text>
+        <rect x="126" y="99" width="10" height="14" rx="3" fill="#e2e8f0"/>
+        <text x="140" y="110" font-size="9" fill="#9ca3af" dx="2">|z| &lt; 1,0</text>
+      </svg>
+      <p style="font-size:.7em;margin:.4em 0 0;color:var(--ink)">
+        Từ khoá trục 1:
+        <span class="chip">nóng</span> <span class="chip">nóng bỏng</span> <span class="chip">nóng hổi</span> <span class="chip">tản nhiệt</span> <span class="chip">nhiệt</span>
+      </p>
+    </div>
+    <div style="flex:.85;font-size:.88em">
+      <div class="box green" style="margin-bottom:.5em">
+        ✅ <b>Phát hiện bất thường</b> hoạt động tốt<br>
+        Trục 1 vượt trội <b>4×</b> so với trục mạnh nhì
+      </div>
+      <div class="box amber">
+        <span class="lbl">HẠN CHẾ</span>
+        Nhãn gắn cho trục: <b>STORAGE</b> thay vì <b>BATTERY</b><br>
+        (AUC=0,71, CafeBERT n_topics=20)<br>
+        ❌ <b>Gán nhãn khía cạnh</b> chưa chính xác
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ────────────────────────── SLIDE 16 — KẾT LUẬN ────────────────────────── -->
+<section>
+  <h2>Kết luận — 5 đóng góp</h2>
+  <div class="grid2" style="gap:.7em">
+    <div class="box green"><span class="lbl">① Tái lập cho tiếng Việt</span>Giải quyết tách từ bắt buộc (pyvi) — khác biệt kỹ thuật paper gốc không gặp.</div>
+    <div class="box green"><span class="lbl">② Benchmark định lượng 480 run</span>4 corpus VN × 6 model × 5k × 4 seed. S³ dẫn đầu coherence+diversity, nhưng <em>chậm nhất</em> — báo cáo trung thực.</div>
+    <div class="box green"><span class="lbl">③ Truy nguyên nhân + đo lại tốc độ</span>refit_transform() → nhanh hơn 3,7–8,9×, kiểm chứng bit-by-bit.</div>
+    <div class="box green"><span class="lbl">④ Đánh giá AUC với nhãn thật</span>Paper gốc không làm. 10/11 ViSFD · 25/25 VTSNLP ≥ 0,75 khi gộp trục.</div>
+    <div class="box cyan full"><span class="lbl">⑤ Ứng dụng thực tế</span>Dashboard phát hiện bất thường (z-score trục ICA) — dựa thẳng vào Ŝ = X̂·Cᵀ, không cần retrain.</div>
+  </div>
+  <div class="box blue" style="margin-top:.7em;font-size:.8em">
+    Kết quả bất lợi (S³ chậm nhất, gán nhãn sai khía cạnh) được giữ nguyên và giải thích nguyên nhân.
+  </div>
+</section>
+
+<!-- ────────────────────────── SLIDE 17 — Q&A ────────────────────────── -->
+<section data-background-gradient="linear-gradient(135deg,#eff6ff 0%,#ecfeff 100%)" style="text-align:center">
+  <h2 style="font-size:3.2em;margin-top:270px">Q &amp; A</h2>
+</section>
+
+</div><!-- .slides -->
+</div><!-- .reveal -->
+
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reveal.js"></script>
+<script>
+Reveal.initialize({
+  hash: true, progress: true, slideNumber: 'c/t', transition: 'slide',
+  center: false,
+  width: 1180, height: 740, margin: 0.06,
+});
+</script>
+</body>
+</html>
