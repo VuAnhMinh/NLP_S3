@@ -101,7 +101,7 @@
 <section data-background-gradient="linear-gradient(135deg,#f0fdfa 0%,#eff6ff 100%)">
   <h2>Nội dung trình bày</h2>
   <div class="agenda-grid">
-    <div class="agi"><div class="nbadge">1</div><div><b>S³ là gì?</b><small>Pipeline tổng thể, 6 bước, 3 biến thể β, nhìn trực tiếp trục bằng Concept Compass</small></div></div>
+    <div class="agi"><div class="nbadge">1</div><div><b>S³ là gì?</b><small>Pipeline tổng thể, 6 bước, 3 biến thể β</small></div></div>
     <div class="agi"><div class="nbadge">2</div><div><b>Tái lập cho tiếng Việt</b><small>pyvi tách từ, CafeBERT vs multilingual-E5</small></div></div>
     <div class="agi"><div class="nbadge">3</div><div><b>Thiết lập &amp; kết quả thực nghiệm</b><small>4 corpus VN, coherence &amp; diversity, tốc độ, refit_transform()</small></div></div>
     <div class="agi"><div class="nbadge">4</div><div><b>Đánh giá bằng nhãn thật</b><small>AUC trục ICA, ViSFD, VTSNLP, ảnh hưởng n_topics</small></div></div>
@@ -147,8 +147,8 @@
     <text x="450" y="135" font-size="9" fill="#16a34a">A dùng để tính C = A⁺</text>
   </svg>
   <div class="cols" style="gap:.8em;margin-top:.4em">
-    <div class="box blue" style="flex:1;font-size:.78em"><span class="lbl">X = A · S — công thức sinh dữ liệu</span>Mỗi embedding tài liệu (<b>X</b>) được coi là một bản trộn của các trục chủ đề (<b>A</b>) theo tỷ lệ (<b>S</b>).</div>
-    <div class="box cyan" style="flex:1;font-size:.78em"><span class="lbl">W = V · Cᵀ — chiếu từ vựng lên trục</span>Từ điển (<b>V</b>) được chiếu lên các trục để lấy toạ độ <b>W</b>, từ đó suy ra từ khoá đại diện cho từng trục.</div>
+    <div class="box blue" style="flex:1;font-size:.78em"><span class="lbl">X = A · S</span><b>X</b> = embedding tài liệu · <b>A</b> = trục topic · <b>S</b> = tỷ lệ topic/tài liệu</div>
+    <div class="box cyan" style="flex:1;font-size:.78em"><span class="lbl">W = V · Cᵀ &nbsp;(C = A⁺)</span><b>W</b> = toạ độ từ trên trục topic · <b>V</b> = embedding từ điển</div>
   </div>
 </section>
 
@@ -167,8 +167,8 @@
         <div class="step"><b>⑥ Word importance β</b><br><small>Top-k từ mô tả mỗi topic</small></div>
       </div>
       <div class="box amber" style="font-size:.78em">
-        <span class="lbl">β CÓ THỂ ÂM — ĐẶC TRƯNG RIÊNG CỦA S³</span>
-        β có thể âm, nên mỗi trục vừa thể hiện "chủ đề này LÀ gì", vừa thể hiện "chủ đề này KHÔNG PHẢI là gì" — LDA và BERTopic chỉ liệt kê được từ khoá dương.
+        <span class="lbl">ĐIỂM ÂM — ĐẶC TRƯNG RIÊNG CỦA S³</span>
+        β có thể âm → mỗi trục có <b>định nghĩa âm</b> (đối lập chủ đề). LDA/BERTopic không làm được.
       </div>
     </div>
     <div style="flex:.9">
@@ -176,34 +176,9 @@
         <img src="../../report/figures/figure3.png" alt="Hình 1 — Trực giác hình học 3 công thức word importance" loading="lazy">
         <span class="cap">Hình 1 — Trực giác hình học: axial / angular / combined</span>
       </div>
-      <div class="box blue" style="margin-bottom:.4em;font-size:.76em"><span class="lbl">① AXIAL — lấy nguyên toạ độ</span>β = W<sub>jt</sub>: ưu tiên từ có hình chiếu lớn nhất trên trục, không xét mức độ liên quan đến các trục khác.</div>
-      <div class="box cyan" style="margin-bottom:.4em;font-size:.76em"><span class="lbl">② ANGULAR — chuẩn hoá theo góc</span>β = W<sub>jt</sub>/‖W<sub>j</sub>‖: ưu tiên từ mà gần như toàn bộ ý nghĩa nằm dọc trục, nhưng dễ nhiễu với từ hiếm.</div>
-      <div class="box green" style="font-size:.76em"><span class="lbl">③ COMBINED — cấu hình mặc định của Nhóm</span>β = (W<sub>jt</sub>)³/‖W<sub>j</sub>‖: luỹ thừa bậc ba giữ dấu và khuếch đại giá trị lớn, sau đó chuẩn hoá theo góc — kết hợp ưu điểm của cả hai công thức trên.</div>
-    </div>
-  </div>
-</section>
-
-<!-- ────────────────────────── SLIDE 5 — CONCEPT COMPASS ────────────────────────── -->
-<section>
-  <span class="section-banner">Phần 1 — S³ là gì</span>
-  <h2>Nhìn trực tiếp trục ngữ nghĩa — Concept Compass</h2>
-  <p style="font-size:.82em;margin-bottom:.5em">Minh hoạ trực tiếp bằng một checkpoint đã huấn luyện: chọn hai trục bất kỳ, chiếu toàn bộ 20.000 từ vựng lên hai trục đó, không sử dụng bất kỳ nhãn giám sát nào.</p>
-  <div class="cols" style="gap:1em;align-items:flex-start">
-    <div style="flex:1.3">
-      <div class="img-box">
-        <img src="../../report/figures/concept_compass.png" alt="Concept Compass: từ ngữ quanh 2 trục ngữ nghĩa" loading="lazy" style="max-height:430px">
-      </div>
-      <p class="cap">Concept Compass — trục hoành là chủ đề "pháp lý / tội phạm", trục tung là chủ đề "âm nhạc" (Vietnamese-news, k=20)</p>
-    </div>
-    <div style="flex:.85;font-size:.85em">
-      <div class="box green" style="margin-bottom:.4em">
-        <span class="lbl">TỰ TÁCH RA, KHÔNG AI GÁN NHÃN</span>
-        Cực trên toàn từ về nhạc (nhạc sĩ, hoà nhạc, điệp khúc...), cực phải toàn từ về pháp lý (buộc tội, truy tố, toà án...) — model tự nhóm được vậy chỉ từ dữ liệu thô, không hề biết trước 2 chủ đề này là gì.
-      </div>
-      <div class="box blue">
-        <span class="lbl">CÁCH ĐỌC MỘT TRỤC</span>
-        Ý nghĩa của một trục được xác định bằng cách đọc từ khoá ở hai đầu trục — đây là cách Nhóm đặt tên và kiểm chứng các trục ở các phần sau.
-      </div>
+      <div class="box blue" style="margin-bottom:.4em;font-size:.78em"><span class="lbl">① AXIAL</span>β = W<sub>jt</sub> — Coherence cao</div>
+      <div class="box cyan" style="margin-bottom:.4em;font-size:.78em"><span class="lbl">② ANGULAR</span>β = W<sub>jt</sub>/‖W<sub>j</sub>‖ — Diversity cao</div>
+      <div class="box green" style="font-size:.78em"><span class="lbl">③ COMBINED ✓ mặc định</span>β = (W<sub>jt</sub>)³/‖W<sub>j</sub>‖ — Mũ lẻ giữ dấu</div>
     </div>
   </div>
 </section>
@@ -215,7 +190,7 @@
   <div class="box red" style="margin-bottom:.6em">
     <span class="lbl">VẤN ĐỀ — CountVectorizer mặc định vỡ từ ghép</span>
     <span class="chip">"trầy xước"</span> → tách theo khoảng trắng → <span class="chip">"trầy"</span> + <span class="chip">"xước"</span> — hai âm tiết <em>vô nghĩa riêng lẻ</em><br>
-    → bước chiếu từ lên trục (W = V·Cᵀ) sẽ sai ngay từ đầu vào
+    → Bước mã hoá từ vựng V (W = V·Cᵀ) cho kết quả sai
   </div>
   <div style="background:#1e293b;border-radius:8px;padding:.8em 1.1em;margin:.5em 0;font-family:ui-monospace,Menlo,monospace;font-size:.72em;color:#e2e8f0;line-height:1.7">
     <span style="color:#94a3b8"># Tiền xử lý bắt buộc cho tiếng Việt</span><br>
@@ -225,8 +200,9 @@
   </div>
   <div class="box green">
     <span class="lbl">GIẢI PHÁP — pyvi ViTokenizer</span>
-    Nối âm tiết bằng <span class="chip">_</span> để CountVectorizer coi đó là một token duy nhất, đổi thêm <span class="chip">token_pattern=r"(?u)\b[^\W\d][^\W]*\b"</span> để giữ được dấu gạch dưới.<br>
-    <b>Thay đổi bắt buộc</b> so với paper gốc, vốn chỉ thử nghiệm trên tiếng Anh.
+    Nối âm tiết bằng <span class="chip">_</span> → CountVectorizer giữ nguyên là 1 token.<br>
+    <span class="chip">token_pattern=r"(?u)\b[^\W\d][^\W]*\b"</span> để giữ underscore.<br>
+    <b>Thay đổi bắt buộc — paper gốc chỉ thử nghiệm tiếng Anh.</b>
   </div>
 </section>
 
@@ -237,11 +213,13 @@
   <div class="cols" style="gap:.8em;margin-bottom:.8em">
     <div class="box cyan" style="flex:1">
       <span class="lbl">CafeBERT (uitnlp/CafeBERT)</span>
-      BERT masked-LM pretrained cho tiếng Việt. <b>Không phải</b> sentence embedder — cần tự cài masked-mean pooling và chuẩn hoá L2.
+      BERT masked-LM pretrained tiếng Việt.<br>
+      <b>Không phải</b> sentence embedder → tự cài masked-mean pooling + L2 normalize.
     </div>
     <div class="box green" style="flex:1">
       <span class="lbl">multilingual-E5-base (intfloat/)</span>
-      Sentence-transformer đầy đủ, có sẵn pooling và chuẩn hoá. Thêm tiền tố <span class="chip">"query: "</span> theo quy ước của E5.
+      Sentence-transformer thật — pooling &amp; normalize sẵn.<br>
+      Thêm prefix <span class="chip">"query: "</span> theo convention E5.
     </div>
   </div>
   <table>
@@ -252,7 +230,7 @@
       <tr><td>BGE-M3 (đối chứng)</td><td class="num lose">69,6</td><td class="num">0,719</td><td class="num">0,898</td></tr>
     </tbody>
   </table>
-  <p style="font-size:.65em;color:var(--muted);margin-top:.4em">ViSFD, n_topics=40, AUC trung bình trên 11 khía cạnh. E5 nhanh hơn CafeBERT 1,6 lần và có AUC cao hơn — được chọn làm encoder mặc định cho các thực nghiệm còn lại.</p>
+  <p style="font-size:.65em;color:var(--muted);margin-top:.4em">ViSFD · n_topics=40 · AUC trung bình 11 khía cạnh. E5 vừa nhanh hơn 1,6× vừa AUC cao hơn → dùng làm encoder mặc định.</p>
 </section>
 
 <!-- ────────────────────────── SLIDE 8 — BENCHMARK SETUP ────────────────────────── -->

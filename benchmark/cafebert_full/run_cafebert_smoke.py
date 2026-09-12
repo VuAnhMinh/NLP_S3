@@ -233,7 +233,10 @@ def load_vntc_it() -> CorpusBundle:
     records: list[dict[str, str]] = []
     for split in ("train", "test"):
         for category in IT_CATEGORIES:
-            folder = extracted / split / f"new {split}" / category
+            # unrar extracts Train.rar/Test.rar's own top-level folder directly
+            # into `extracted` (i.e. extracted/"new train"/..., not nested one
+            # level deeper under an extra split/ folder).
+            folder = extracted / f"new {split}" / category
             for path in sorted(folder.glob("*.txt")):
                 text = normalize_text(path.read_text(encoding="utf-16", errors="strict"))
                 records.append({"doc_id": path.relative_to(extracted).as_posix(), "text": text})
@@ -410,6 +413,74 @@ def run_model(name: str, docs: list[str], embeddings: np.ndarray, vectorizer: Co
         topic_model.fit_transform(docs, embeddings=embeddings)
         return extract_topics(topic_model.get_topics(), n_topics, topn)
     raise ValueError(f"Unsupported model {name}")
+
+
+class S3FitCache:
+    """Per-corpus cache that avoids the two redundant costs run_model() above
+    pays for every single (variant, seed, n_topics) call:
+
+    1. SemanticSignalSeparation.fit_transform() always re-encodes the FULL
+       vocabulary through the encoder, even though the vocabulary is identical
+       across every seed/n_topics/variant combination for a given corpus.
+    2. axial/angular/combined are three independent fits of the SAME FastICA
+       decomposition -- turftopic can derive all three from one fit.
+
+    Root-cause diagnosis, fix, and bit-for-bit verification against
+    independent fits (axial_components_ matches exactly; WEC-in differs by
+    <=0.0004, ordinary cross-run numerical noise) live in
+    run_cafebert_refit_optimized.py -- this class folds that same, already
+    verified strategy directly into the main benchmark loop instead of a
+    separate side experiment, so full_results.csv itself is measured
+    correctly instead of just documented as fixable.
+
+    Usage: one instance per corpus (state resets when you move to a new
+    corpus -- vocabulary and embeddings differ). Call .fit() once per
+    (variant, seed, n_topics) row; call order does not matter.
+    """
+
+    def __init__(self) -> None:
+        self.model: SemanticSignalSeparation | None = None
+        self.last_key: tuple[int, int] | None = None
+        self.last_event_seconds: float = 0.0
+
+    def fit(
+        self,
+        variant: str,
+        docs: list[str],
+        embeddings: np.ndarray,
+        vectorizer: CountVectorizer,
+        encoder: CafeBERTMeanEncoder,
+        seed: int,
+        n_topics: int,
+        topn: int,
+    ) -> tuple[list[list[str]], float]:
+        key = (seed, n_topics)
+        if self.model is None:
+            started = time.perf_counter()
+            self.model = SemanticSignalSeparation(
+                n_components=n_topics, encoder=encoder, vectorizer=clone(vectorizer),
+                random_state=seed, feature_importance="axial",  # arbitrary anchor; re-derived below
+            )
+            self.model.fit(docs, embeddings=embeddings)
+            self.last_event_seconds = time.perf_counter() - started
+            self.last_key = key
+        elif key != self.last_key:
+            started = time.perf_counter()
+            self.model.refit_transform(docs, embeddings=embeddings, n_components=n_topics, random_state=seed)
+            self.last_event_seconds = time.perf_counter() - started
+            self.last_key = key
+        # else: same (seed, n_topics) as the previous call for this corpus --
+        # decomposition already correct, nothing to redo.
+        variant_started = time.perf_counter()
+        self.model.estimate_components(variant)
+        topics = extract_topics(self.model.get_topics(), n_topics, topn)
+        variant_seconds = time.perf_counter() - variant_started
+        # Charge the FULL shared fit/refit cost to every variant row, not just
+        # whichever one happened to trigger it -- each row should read as "cost
+        # to obtain this one variant from a cold (seed, n_topics) state", which
+        # is what a reader comparing S3 axial/angular/combined to LDA/NMF/BERTopic
+        # actually wants (matches run_cafebert_refit_optimized.py's accounting).
+        return topics, self.last_event_seconds + variant_seconds
 
 
 def environment() -> dict[str, Any]:

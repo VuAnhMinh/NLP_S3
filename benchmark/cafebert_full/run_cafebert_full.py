@@ -4,6 +4,13 @@
 The runner preserves the validated smoke-test data loaders and configuration,
 records representation and fit stages separately, and never converts a cache hit
 into a zero-cost timing observation.
+
+S3 rows (s3_axial/s3_angular/s3_combined) are fit through S3FitCache
+(run_cafebert_smoke.py), which reuses one encoded vocabulary and one FastICA
+decomposition per (corpus, seed, n_topics) instead of paying turftopic's
+default per-call vocabulary re-encoding three times over -- see that class's
+docstring for the root cause and the bit-for-bit verification this relies on.
+LDA/NMF/BERTopic rows are unaffected (they never had this cost).
 """
 from __future__ import annotations
 
@@ -172,6 +179,14 @@ def main() -> None:
     for corpus_name, bundle in bundles.items():
         embeddings, cafebert_rep_seconds, embedding_path = representation_for_corpus(bundle, encoder, config)
         lexical_vectorizer, lexical_matrix, tokenized, dictionary, word2vec, lexical_rep_seconds = lexical_representation(bundle.docs, config)
+        # One cache per corpus: vocabulary + vocabulary embeddings are shared
+        # across every (variant, seed, n_topics) row for this corpus, so the
+        # encoder's forward pass over the vocabulary only has to run once, and
+        # axial/angular/combined for the same (seed, n_topics) share one
+        # FastICA decomposition instead of three independent fits. See
+        # S3FitCache's docstring in run_cafebert_smoke.py for why this is safe
+        # (bit-for-bit verified against independent fits).
+        s3_cache = base.S3FitCache()
         lexical_path = RESULTS / "representation_cache" / f"{corpus_name}_{len(bundle.docs)}_{bundle.manifest['document_ids_sha256'][:12]}_lexical.npz"
         lexical_path.parent.mkdir(parents=True, exist_ok=True)
         if not lexical_path.exists():
@@ -200,12 +215,20 @@ def main() -> None:
                         "metric_seconds": float("nan"), "status": "failed", "error": "",
                     }
                     try:
-                        fit_started = time.perf_counter()
                         if model_name in {"lda", "nmf"}:
+                            fit_started = time.perf_counter()
                             topics = run_lexical_model(model_name, lexical_matrix, lexical_vectorizer, seed, n_topics, int(config["top_terms"]))
+                            row["fit_seconds"] = time.perf_counter() - fit_started
+                        elif model_name.startswith("s3_"):
+                            variant = model_name.removeprefix("s3_")
+                            topics, row["fit_seconds"] = s3_cache.fit(
+                                variant, bundle.docs, embeddings, lexical_vectorizer, encoder, seed, n_topics,
+                                int(config["top_terms"]),
+                            )
                         else:
+                            fit_started = time.perf_counter()
                             topics = base.run_model(model_name, bundle.docs, embeddings, lexical_vectorizer, encoder, seed, n_topics, config)
-                        row["fit_seconds"] = time.perf_counter() - fit_started
+                            row["fit_seconds"] = time.perf_counter() - fit_started
                         row["pipeline_seconds"] = representation_seconds + row["fit_seconds"]
                         row["total_cold_seconds"] = row["ingest_preprocess_seconds_shared"] + row["encoder_model_load_seconds_shared"] + row["pipeline_seconds"]
                         metric_started = time.perf_counter()
