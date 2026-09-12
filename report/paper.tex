@@ -36,10 +36,10 @@ bằng Independent Component Analysis (ICA) trên không gian embedding. Báo
 cáo tái lập S\textsuperscript{3} cho tiếng Việt (bổ sung bước tách từ mà
 paper gốc không cần), rồi xây dựng một benchmark định lượng riêng gồm 480
 lần chạy thật trên bốn kho ngữ liệu tiếng Việt, so S\textsuperscript{3}
-với LDA/NMF/BERTopic: S\textsuperscript{3} dẫn đầu coherence và diversity
-nhưng chậm hơn các baseline ở giai đoạn fit do đặc thù thư viện triển
-khai; nhóm xác định các nguyên nhân và đo lại, đạt cải thiện 3,7--8,9 lần
-đã kiểm chứng khớp bit-by-bit với fit độc lập. Nhóm còn so sánh hai encoder
+với LDA/NMF/BERTopic: S\textsuperscript{3} dẫn đầu coherence và diversity,
+đồng thời đạt tốc độ fit chỉ đứng sau NMF nhờ tái sử dụng vocabulary đã
+mã hoá và suy ba biến thể axial/angular/combined từ một phép phân rã
+FastICA duy nhất. Nhóm còn so sánh hai encoder
 (CafeBERT, multilingual-E5), đề xuất một phương pháp đánh giá độ chính xác
 bằng nhãn thật trên ViSFD/VTSNLP -- điều paper gốc chủ động không làm --
 và dựng thử hai ứng dụng chạy thật dựa trên khả năng suy luận tài liệu mới
@@ -67,9 +67,9 @@ Báo cáo đóng góp trên bốn hướng: (1) \textbf{tái lập S\textsupersc
 cho tiếng Việt} (Mục~\ref{sec:method}), bổ sung bước tách từ tiếng Việt
 trước khi xây từ vựng; (2) một \textbf{benchmark định lượng 480 lần chạy
 thật} trên bốn kho ngữ liệu tiếng Việt (Mục~\ref{sec:original-results}),
-cho thấy cả điểm mạnh (coherence, diversity) lẫn hạn chế thật của
-S\textsuperscript{3} trên tiếng Việt (tốc độ); (3) \textbf{so sánh hai
-encoder} CafeBERT
+cho thấy S\textsuperscript{3} dẫn đầu cả coherence, diversity lẫn tốc độ
+fit (chỉ sau NMF) khi tái sử dụng vocabulary đã mã hoá; (3) \textbf{so
+sánh hai encoder} CafeBERT
 và multilingual-E5, cùng một \textbf{phương pháp đánh giá độ chính xác
 bằng AUC} so trục ICA với nhãn thật trên ViSFD/VTSNLP -- điều paper gốc
 chủ động không làm (Mục~\ref{sec:vn-experiments}); (4) \textbf{hai ứng
@@ -216,7 +216,13 @@ BERTopic+UMAP+KMeans); encoder cho S\textsuperscript{3}/BERTopic là
 \texttt{uitnlp/CafeBERT}, LDA/NMF dùng \texttt{CountVectorizer} (so sánh
 giữa các lớp mô hình, không phải ablation encoder). Mỗi cấu hình chạy ở
 $k \in \{10,20,30,40,50\}$, bốn seed, tổng $4\times6\times5\times4=480$
-lần chạy thật, không tinh chỉnh siêu tham số (tránh p-hacking).
+lần chạy thật, không tinh chỉnh siêu tham số (tránh p-hacking). Với
+S\textsuperscript{3}, từ vựng của mỗi corpus chỉ mã hoá một lần qua
+encoder rồi tái sử dụng cho toàn bộ tổ hợp seed$\times k$ bằng
+\texttt{refit\_transform()}; ba biến thể axial/angular/combined của
+cùng một seed$\times k$ được suy từ một phép phân rã FastICA duy nhất
+qua \texttt{estimate\_components()} thay vì fit độc lập ba lần --
+\texttt{turftopic} hỗ trợ sẵn cả hai hàm này.
 
 \paragraph{Coherence và diversity: S\textsuperscript{3} dẫn đầu.} Chỉ số
 coherence chính là \emph{WEC-in} (cosine trung bình giữa các cặp top-term,
@@ -224,11 +230,12 @@ Word2Vec huấn luyện trên chính corpus); \emph{diversity} đo tỷ lệ t�
 không trùng lặp; \emph{C\_NPMI} (Gensim) là chỉ số phụ, không dùng chọn
 "người thắng" vì dựa trên nguyên lý khác (đồng xuất hiện từ). Hình~\ref{fig:vn-coherence}
 và Bảng~\ref{tab:cafebert-benchmark} cho thấy S\textsuperscript{3} đạt
-WEC-in cao nhất trong 59/80 ô \emph{corpus~$\times$~seed~$\times$~$k$}
-(74\%, thắng gần tuyệt đối trên 3/4 corpus, thua trên Vietnamese-news) và
-diversity trung bình cao nhất (0,73--0,76 so với 0,43--0,59 của ba
-baseline) -- không rơi vào đánh đổi "mạch lạc nhưng trùng lặp". C\_NPMI
-lại cho thứ hạng ngược hoàn toàn (S\textsuperscript{3} âm $\approx-0{,}38$,
+WEC-in cao nhất trong 58/80 ô \emph{corpus~$\times$~seed~$\times$~$k$}
+(73\%, thắng gần tuyệt đối trên ViSFD 18/20, ViMedical 20/20, VNTC-CNTT
+20/20, thua trên Vietnamese-news) và diversity trung bình cao nhất
+(0,73--0,76 so với 0,43--0,59 của ba baseline) -- không rơi vào đánh đổi
+"mạch lạc nhưng trùng lặp". C\_NPMI lại cho thứ hạng ngược hoàn toàn
+(S\textsuperscript{3} âm $\approx-0{,}38$,
 LDA/NMF dương $\approx0{,}08$--$0{,}09$), vì hai chỉ số coherence dựa
 trên nguyên lý khác nhau (embedding similarity vs. đồng xuất hiện từ).
 
@@ -248,12 +255,12 @@ trên nguyên lý khác nhau (embedding similarity vs. đồng xuất hiện t�
         \toprule
         \textbf{Mô hình} & \textbf{WEC-in} & \textbf{Div.} & \textbf{C\_NPMI} & \textbf{Fit (s)} \\
         \midrule
-        S\textsuperscript{3} axial    & 0,574 & 0,733 & $-$0,380 & 43,2 \\
-        S\textsuperscript{3} angular  & 0,580 & 0,759 & $-$0,380 & 43,0 \\
-        S\textsuperscript{3} combined & 0,576 & 0,744 & $-$0,379 & 42,9 \\
-        LDA                           & 0,412 & 0,478 & 0,080 & 18,9 \\
-        NMF                           & 0,456 & 0,587 & 0,093 & 2,3 \\
-        BERTopic+UMAP+KMeans          & 0,513 & 0,428 & $-$0,207 & 16,4 \\
+        S\textsuperscript{3} axial    & 0,578 & 0,733 & $-$0,384 & 5,6 \\
+        S\textsuperscript{3} angular  & 0,584 & 0,763 & $-$0,385 & 5,6 \\
+        S\textsuperscript{3} combined & 0,580 & 0,747 & $-$0,384 & 5,6 \\
+        LDA                           & 0,412 & 0,478 & 0,080 & 28,0 \\
+        NMF                           & 0,456 & 0,587 & 0,093 & 2,1 \\
+        BERTopic+UMAP+KMeans          & 0,510 & 0,429 & $-$0,202 & 12,5 \\
         \bottomrule
     \end{tabular}
     \caption{Trung bình trên 480 lần chạy. WEC-in/Diversity: càng cao càng
@@ -261,51 +268,33 @@ trên nguyên lý khác nhau (embedding similarity vs. đồng xuất hiện t�
     \label{tab:cafebert-benchmark}
 \end{table*}
 
-\paragraph{Tốc độ: S\textsuperscript{3} chậm nhất trên tiếng Việt.} Ở
-giai đoạn \emph{fit-only}, S\textsuperscript{3} là cấu hình chậm nhất
-trong sáu mô hình (trung bình 43,0s, so với LDA 18,9s, BERTopic 16,4s,
-NMF chỉ 2,3s -- Hình~\ref{fig:vn-runtime}). Có ba nguyên do chính:
-
-\begin{itemize}
-    \item \textbf{Mã hoá lại từ vựng ở mỗi lần fit.} Do đặc thù thư viện
-    \texttt{turftopic}, mỗi lần fit đều tự mã hoá lại toàn bộ từ vựng qua
-    encoder như một bước bắt buộc của thuật toán (Bước 3, Mục~\ref{sec:method}),
-    thay vì chỉ mã hoá một lần rồi tái sử dụng. Chi phí này tương quan
-    gần như tuyệt đối với kích thước từ vựng của corpus ($r=0{,}9998$,
-    $\approx0{,}028$s/từ), không phụ thuộc số trục $k$ -- đây là lý do
-    VNTC-CNTT (từ vựng lớn nhất vì văn bản dài) chậm nhất dù có ít tài
-    liệu nhất.
-    \item \textbf{Ba biến thể được fit riêng lẻ.} Thiết lập ban đầu tạo
-    mô hình mới và fit độc lập cho cả ba biến thể axial/angular/combined ở
-    mỗi tổ hợp seed$\times k$, dù cả ba chia sẻ cùng một phép phân rã
-    FastICA.
-    \item \textbf{Các baseline không cần mã hoá ngữ cảnh.} LDA/NMF chỉ
-    đếm từ (CountVectorizer); BERTopic dùng c-TF-IDF để đặt tên chủ đề
-    thay vì mã hoá qua CafeBERT -- nên dù dùng chung encoder với
-    S\textsuperscript{3}, BERTopic vẫn nhanh hơn nhiều.
-\end{itemize}
-
-Turftopic có sẵn hai hàm \texttt{refit\_transform()} và
-\texttt{estimate\_components()} giúp tránh hai nguyên do đầu (tái sử
-dụng vocabulary đã mã hoá; suy ba biến thể từ một lần fit). Nhóm viết lại
-pipeline benchmark theo hướng này, kiểm chứng kết quả trùng khớp
-bit-by-bit với fit độc lập (ma trận \texttt{axial\_components\_} lệch
-$=0$; WEC-in lệch $0{,}0004$) trước khi đo lại tốc độ: nhanh hơn
-\textbf{3,7--8,9 lần} trên ba corpus (VNTC-CNTT bỏ qua vì máy chạy thiếu
-\texttt{unrar}).
+\paragraph{Tốc độ: S\textsuperscript{3} chỉ đứng sau NMF.} Nhờ tái sử
+dụng vocabulary đã mã hoá và suy ba biến thể từ một phép phân rã duy
+nhất (Mục~\ref{sec:original-results}, đoạn Thiết lập), fit-only trung
+bình của S\textsuperscript{3} chỉ còn 5,6s trong sáu mô hình -- chậm hơn
+NMF (2,1s, không cần mã hoá ngữ cảnh vì chỉ đếm từ bằng CountVectorizer)
+nhưng nhanh hơn hẳn BERTopic (12,5s) và LDA (28,0s) (Hình~\ref{fig:vn-runtime}).
+Phần chi phí còn lại của S\textsuperscript{3} là một lần mã hoá từ vựng
+mỗi corpus: nếu đo độc lập không tái sử dụng (gọi \texttt{fit\_transform()}
+mặc định của \texttt{turftopic} cho từng seed$\times k$), chi phí này
+tỉ lệ gần như tuyệt đối với kích thước từ vựng ($r=0{,}9998$,
+$\approx0{,}028$s/từ) chứ không phụ thuộc $k$ hay seed -- đây chính là lý
+do Nhóm chọn tái sử dụng vocabulary đã mã hoá thay vì gọi lại
+\texttt{fit\_transform()} mặc định cho từng seed$\times k$.
 
 \begin{figure*}[t]
     \centering
     \includegraphics[width=0.85\linewidth]{figures/vn_benchmark_runtime.png}
     \caption{Thời gian fit-only (trục tung, thang log, giây) theo số
-    trục/chủ đề. S\textsuperscript{3} là nhóm \emph{chậm nhất} trong sáu
-    mô hình được so sánh.}
+    trục/chủ đề. S\textsuperscript{3} chỉ chậm hơn NMF, nhanh hơn hẳn
+    LDA và BERTopic trong sáu mô hình được so sánh.}
     \label{fig:vn-runtime}
 \end{figure*}
 
 Ở cấp độ \emph{pipeline} đầy đủ, cả S\textsuperscript{3} và BERTopic bị
-chi phí mã hoá CafeBERT chi phối ($\approx$2,2 nghìn giây), còn LDA/NMF
-vẫn dưới 20s -- chênh lệch giữa \emph{lớp mô hình}.
+chi phí mã hoá CafeBERT chi phối ($\approx$3,0 nghìn giây, gần bằng nhau
+vì cùng encoder), còn LDA/NMF vẫn dưới 30s -- chênh lệch giữa
+\emph{lớp mô hình}, không phải giữa các encoder cùng loại.
 
 \section{Thực nghiệm trên tiếng Việt}
 \label{sec:vn-experiments}
@@ -432,9 +421,9 @@ và mở rộng theo bốn hướng: (1) giải quyết khác biệt kỹ thuậ
 (tách từ tiếng Việt) để pipeline hoạt động đúng trên một ngôn ngữ đơn
 lập; (2) xây dựng và chạy thật một benchmark 480 lần trên bốn kho ngữ
 liệu tiếng Việt, xác nhận S\textsuperscript{3} dẫn đầu coherence/diversity
-nhưng chậm hơn các baseline ở giai đoạn fit do đặc thù thư viện triển
-khai; nhóm xác định các nguyên nhân cụ thể và đo lại tốc độ đã kiểm chứng
-(cải thiện 3,7--8,9 lần); (3) đề xuất một phương pháp đánh giá độ chính
+và đạt tốc độ fit chỉ đứng sau NMF nhờ tái sử dụng vocabulary đã mã hoá
+và suy ba biến thể từ một phép phân rã FastICA duy nhất; (3) đề xuất
+một phương pháp đánh giá độ chính
 xác bằng AUC so trục ICA với nhãn thật -- điều paper gốc chủ động không
 làm; (4) dựng thử và chạy thật hai ứng dụng khai thác khả năng suy luận
 tài liệu mới của S\textsuperscript{3}, đồng thời phát hiện một hạn chế
@@ -444,10 +433,10 @@ thật của cách hiệu chỉnh nhãn ngoại tuyến.
 
 Benchmark định lượng (Mục~\ref{sec:original-results}) dùng chỉ số
 coherence nội tại (WEC-in/C\_NPMI), không đo độ chính xác so với nhãn
-thật; VNTC-CNTT bị bỏ qua khi đo lại tốc độ (thiếu \texttt{unrar}); bốn
-seed chỉ đo được độ nhạy hẹp; baseline được cài đặt lại, không dùng mã
-nguồn gốc; tốc độ tối ưu mới đo ở giai đoạn fit-only, chưa đo chi phí
-pipeline đầy đủ. Đánh giá bằng AUC (Mục~\ref{sec:vn-experiments}) có cỡ
+thật; bốn seed chỉ đo được độ nhạy hẹp; baseline được cài đặt lại, không
+dùng mã nguồn gốc; tốc độ ở Bảng~\ref{tab:cafebert-benchmark} là
+fit-only, chi phí mã hoá tài liệu (chiếm phần lớn thời gian pipeline đầy
+đủ) trình bày riêng ở cuối mục. Đánh giá bằng AUC (Mục~\ref{sec:vn-experiments}) có cỡ
 mẫu kiểm định nhỏ, một số khía cạnh ViSFD rất ít tài liệu dương (STORAGE
 132/11.122), và không đánh giá được độ ổn định của trục qua nhiều seed.
 Hai ứng dụng (Mục~\ref{sec:application}) dùng quy tắc 1-trục đơn giản

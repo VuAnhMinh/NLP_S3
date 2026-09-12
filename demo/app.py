@@ -256,8 +256,7 @@ st.title("Các trục ngữ nghĩa của model đang chọn")
 st.write(
     f"{len(topics)} trục đã được xác định bằng cách chấm điểm toàn bộ từ vựng qua "
     "`ica.transform()` (Công thức 5--6 của paper) và lấy từ khoá cực trị nhất mỗi cực -- "
-    "đọc cột dưới để suy ra ý nghĩa từng trục, hoặc dùng mục 'Xác định trục theo khái niệm' "
-    "bên dưới để kiểm tra trực tiếp bằng từ khoá của riêng bạn."
+    "đọc cột dưới để suy ra ý nghĩa từng trục."
 )
 axis_table = pd.DataFrame(
     {
@@ -305,51 +304,6 @@ if run and text.strip():
     render_axis_scores(scores, topics, topics_negative, has_negative, key_prefix="doc")
 elif run:
     st.warning("Nhập văn bản trước đã.")
-
-# --- Xác định trục theo khái niệm / từ khoá ------------------------------------
-st.markdown("---")
-st.title("Xác định trục theo khái niệm")
-st.write(
-    "Thay vì đoán trục qua đọc từ khoá, kiểm tra trực tiếp: gộp vài từ khoá cùng nghĩa "
-    "(vd. *pin, sạc, dung lượng pin, hết pin nhanh*) thành một vector khái niệm rồi chiếu lên "
-    "các trục -- trục nào điểm cao nhất là trục khớp nhất với khái niệm đó."
-)
-keyword_text = st.text_input(
-    "Từ khoá / cụm từ (cách nhau bằng dấu phẩy)",
-    placeholder="pin, sạc, dung lượng pin, hết pin nhanh",
-)
-check = st.button("Kiểm tra trục", type="primary")
-
-if check and keyword_text.strip():
-    keywords = [k.strip() for k in keyword_text.split(",") if k.strip()]
-    encoder = get_encoder(meta.get("encoder", "uitnlp/CafeBERT"), meta.get("encoder_kind", "cafebert"))
-    keyword_embeddings = encoder.encode(keywords, "keywords")
-    concept_embedding = keyword_embeddings.mean(axis=0, keepdims=True)
-    concept_scores = ckpt.ica.transform(concept_embedding)[0]
-    individual_scores = ckpt.ica.transform(keyword_embeddings)  # (n_keywords, n_topics)
-
-    if len(keywords) > 1:
-        best_axis_per_keyword = individual_scores.argmax(axis=1)
-        agree_df = pd.DataFrame(
-            {
-                "Từ khoá": keywords,
-                "Trục khớp nhất": [f"Topic {i}" for i in best_axis_per_keyword],
-                "Điểm": individual_scores[range(len(keywords)), best_axis_per_keyword],
-            }
-        )
-        n_agree = pd.Series(best_axis_per_keyword).nunique()
-        if n_agree == 1:
-            st.success(f"Cả {len(keywords)} từ khoá đều trỏ về cùng một trục -- khái niệm khá rõ ràng.")
-        else:
-            st.warning(
-                f"{len(keywords)} từ khoá trỏ về {n_agree} trục khác nhau -- khái niệm có thể trải "
-                "trên nhiều trục thay vì gói gọn trong một trục duy nhất."
-            )
-        st.dataframe(agree_df, use_container_width=True, hide_index=True)
-
-    render_axis_scores(concept_scores, topics, topics_negative, has_negative, key_prefix="concept")
-elif check:
-    st.warning("Nhập ít nhất một từ khoá trước đã.")
 
 # --- Giám sát & Cảnh báo --------------------------------------------------------
 st.markdown("---")

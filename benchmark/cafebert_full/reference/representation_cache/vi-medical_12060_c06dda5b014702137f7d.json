@@ -1,0 +1,16 @@
+{
+  "cold_representation_seconds": 2352.0463493999996,
+  "fingerprint": {
+    "corpus": "vi-medical",
+    "document_ids_sha256": "15f5601e6cb64d461ded353f61131a7395abd361ca4fce9959f42a19b966d614",
+    "encoder": {
+      "checkpoint": "uitnlp/CafeBERT",
+      "pooling": "attention_mask_mean",
+      "normalize_embeddings": true,
+      "max_length": 256,
+      "batch_size": 32,
+      "batch_ordering": "ascending_character_length_restore_original_order",
+      "dtype": "float32"
+    }
+  }
+}

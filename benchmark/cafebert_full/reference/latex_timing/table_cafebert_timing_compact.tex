@@ -7,12 +7,12 @@
 \toprule
 Method & Fit + topics & Pipeline cold-ref & Total cold \\
 \midrule
-S$^3$ axial & 7.09 $\pm$ 0.60 & 128.65 $\pm$ 0.60 & 144.54 $\pm$ 21.78 \\
-S$^3$ angular & 7.42 $\pm$ 1.48 & 128.99 $\pm$ 1.48 & 144.88 $\pm$ 22.68 \\
-S$^3$ combined & 6.87 $\pm$ 0.53 & 128.43 $\pm$ 0.53 & 144.33 $\pm$ 21.72 \\
-LDA & 0.80 $\pm$ 0.06 & 0.82 $\pm$ 0.06 & 4.26 $\pm$ 4.62 \\
-NMF & 0.28 $\pm$ 0.03 & 0.29 $\pm$ 0.03 & 3.74 $\pm$ 4.56 \\
-BERTopic + UMAP + KMeans & 3.64 $\pm$ 1.39 & 125.21 $\pm$ 1.39 & 141.10 $\pm$ 22.21 \\
+S$^3$ axial & 0.70 $\pm$ 0.65 & 93.79 $\pm$ 0.65 & 99.96 $\pm$ 0.65 \\
+S$^3$ angular & 0.70 $\pm$ 0.65 & 93.79 $\pm$ 0.65 & 99.97 $\pm$ 0.65 \\
+S$^3$ combined & 0.71 $\pm$ 0.65 & 93.79 $\pm$ 0.65 & 99.97 $\pm$ 0.65 \\
+LDA & 0.60 $\pm$ 0.00 & 0.61 $\pm$ 0.00 & 2.57 $\pm$ 0.00 \\
+NMF & 0.17 $\pm$ 0.03 & 0.17 $\pm$ 0.03 & 2.14 $\pm$ 0.03 \\
+BERTopic + UMAP + KMeans & 2.37 $\pm$ 0.81 & 95.45 $\pm$ 0.81 & 101.63 $\pm$ 0.81 \\
 \bottomrule
 \end{tabular}}
 \caption{Stage-wise runtime on Vietnamese-news. Seconds, mean $\pm$ sample SD over four seeds; each seed is averaged over five $k$ values.}
@@ -27,12 +27,12 @@ BERTopic + UMAP + KMeans & 3.64 $\pm$ 1.39 & 125.21 $\pm$ 1.39 & 141.10 $\pm$ 22
 \toprule
 Method & Fit + topics & Pipeline cold-ref & Total cold \\
 \midrule
-S$^3$ axial & 46.95 $\pm$ 0.42 & 3086.23 $\pm$ 0.42 & 3102.13 $\pm$ 21.22 \\
-S$^3$ angular & 46.56 $\pm$ 0.43 & 3085.85 $\pm$ 0.43 & 3101.74 $\pm$ 21.60 \\
-S$^3$ combined & 46.26 $\pm$ 0.62 & 3085.54 $\pm$ 0.62 & 3101.44 $\pm$ 21.46 \\
-LDA & 25.70 $\pm$ 0.63 & 25.94 $\pm$ 0.65 & 29.38 $\pm$ 5.09 \\
-NMF & 1.86 $\pm$ 0.36 & 2.10 $\pm$ 0.35 & 5.54 $\pm$ 4.55 \\
-BERTopic + UMAP + KMeans & 24.33 $\pm$ 1.80 & 3063.62 $\pm$ 1.80 & 3079.51 $\pm$ 22.41 \\
+S$^3$ axial & 6.54 $\pm$ 5.49 & 3985.97 $\pm$ 5.49 & 3992.15 $\pm$ 5.49 \\
+S$^3$ angular & 6.55 $\pm$ 5.49 & 3985.97 $\pm$ 5.49 & 3992.15 $\pm$ 5.49 \\
+S$^3$ combined & 6.55 $\pm$ 5.49 & 3985.97 $\pm$ 5.49 & 3992.15 $\pm$ 5.49 \\
+LDA & 19.79 $\pm$ 0.34 & 19.97 $\pm$ 0.34 & 21.93 $\pm$ 0.34 \\
+NMF & 1.47 $\pm$ 0.36 & 1.65 $\pm$ 0.36 & 3.61 $\pm$ 0.36 \\
+BERTopic + UMAP + KMeans & 17.94 $\pm$ 1.29 & 3997.37 $\pm$ 1.29 & 4003.54 $\pm$ 1.29 \\
 \bottomrule
 \end{tabular}}
 \caption{Stage-wise runtime on UIT-ViSFD. Seconds, mean $\pm$ sample SD over four seeds; each seed is averaged over five $k$ values.}
@@ -47,12 +47,12 @@ BERTopic + UMAP + KMeans & 24.33 $\pm$ 1.80 & 3063.62 $\pm$ 1.80 & 3079.51 $\pm$
 \toprule
 Method & Fit + topics & Pipeline cold-ref & Total cold \\
 \midrule
-S$^3$ axial & 28.80 $\pm$ 0.36 & 1803.35 $\pm$ 0.36 & 1819.24 $\pm$ 21.13 \\
-S$^3$ angular & 28.20 $\pm$ 0.33 & 1802.75 $\pm$ 0.33 & 1818.64 $\pm$ 21.51 \\
-S$^3$ combined & 28.22 $\pm$ 0.37 & 1802.76 $\pm$ 0.37 & 1818.66 $\pm$ 21.50 \\
-LDA & 21.39 $\pm$ 0.23 & 21.54 $\pm$ 0.23 & 24.98 $\pm$ 4.76 \\
-NMF & 3.05 $\pm$ 0.02 & 3.20 $\pm$ 0.03 & 6.65 $\pm$ 4.59 \\
-BERTopic + UMAP + KMeans & 11.62 $\pm$ 0.07 & 1786.17 $\pm$ 0.07 & 1802.06 $\pm$ 21.24 \\
+S$^3$ axial & 8.53 $\pm$ 3.23 & 2360.58 $\pm$ 3.23 & 2366.76 $\pm$ 3.23 \\
+S$^3$ angular & 8.54 $\pm$ 3.23 & 2360.58 $\pm$ 3.23 & 2366.76 $\pm$ 3.23 \\
+S$^3$ combined & 8.54 $\pm$ 3.23 & 2360.58 $\pm$ 3.23 & 2366.76 $\pm$ 3.23 \\
+LDA & 17.81 $\pm$ 0.17 & 18.15 $\pm$ 0.17 & 20.11 $\pm$ 0.17 \\
+NMF & 3.69 $\pm$ 0.66 & 4.02 $\pm$ 0.66 & 5.98 $\pm$ 0.66 \\
+BERTopic + UMAP + KMeans & 9.97 $\pm$ 0.26 & 2362.01 $\pm$ 0.26 & 2368.19 $\pm$ 0.26 \\
 \bottomrule
 \end{tabular}}
 \caption{Stage-wise runtime on ViMedical Disease. Seconds, mean $\pm$ sample SD over four seeds; each seed is averaged over five $k$ values.}
@@ -67,12 +67,12 @@ BERTopic + UMAP + KMeans & 11.62 $\pm$ 0.07 & 1786.17 $\pm$ 0.07 & 1802.06 $\pm$
 \toprule
 Method & Fit + topics & Pipeline cold-ref & Total cold \\
 \midrule
-S$^3$ axial & 89.86 $\pm$ 0.65 & 4044.89 $\pm$ 0.65 & 4060.79 $\pm$ 21.61 \\
-S$^3$ angular & 89.83 $\pm$ 0.78 & 4044.86 $\pm$ 0.78 & 4060.75 $\pm$ 21.78 \\
-S$^3$ combined & 90.15 $\pm$ 0.49 & 4045.19 $\pm$ 0.49 & 4061.08 $\pm$ 21.54 \\
-LDA & 27.84 $\pm$ 0.34 & 28.54 $\pm$ 0.36 & 31.98 $\pm$ 4.83 \\
-NMF & 4.04 $\pm$ 0.03 & 4.74 $\pm$ 0.04 & 8.18 $\pm$ 4.58 \\
-BERTopic + UMAP + KMeans & 26.01 $\pm$ 0.07 & 3981.04 $\pm$ 0.07 & 3996.94 $\pm$ 21.14 \\
+S$^3$ axial & 6.49 $\pm$ 9.63 & 5638.29 $\pm$ 9.63 & 5644.47 $\pm$ 9.63 \\
+S$^3$ angular & 6.49 $\pm$ 9.63 & 5638.30 $\pm$ 9.63 & 5644.47 $\pm$ 9.63 \\
+S$^3$ combined & 6.49 $\pm$ 9.63 & 5638.30 $\pm$ 9.63 & 5644.47 $\pm$ 9.63 \\
+LDA & 73.74 $\pm$ 1.58 & 74.29 $\pm$ 1.58 & 76.26 $\pm$ 1.58 \\
+NMF & 2.94 $\pm$ 0.11 & 3.50 $\pm$ 0.11 & 5.46 $\pm$ 0.11 \\
+BERTopic + UMAP + KMeans & 19.65 $\pm$ 0.63 & 5651.45 $\pm$ 0.63 & 5657.63 $\pm$ 0.63 \\
 \bottomrule
 \end{tabular}}
 \caption{Stage-wise runtime on VNTC--CNTT. Seconds, mean $\pm$ sample SD over four seeds; each seed is averaged over five $k$ values.}

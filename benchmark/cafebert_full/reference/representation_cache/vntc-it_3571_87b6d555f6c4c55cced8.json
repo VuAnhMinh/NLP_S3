@@ -1,0 +1,16 @@
+{
+  "cold_representation_seconds": 5631.804003700003,
+  "fingerprint": {
+    "corpus": "vntc-it",
+    "document_ids_sha256": "5afd099ef11ba4e02ae098427f8f68a242b00bad2e8ad0726aa09f174164f53b",
+    "encoder": {
+      "checkpoint": "uitnlp/CafeBERT",
+      "pooling": "attention_mask_mean",
+      "normalize_embeddings": true,
+      "max_length": 256,
+      "batch_size": 32,
+      "batch_ordering": "ascending_character_length_restore_original_order",
+      "dtype": "float32"
+    }
+  }
+}

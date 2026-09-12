@@ -1,0 +1,16 @@
+{
+  "cold_representation_seconds": 93.08472159999656,
+  "fingerprint": {
+    "corpus": "vietnamese-news",
+    "document_ids_sha256": "4a69f5df5cc5cee9d68d807eca0f7d5d3c4bd2c42a1637f8e83d3247819a1c7d",
+    "encoder": {
+      "checkpoint": "uitnlp/CafeBERT",
+      "pooling": "attention_mask_mean",
+      "normalize_embeddings": true,
+      "max_length": 256,
+      "batch_size": 32,
+      "batch_ordering": "ascending_character_length_restore_original_order",
+      "dtype": "float32"
+    }
+  }
+}

@@ -2,7 +2,7 @@
   "corpus": "vntc-it",
   "language": "vi",
   "n_documents": 3571,
-  "document_ids_sha256": "6fbe5bfbdf1b963816a421668db82d426899d6689adcc353fde88d9d6ff61212",
+  "document_ids_sha256": "5afd099ef11ba4e02ae098427f8f68a242b00bad2e8ad0726aa09f174164f53b",
   "minimum_text_chars": 150,
   "source": {
     "repository": "https://github.com/duyvuleo/VNTC",
