@@ -383,16 +383,11 @@
 <!-- ────────────────────────── SLIDE 12b — GIỚI THIỆU ĐỘ ĐO AUC ────────────────────────── -->
 <section>
   <span class="section-banner">Phần 4 - Đánh giá thực tế</span>
-  <h2>Giới thiệu độ đo AUC</h2>
+  <h2>Giới thiệu độ đo ROC-AUC</h2>
   <div class="box amber" style="margin-bottom:.7em">
-    <span class="lbl">GIỚI THIỆU ĐỘ ĐO AUC</span>
-    <b>AUC</b> đo khả năng phân biệt (ranking) của một điểm số trên toàn bộ ngưỡng phân loại:
-    <ul style="margin:.3em 0 .3em 1.1em;padding:0">
-      <li><b>AUC gần 1</b>: phân biệt gần như hoàn hảo giữa mẫu dương và mẫu âm.</li>
-      <li><b>AUC = 0,5</b>: tương đương xếp hạng ngẫu nhiên (random ranking) — trục không mang thông tin phân biệt.</li>
-      <li><b>AUC dưới 0,5</b>: tệ hơn ngẫu nhiên — trục phân biệt ngược chiều so với nhãn.</li>
-    </ul>
-    Dấu của một trục ICA là <b>tuỳ ý</b> (đảo dấu vẫn là nghiệm tương đương), nên Nhóm đánh giá theo chiều tốt nhất:
+    <span class="lbl">GIỚI THIỆU ĐỘ ĐO ROC-AUC</span>
+    <b>ROC-AUC</b> (Receiver Operating Characteristic – Area Under the Curve) đo khả năng phân biệt của một điểm số trên mọi ngưỡng phân loại. <b>AUC gần 1</b>: gần như hoàn hảo. <b>AUC = 0,5</b>: xếp hạng mang tính ngẫu nhiên. <b>AUC dưới 0,5</b>: tệ hơn ngẫu nhiên.<br><br>
+    Do dấu một trục ICA là <b>tuỳ ý</b> (đảo dấu vẫn là nghiệm tương đương), Nhóm lấy chiều tốt nhất:
     <div class="formula" style="display:block;text-align:center;margin-top:.35em;font-size:1em">effective AUC = max(AUC, 1 − AUC)</div>
   </div>
 </section>
