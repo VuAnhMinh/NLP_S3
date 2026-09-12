@@ -336,7 +336,7 @@
 <!-- ────────────────────────── SLIDE 11 — REFIT ────────────────────────── -->
 <section>
   <span class="section-banner">Phần 3 — Thiết lập &amp; kết quả thực nghiệm</span>
-  <h2>Tối ưu tốc độ: refit_transform()</h2>
+  <h2>Tối ưu pipeline: Sử dụng cache</h2>
   <p style="text-align:center;margin:.3em 0 .6em;font-size:.9em">
     Speedup: <b style="font-size:1.25em">3,7×</b> <span style="color:var(--muted);font-size:.85em">Vietnamese-news</span>
     &nbsp;·&nbsp;
@@ -355,7 +355,7 @@
       <tr><td>LDA</td><td class="num">0,412</td><td class="num">0,478</td><td class="num">0,080</td><td class="num">18,9</td></tr>
     </tbody>
   </table>
-  <p style="font-size:.6em;color:var(--muted);margin-top:.3em">Bảng này lấy trung bình trên cả 480 lần chạy, là số liệu gốc trước khi tối ưu nên cột Fit(s) của S³ vẫn đang ~43s. Mức tăng tốc 3,7–8,9× là đo riêng sau khi sửa lại cách gọi thư viện (số liệu ở slide trước). C_NPMI của S³ ra âm là vì nó đo theo nguyên lý khác hẳn WEC-in — không dùng để chọn ai thắng ai thua.</p>
+  <p style="font-size:.6em;color:var(--muted);margin-top:.3em">*Trung bình trên cả 480 lần chạy.</p>
 </section>
 
 <!-- ────────────────────────── SLIDE 12 — PHƯƠNG PHÁP AUC ────────────────────────── -->
