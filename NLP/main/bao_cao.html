@@ -322,11 +322,11 @@
       <div style="position:absolute;bottom:0;left:0;right:0;font-size:.72em">
         <div class="box red" style="margin-bottom:.4em">
           <span class="lbl">TRÁI VỚI PAPER GỐC</span>
-          Paper gốc: S³ nhanh hơn baseline 4,5–27,5 lần. Trên tiếng Việt: S³ chậm hơn NMF khoảng <b>18,7 lần</b>.
+          Paper gốc: S³ nhanh hơn baseline 4,5–27,5 lần. Trên thực nghiệm và cấu hình của nhóm: S³ chậm hơn NMF khoảng <b>18,7 lần</b>.
         </div>
         <div class="box green" style="margin:0">
           <span class="lbl">NGUYÊN NHÂN</span>
-          Hàm <span class="chip">fit_transform()</span> mã hoá lại toàn bộ từ vựng ở mỗi lần fit, không tái sử dụng. Chi phí tương quan gần như tuyệt đối với kích thước từ vựng (Pearson r = <b>0,9998</b>).
+          Hàm <span class="chip">fit_transform()</span> mã hoá lại toàn bộ từ điển ở mỗi lần fit, không sử dụng cache, dẫn đến tốn thời gian. <br><b> --> Nhóm đã thêm phần cache cho S3 trong những lần chạy sau (Slide sau)</b>
         </div>
       </div>
     </div>
