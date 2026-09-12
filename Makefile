@@ -2,17 +2,19 @@ PORT ?= 8000
 PY   ?= .venv/Scripts/python.exe
 
 .PHONY: help serve main run run2 run3 rungoogle rungoogle1 open open2 opengoogle opengoogle1 pptx openpptx deploy clean \
-        demo train-visfd train-news train-bank train-all paper \
+        demo train-visfd train-news train-bank train-visfd-e5 train-news-e5 train-all paper \
         cafebert-sources cafebert-checkpoint cafebert-smoke cafebert-seed42 cafebert-sensitivity cafebert-audit cafebert-report cafebert-reference-audit cafebert-reference-report
 
 help:
 	@echo "=== QUAN TRONG (code / thuc nghiem) ==="
-	@echo "  make demo        - chay Streamlit demo phan tich truc topic S3 (demo/app.py)"
-	@echo "  make train-all   - tao lai TAT CA checkpoint S3 (visfd + vietnamese-news + uts-bank)"
-	@echo "  make train-visfd - tao lai checkpoint visfd (CafeBERT, k=10..50)"
-	@echo "  make train-news  - tao lai checkpoint vietnamese-news (CafeBERT, k=10..50)"
-	@echo "  make train-bank  - tao lai checkpoint uts-bank (E5, k=10/14/20/30)"
-	@echo "  make paper       - bien dich report/paper.pdf (XeLaTeX + bibtex)"
+	@echo "  make demo          - chay Streamlit demo phan tich truc topic S3 (demo/app.py)"
+	@echo "  make train-all     - tao lai TAT CA checkpoint S3 (visfd/news CafeBERT+E5, uts-bank E5)"
+	@echo "  make train-visfd   - tao lai checkpoint visfd (CafeBERT, k=10..50)"
+	@echo "  make train-news    - tao lai checkpoint vietnamese-news (CafeBERT, k=10..50)"
+	@echo "  make train-bank    - tao lai checkpoint uts-bank (E5, k=10/14/20/30)"
+	@echo "  make train-visfd-e5 - tao lai checkpoint visfd (E5, k=10..50)"
+	@echo "  make train-news-e5  - tao lai checkpoint vietnamese-news (E5, k=10..50)"
+	@echo "  make paper         - bien dich report/paper.pdf (XeLaTeX + bibtex)"
 	@echo ""
 	@echo "=== Benchmark CafeBERT/S3 (benchmark/cafebert_full/) ==="
 	@echo "  make cafebert-sources    - tai va khoa revision 4 nguon benchmark"
@@ -122,7 +124,13 @@ train-news:
 train-bank:
 	$(PY) -m s3_reproduction.cli --backend turftopic --dataset uts-bank --encoder e5 --n-topics 10 14 20 30
 
-train-all: train-visfd train-news train-bank
+train-visfd-e5:
+	$(PY) -m s3_reproduction.cli --backend turftopic --dataset visfd --encoder e5 --n-topics 10 20 30 40 50
+
+train-news-e5:
+	$(PY) -m s3_reproduction.cli --backend turftopic --dataset vietnamese-news --encoder e5 --n-topics 10 20 30 40 50
+
+train-all: train-visfd train-news train-bank train-visfd-e5 train-news-e5
 
 # ---------- report: bien dich paper.pdf ----------
 

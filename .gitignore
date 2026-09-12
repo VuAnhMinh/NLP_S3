@@ -1,5 +1,6 @@
 .venv/
 artifacts/
+dataset/
 __pycache__/
 .pytest_cache/
 *.py[cod]

@@ -101,13 +101,13 @@
 <section data-background-gradient="linear-gradient(135deg,#f0fdfa 0%,#eff6ff 100%)">
   <h2>Nội dung trình bày</h2>
   <div class="agenda-grid">
-    <div class="agi"><div class="nbadge">1</div><div><b>S³ là gì?</b><small>Pipeline tổng thể, 6 bước, 3 biến thể β</small></div></div>
+    <div class="agi"><div class="nbadge">1</div><div><b>S³ là gì?</b><small>Pipeline tổng thể, 6 bước, 3 biến thể β, nhìn trực tiếp trục bằng Concept Compass</small></div></div>
     <div class="agi"><div class="nbadge">2</div><div><b>Tái lập cho tiếng Việt</b><small>pyvi tách từ, CafeBERT vs multilingual-E5</small></div></div>
     <div class="agi"><div class="nbadge">3</div><div><b>Thiết lập &amp; kết quả thực nghiệm</b><small>4 corpus VN, coherence &amp; diversity, tốc độ, refit_transform()</small></div></div>
     <div class="agi"><div class="nbadge">4</div><div><b>Đánh giá bằng nhãn thật</b><small>AUC trục ICA, ViSFD, VTSNLP, ảnh hưởng n_topics</small></div></div>
     <div class="agi full" style="border:2px solid var(--accent2)">
       <div class="nbadge" style="background:var(--accent2)">5</div>
-      <div><b>Ứng dụng thực tế</b><small>Dashboard phát hiện bất thường (z-score trục ICA)</small></div>
+      <div><b>Ứng dụng thực tế</b><small>Dashboard phát hiện bất thường + định tuyến câu hỏi ngân hàng — cả hai chạy thật</small></div>
     </div>
   </div>
 </section>
@@ -147,8 +147,8 @@
     <text x="450" y="135" font-size="9" fill="#16a34a">A dùng để tính C = A⁺</text>
   </svg>
   <div class="cols" style="gap:.8em;margin-top:.4em">
-    <div class="box blue" style="flex:1;font-size:.78em"><span class="lbl">X = A · S</span><b>X</b> = embedding tài liệu · <b>A</b> = trục topic · <b>S</b> = tỷ lệ topic/tài liệu</div>
-    <div class="box cyan" style="flex:1;font-size:.78em"><span class="lbl">W = V · Cᵀ &nbsp;(C = A⁺)</span><b>W</b> = toạ độ từ trên trục topic · <b>V</b> = embedding từ điển</div>
+    <div class="box blue" style="flex:1;font-size:.78em"><span class="lbl">X = A · S — công thức sinh dữ liệu</span>Mỗi embedding tài liệu (<b>X</b>) được coi là một bản trộn của các trục chủ đề (<b>A</b>) theo tỷ lệ (<b>S</b>).</div>
+    <div class="box cyan" style="flex:1;font-size:.78em"><span class="lbl">W = V · Cᵀ — chiếu từ vựng lên trục</span>Từ điển (<b>V</b>) được chiếu lên các trục để lấy toạ độ <b>W</b>, từ đó suy ra từ khoá đại diện cho từng trục.</div>
   </div>
 </section>
 
@@ -167,8 +167,8 @@
         <div class="step"><b>⑥ Word importance β</b><br><small>Top-k từ mô tả mỗi topic</small></div>
       </div>
       <div class="box amber" style="font-size:.78em">
-        <span class="lbl">ĐIỂM ÂM — ĐẶC TRƯNG RIÊNG CỦA S³</span>
-        β có thể âm → mỗi trục có <b>định nghĩa âm</b> (đối lập chủ đề). LDA/BERTopic không làm được.
+        <span class="lbl">β CÓ THỂ ÂM — ĐẶC TRƯNG RIÊNG CỦA S³</span>
+        β có thể âm, nên mỗi trục vừa thể hiện "chủ đề này LÀ gì", vừa thể hiện "chủ đề này KHÔNG PHẢI là gì" — LDA và BERTopic chỉ liệt kê được từ khoá dương.
       </div>
     </div>
     <div style="flex:.9">
@@ -176,21 +176,46 @@
         <img src="../../report/figures/figure3.png" alt="Hình 1 — Trực giác hình học 3 công thức word importance" loading="lazy">
         <span class="cap">Hình 1 — Trực giác hình học: axial / angular / combined</span>
       </div>
-      <div class="box blue" style="margin-bottom:.4em;font-size:.78em"><span class="lbl">① AXIAL</span>β = W<sub>jt</sub> — Coherence cao</div>
-      <div class="box cyan" style="margin-bottom:.4em;font-size:.78em"><span class="lbl">② ANGULAR</span>β = W<sub>jt</sub>/‖W<sub>j</sub>‖ — Diversity cao</div>
-      <div class="box green" style="font-size:.78em"><span class="lbl">③ COMBINED ✓ mặc định</span>β = (W<sub>jt</sub>)³/‖W<sub>j</sub>‖ — Mũ lẻ giữ dấu</div>
+      <div class="box blue" style="margin-bottom:.4em;font-size:.76em"><span class="lbl">① AXIAL — lấy nguyên toạ độ</span>β = W<sub>jt</sub>: ưu tiên từ có hình chiếu lớn nhất trên trục, không xét mức độ liên quan đến các trục khác.</div>
+      <div class="box cyan" style="margin-bottom:.4em;font-size:.76em"><span class="lbl">② ANGULAR — chuẩn hoá theo góc</span>β = W<sub>jt</sub>/‖W<sub>j</sub>‖: ưu tiên từ mà gần như toàn bộ ý nghĩa nằm dọc trục, nhưng dễ nhiễu với từ hiếm.</div>
+      <div class="box green" style="font-size:.76em"><span class="lbl">③ COMBINED — cấu hình mặc định của Nhóm</span>β = (W<sub>jt</sub>)³/‖W<sub>j</sub>‖: luỹ thừa bậc ba giữ dấu và khuếch đại giá trị lớn, sau đó chuẩn hoá theo góc — kết hợp ưu điểm của cả hai công thức trên.</div>
     </div>
   </div>
 </section>
 
-<!-- ────────────────────────── SLIDE 5 — PYVI TÁCH TỪ ────────────────────────── -->
+<!-- ────────────────────────── SLIDE 5 — CONCEPT COMPASS ────────────────────────── -->
+<section>
+  <span class="section-banner">Phần 1 — S³ là gì</span>
+  <h2>Nhìn trực tiếp trục ngữ nghĩa — Concept Compass</h2>
+  <p style="font-size:.82em;margin-bottom:.5em">Minh hoạ trực tiếp bằng một checkpoint đã huấn luyện: chọn hai trục bất kỳ, chiếu toàn bộ 20.000 từ vựng lên hai trục đó, không sử dụng bất kỳ nhãn giám sát nào.</p>
+  <div class="cols" style="gap:1em;align-items:flex-start">
+    <div style="flex:1.3">
+      <div class="img-box">
+        <img src="../../report/figures/concept_compass.png" alt="Concept Compass: từ ngữ quanh 2 trục ngữ nghĩa" loading="lazy" style="max-height:430px">
+      </div>
+      <p class="cap">Concept Compass — trục hoành là chủ đề "pháp lý / tội phạm", trục tung là chủ đề "âm nhạc" (Vietnamese-news, k=20)</p>
+    </div>
+    <div style="flex:.85;font-size:.85em">
+      <div class="box green" style="margin-bottom:.4em">
+        <span class="lbl">TỰ TÁCH RA, KHÔNG AI GÁN NHÃN</span>
+        Cực trên toàn từ về nhạc (nhạc sĩ, hoà nhạc, điệp khúc...), cực phải toàn từ về pháp lý (buộc tội, truy tố, toà án...) — model tự nhóm được vậy chỉ từ dữ liệu thô, không hề biết trước 2 chủ đề này là gì.
+      </div>
+      <div class="box blue">
+        <span class="lbl">CÁCH ĐỌC MỘT TRỤC</span>
+        Ý nghĩa của một trục được xác định bằng cách đọc từ khoá ở hai đầu trục — đây là cách Nhóm đặt tên và kiểm chứng các trục ở các phần sau.
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ────────────────────────── SLIDE 6 — PYVI TÁCH TỪ ────────────────────────── -->
 <section>
   <span class="section-banner">Phần 2 — Tái lập tiếng Việt</span>
   <h2>Tiền xử lý: tách từ tiếng Việt với pyvi</h2>
   <div class="box red" style="margin-bottom:.6em">
     <span class="lbl">VẤN ĐỀ — CountVectorizer mặc định vỡ từ ghép</span>
     <span class="chip">"trầy xước"</span> → tách theo khoảng trắng → <span class="chip">"trầy"</span> + <span class="chip">"xước"</span> — hai âm tiết <em>vô nghĩa riêng lẻ</em><br>
-    → Bước mã hoá từ vựng V (W = V·Cᵀ) cho kết quả sai
+    → bước chiếu từ lên trục (W = V·Cᵀ) sẽ sai ngay từ đầu vào
   </div>
   <div style="background:#1e293b;border-radius:8px;padding:.8em 1.1em;margin:.5em 0;font-family:ui-monospace,Menlo,monospace;font-size:.72em;color:#e2e8f0;line-height:1.7">
     <span style="color:#94a3b8"># Tiền xử lý bắt buộc cho tiếng Việt</span><br>
@@ -200,26 +225,23 @@
   </div>
   <div class="box green">
     <span class="lbl">GIẢI PHÁP — pyvi ViTokenizer</span>
-    Nối âm tiết bằng <span class="chip">_</span> → CountVectorizer giữ nguyên là 1 token.<br>
-    <span class="chip">token_pattern=r"(?u)\b[^\W\d][^\W]*\b"</span> để giữ underscore.<br>
-    <b>Thay đổi bắt buộc — paper gốc chỉ thử nghiệm tiếng Anh.</b>
+    Nối âm tiết bằng <span class="chip">_</span> để CountVectorizer coi đó là một token duy nhất, đổi thêm <span class="chip">token_pattern=r"(?u)\b[^\W\d][^\W]*\b"</span> để giữ được dấu gạch dưới.<br>
+    <b>Thay đổi bắt buộc</b> so với paper gốc, vốn chỉ thử nghiệm trên tiếng Anh.
   </div>
 </section>
 
-<!-- ────────────────────────── SLIDE 6 — ENCODER ────────────────────────── -->
+<!-- ────────────────────────── SLIDE 7 — ENCODER ────────────────────────── -->
 <section>
   <span class="section-banner">Phần 2 — Tái lập tiếng Việt</span>
   <h2>CafeBERT vs multilingual-E5</h2>
   <div class="cols" style="gap:.8em;margin-bottom:.8em">
     <div class="box cyan" style="flex:1">
       <span class="lbl">CafeBERT (uitnlp/CafeBERT)</span>
-      BERT masked-LM pretrained tiếng Việt.<br>
-      <b>Không phải</b> sentence embedder → tự cài masked-mean pooling + L2 normalize.
+      BERT masked-LM pretrained cho tiếng Việt. <b>Không phải</b> sentence embedder — cần tự cài masked-mean pooling và chuẩn hoá L2.
     </div>
     <div class="box green" style="flex:1">
       <span class="lbl">multilingual-E5-base (intfloat/)</span>
-      Sentence-transformer thật — pooling &amp; normalize sẵn.<br>
-      Thêm prefix <span class="chip">"query: "</span> theo convention E5.
+      Sentence-transformer đầy đủ, có sẵn pooling và chuẩn hoá. Thêm tiền tố <span class="chip">"query: "</span> theo quy ước của E5.
     </div>
   </div>
   <table>
@@ -230,13 +252,14 @@
       <tr><td>BGE-M3 (đối chứng)</td><td class="num lose">69,6</td><td class="num">0,719</td><td class="num">0,898</td></tr>
     </tbody>
   </table>
-  <p style="font-size:.65em;color:var(--muted);margin-top:.4em">ViSFD · n_topics=40 · AUC trung bình 11 khía cạnh. E5 vừa nhanh hơn 1,6× vừa AUC cao hơn → dùng làm encoder mặc định.</p>
+  <p style="font-size:.65em;color:var(--muted);margin-top:.4em">ViSFD, n_topics=40, AUC trung bình trên 11 khía cạnh. E5 nhanh hơn CafeBERT 1,6 lần và có AUC cao hơn — được chọn làm encoder mặc định cho các thực nghiệm còn lại.</p>
 </section>
 
-<!-- ────────────────────────── SLIDE 7 — BENCHMARK SETUP ────────────────────────── -->
+<!-- ────────────────────────── SLIDE 8 — BENCHMARK SETUP ────────────────────────── -->
 <section>
   <span class="section-banner">Phần 3 — Thiết lập &amp; kết quả thực nghiệm</span>
   <h2>Thiết lập thực nghiệm</h2>
+  <p style="font-size:.8em;margin-bottom:.4em">Thực nghiệm được chạy trên 4 kho ngữ liệu tiếng Việt, so sánh ba biến thể của S³ với ba baseline, đo bằng các chỉ số dưới đây, lặp lại trên nhiều seed và nhiều giá trị k để đảm bảo độ tin cậy.</p>
   <div class="cols" style="gap:1em;margin-bottom:.6em;align-items:stretch">
     <div class="box blue" style="flex:1;font-size:.86em">
       <span class="lbl">4 KHO NGỮ LIỆU TIẾNG VIỆT</span>
@@ -269,7 +292,7 @@
   </div>
 </section>
 
-<!-- ────────────────────────── SLIDE 8 — COHERENCE ────────────────────────── -->
+<!-- ────────────────────────── SLIDE 9 — COHERENCE ────────────────────────── -->
 <section>
   <span class="section-banner">Phần 3 — Thiết lập &amp; kết quả thực nghiệm</span>
   <h2>Kết quả coherence &amp; diversity</h2>
@@ -280,24 +303,24 @@
       </div>
       <p class="cap">Hình 2 — WEC-in theo số trục/chủ đề · 4 corpus VN × 6 mô hình · 480 lần chạy (CafeBERT)</p>
     </div>
-    <div style="flex:.85;font-size:.88em">
+    <div style="flex:.85;font-size:.85em">
       <div class="box green" style="margin-bottom:.4em">
         <span class="lbl">S³ THẮNG 74% Ô</span>
-        59/80 ô corpus×seed×k<br>ViSFD: 19/20 · ViMedical: 20/20 · VNTC-CNTT: 20/20
+        Trên tổng 80 ô corpus×seed×k, S³ thắng 59 ô — thắng gần tuyệt đối ở ViSFD (19/20), ViMedical (20/20) và VNTC-CNTT (20/20).
       </div>
       <div class="box red" style="margin-bottom:.4em">
         <span class="lbl">NGOẠI LỆ: VIETNAMESE-NEWS</span>
-        LDA/NMF thắng trên corpus này (S³: 0/20 ô)
+        Riêng corpus này, kết quả ngược hoàn toàn — S³ thua toàn bộ 0/20 ô, LDA và NMF chiếm ưu thế.
       </div>
       <div class="box blue" style="margin:0">
         <span class="lbl">DIVERSITY CAO ĐỒNG THỜI</span>
-        S³: 0,73–0,76 · LDA: 0,48 · BERTopic: 0,43
+        S³ vẫn giữ diversity cao (0,73–0,76) so với LDA (0,48) và BERTopic (0,43) — không đánh đổi mạch lạc lấy trùng lặp từ khoá.
       </div>
     </div>
   </div>
 </section>
 
-<!-- ────────────────────────── SLIDE 9 — RUNTIME ────────────────────────── -->
+<!-- ────────────────────────── SLIDE 10 — RUNTIME ────────────────────────── -->
 <section>
   <span class="section-banner">Phần 3 — Thiết lập &amp; kết quả thực nghiệm</span>
   <h2>Kết quả tốc độ</h2>
@@ -306,7 +329,7 @@
       <div class="img-box">
         <img src="../../report/figures/vn_benchmark_runtime.png" alt="Fit-only runtime" loading="lazy" style="max-height:510px">
       </div>
-      <p class="cap">Hình 3 — Fit-only time (thang log) — ngược kết quả paper gốc</p>
+      <p class="cap">Hình 3 — Fit-only time (thang log) — trái ngược kết quả paper gốc</p>
     </div>
     <div style="flex:.85;position:relative;min-height:420px">
       <table style="font-size:.65em;margin-bottom:.4em">
@@ -320,19 +343,19 @@
       </table>
       <div style="position:absolute;bottom:0;left:0;right:0;font-size:.72em">
         <div class="box red" style="margin-bottom:.4em">
-          <span class="lbl">TRÁI PAPER GỐC</span>
-          Paper gốc: S³ nhanh hơn 4,5–27,5×. Tiếng Việt: chậm hơn NMF ~<b>18,7×</b>.
+          <span class="lbl">TRÁI VỚI PAPER GỐC</span>
+          Paper gốc: S³ nhanh hơn baseline 4,5–27,5 lần. Trên tiếng Việt: S³ chậm hơn NMF khoảng <b>18,7 lần</b>.
         </div>
         <div class="box green" style="margin:0">
           <span class="lbl">NGUYÊN NHÂN</span>
-          <span class="chip">fit_transform()</span> mã hoá lại toàn bộ từ vựng mỗi lần — không cache. Pearson r = <b>0,9998</b>.
+          Hàm <span class="chip">fit_transform()</span> mã hoá lại toàn bộ từ vựng ở mỗi lần fit, không tái sử dụng. Chi phí tương quan gần như tuyệt đối với kích thước từ vựng (Pearson r = <b>0,9998</b>).
         </div>
       </div>
     </div>
   </div>
 </section>
 
-<!-- ────────────────────────── SLIDE 10 — REFIT ────────────────────────── -->
+<!-- ────────────────────────── SLIDE 11 — REFIT ────────────────────────── -->
 <section>
   <span class="section-banner">Phần 3 — Thiết lập &amp; kết quả thực nghiệm</span>
   <h2>Tối ưu tốc độ: refit_transform()</h2>
@@ -354,19 +377,22 @@
       <tr><td>LDA</td><td class="num">0,412</td><td class="num">0,478</td><td class="num">0,080</td><td class="num">18,9</td></tr>
     </tbody>
   </table>
-  <p style="font-size:.6em;color:var(--muted);margin-top:.3em">Trung bình 480 run — <b>chưa áp dụng refit</b>, nên cột Fit(s) của S³ vẫn là ~43s. Speedup 3,7–8,9× đo riêng sau khi vá turftopic (xem số liệu ở trên). C_NPMI âm của S³ phản ánh khác biệt nguyên lý đo — không dùng để chọn winner.</p>
+  <p style="font-size:.6em;color:var(--muted);margin-top:.3em">Bảng này lấy trung bình trên cả 480 lần chạy, là số liệu gốc trước khi tối ưu nên cột Fit(s) của S³ vẫn đang ~43s. Mức tăng tốc 3,7–8,9× là đo riêng sau khi sửa lại cách gọi thư viện (số liệu ở slide trước). C_NPMI của S³ ra âm là vì nó đo theo nguyên lý khác hẳn WEC-in — không dùng để chọn ai thắng ai thua.</p>
 </section>
 
-<!-- ────────────────────────── SLIDE 11 — PHƯƠNG PHÁP AUC ────────────────────────── -->
+<!-- ────────────────────────── SLIDE 12 — PHƯƠNG PHÁP AUC ────────────────────────── -->
 <section>
   <span class="section-banner">Phần 4 — Đánh giá bằng nhãn thật</span>
-  <h2>Phương pháp đánh giá AUC với nhãn thật</h2>
-  <div class="box blue" style="margin-bottom:.7em">
-    <span class="lbl">PAPER GỐC KHÔNG ĐO VỚI NHÃN THẬT (§8.6)</span>
-    Paper gốc không đánh giá document-topic proportions với nhãn thật.<br>
-    <b>Câu hỏi nhóm đặt ra:</b> <em>"Trục ICA có thực sự trùng khớp với khái niệm ngữ nghĩa trong dữ liệu thật không?"</em>
+  <h2>Phương pháp đánh giá bằng AUC</h2>
+  <div class="box blue" style="margin-bottom:.6em">
+    <span class="lbl">CÂU HỎI NGHIÊN CỨU</span>
+    Paper gốc (Mục 8.6) không đánh giá tỷ lệ chủ đề trong tài liệu so với nhãn thật. Nhóm đặt câu hỏi: <em>một trục ICA do S³ tìm ra có thực sự tương ứng với một khái niệm ngữ nghĩa có thật trong dữ liệu hay không?</em>
   </div>
-  <div class="cols" style="gap:.8em;margin-bottom:.7em">
+  <div class="box amber" style="margin-bottom:.7em">
+    <span class="lbl">AUC LÀ GÌ?</span>
+    <b>AUC (Area Under the Curve — diện tích dưới đường cong ROC)</b> là chỉ số đo khả năng phân loại đúng của một điểm số nhị phân: AUC = 0,5 tương ứng phân loại ngẫu nhiên, AUC = 1,0 tương ứng phân loại hoàn hảo. Phương pháp áp dụng: lấy điểm chiếu của tài liệu lên một trục làm điểm phân loại, đối chiếu với nhãn thật (ví dụ tài liệu có đề cập khía cạnh PIN hay không), rồi tính ROC-AUC — trục có AUC càng cao càng tương ứng chặt với khái niệm đó.
+  </div>
+  <div class="cols" style="gap:.8em">
     <div class="box cyan" style="flex:1">
       <span class="lbl">ViSFD</span>
       11.122 đánh giá điện thoại · 11 khía cạnh <b>đa nhãn</b><br>
@@ -378,15 +404,9 @@
       (Health, Sports, Real_Estate, Business…)
     </div>
   </div>
-  <div class="box amber">
-    <span class="lbl">PHƯƠNG PHÁP AUC</span>
-    Mỗi nhãn → bài toán nhị phân "có nhãn này không?"<br>
-    → Điểm trục ICA làm score → <b>ROC-AUC</b> (0,5 = ngẫu nhiên · 1,0 = hoàn hảo)<br>
-    → Hoặc gộp tất cả trục bằng <b>logistic regression 5-fold CV</b>
-  </div>
 </section>
 
-<!-- ────────────────────────── SLIDE 12 — KẾT QUẢ AUC ────────────────────────── -->
+<!-- ────────────────────────── SLIDE 13 — KẾT QUẢ AUC ────────────────────────── -->
 <section>
   <span class="section-banner">Phần 4 — Đánh giá bằng nhãn thật</span>
   <h2>Kết quả AUC — ViSFD &amp; VTSNLP</h2>
@@ -425,14 +445,13 @@
       </div>
       <div class="box amber" style="margin-top:.4em">
         <span class="lbl">LƯU Ý</span>
-        VTSNLP AUC cao hơn vì nhãn đơn — domain tách bạch.<br>
-        <em>Không</em> có nghĩa S³ "tốt hơn" trên VTSNLP.
+        VTSNLP đạt AUC cao hơn không phản ánh S³ hoạt động tốt hơn ở đó, mà do domain của VTSNLP là nhãn đơn — mỗi tài liệu chỉ thuộc đúng một domain, dễ tách bạch hơn ViSFD (một câu có thể đồng thời đề cập PIN và GIÁ).
       </div>
     </div>
   </div>
 </section>
 
-<!-- ────────────────────────── SLIDE 13 — N_TOPICS SWEEP ────────────────────────── -->
+<!-- ────────────────────────── SLIDE 14 — N_TOPICS SWEEP ────────────────────────── -->
 <section>
   <span class="section-banner">Phần 4 — Đánh giá bằng nhãn thật</span>
   <h2>Ảnh hưởng của n_topics lên chất lượng chủ đề</h2>
@@ -443,10 +462,10 @@
       </div>
       <p class="cap">Coherence · Diversity · Aggregate theo k — 3 corpus (CafeBERT)</p>
     </div>
-    <div style="flex:1;font-size:.88em">
+    <div style="flex:1;font-size:.85em">
       <div class="box green" style="margin-bottom:.5em">
         <span class="lbl">DIVERSITY — KHÔNG ĐỔI THEO K</span>
-        Luôn &gt;0,8 với mọi k — S³ không mất diversity khi tăng số topic.
+        Diversity giữ ổn định trên 0,8 với mọi giá trị k — tăng số trục không làm S³ lặp lại từ khoá.
       </div>
       <div class="box blue" style="margin-bottom:.5em">
         <span class="lbl">K TỐI ƯU</span>
@@ -454,18 +473,18 @@
       </div>
       <div class="box amber">
         <span class="lbl">ĐÁNH ĐỔI KHI TĂNG K</span>
-        ✅ Tách khía cạnh hiếm (STORAGE: 132/11k doc)<br>
-        ❌ Vượt ngưỡng → trục trùng / bám nhiễu
+        Tăng k giúp tách khía cạnh hiếm như STORAGE (132/11.122 tài liệu) thành trục riêng; vượt ngưỡng tối ưu sẽ sinh trục trùng lặp hoặc bám nhiễu thay vì tín hiệu ngữ nghĩa mới.
       </div>
     </div>
   </div>
 </section>
 
-<!-- ────────────────────────── SLIDE 14 — DASHBOARD ────────────────────────── -->
+<!-- ────────────────────────── SLIDE 15 — ỨNG DỤNG 1: DASHBOARD ────────────────────────── -->
 <section>
   <span class="section-banner">Phần 5 — Ứng dụng thực tế</span>
   <h2>Ứng dụng 1 — Dashboard phát hiện bất thường</h2>
-  <div class="cols" style="gap:1.2em;align-items:flex-start;margin-top:2em">
+  <p style="font-size:.78em;margin:.2em 0 .6em"><b>Ý tưởng:</b> suy luận cho tài liệu mới chỉ cần một phép nhân ma trận (Ŝ = X̂·Cᵀ), không cần huấn luyện lại — Nhóm xây dựng một dashboard giám sát theo thời gian thực dựa trên tính chất này.</p>
+  <div class="cols" style="gap:1.2em;align-items:flex-start;margin-top:1.2em">
     <div style="flex:1.35">
       <p style="font-size:.72em;font-weight:700;color:#dc2626;margin:0 0 .4em">KỊCH BẢN: PIN ĐIỆN THOẠI QUÁ NHIỆT — 51 bình luận giả lập</p>
       <svg viewBox="0 0 360 148" style="width:100%;max-height:148px" role="img">
@@ -493,38 +512,71 @@
         <span class="chip">nóng</span> <span class="chip">nóng bỏng</span> <span class="chip">nóng hổi</span> <span class="chip">tản nhiệt</span> <span class="chip">nhiệt</span>
       </p>
     </div>
-    <div style="flex:.85;font-size:.88em">
+    <div style="flex:.85;font-size:.85em">
       <div class="box green" style="margin-bottom:.5em">
-        ✅ <b>Phát hiện bất thường</b> hoạt động tốt<br>
-        Trục 1 vượt trội <b>4×</b> so với trục mạnh nhì
+        <span class="lbl">PHÁT HIỆN BẤT THƯỜNG — ỔN</span>
+        Trục 1 lệch mạnh gấp gần 4 lần trục mạnh thứ nhì, tức tín hiệu bắt được rất rõ ràng.
       </div>
       <div class="box amber">
-        <span class="lbl">HẠN CHẾ</span>
-        Nhãn gắn cho trục: <b>STORAGE</b> thay vì <b>BATTERY</b><br>
-        (AUC=0,71, CafeBERT n_topics=20)<br>
-        ❌ <b>Gán nhãn khía cạnh</b> chưa chính xác
+        <span class="lbl">NHƯNG CÒN HẠN CHẾ</span>
+        Nhãn hiệu chỉnh gắn cho trục này là <b>STORAGE</b> chứ không phải <b>BATTERY</b> (AUC = 0,71) — phát hiện bất thường chính xác, nhưng gán tên khía cạnh chưa chính xác.
       </div>
     </div>
   </div>
 </section>
 
-
-<!-- ────────────────────────── SLIDE 16 — KẾT LUẬN ────────────────────────── -->
+<!-- ────────────────────────── SLIDE 16 — ỨNG DỤNG 2: NGÂN HÀNG ────────────────────────── -->
 <section>
-  <h2>Kết luận — 5 đóng góp</h2>
-  <div class="grid2" style="gap:.7em">
-    <div class="box green"><span class="lbl">① Tái lập cho tiếng Việt</span>Giải quyết tách từ bắt buộc (pyvi) — khác biệt kỹ thuật paper gốc không gặp.</div>
-    <div class="box green"><span class="lbl">② Benchmark định lượng 480 run</span>4 corpus VN × 6 model × 5k × 4 seed. S³ dẫn đầu coherence+diversity, nhưng <em>chậm nhất</em> — báo cáo trung thực.</div>
-    <div class="box green"><span class="lbl">③ Truy nguyên nhân + đo lại tốc độ</span>refit_transform() → nhanh hơn 3,7–8,9×, kiểm chứng bit-by-bit.</div>
-    <div class="box green"><span class="lbl">④ Đánh giá AUC với nhãn thật</span>Paper gốc không làm. 10/11 ViSFD · 25/25 VTSNLP ≥ 0,75 khi gộp trục.</div>
-    <div class="box cyan full"><span class="lbl">⑤ Ứng dụng thực tế</span>Dashboard phát hiện bất thường (z-score trục ICA) — dựa thẳng vào Ŝ = X̂·Cᵀ, không cần retrain.</div>
-  </div>
-  <div class="box blue" style="margin-top:.7em;font-size:.8em">
-    Kết quả bất lợi (S³ chậm nhất, gán nhãn sai khía cạnh) được giữ nguyên và giải thích nguyên nhân.
+  <span class="section-banner">Phần 5 — Ứng dụng thực tế</span>
+  <h2>Ứng dụng 2 — Định tuyến câu hỏi cho tổng đài ngân hàng</h2>
+  <p style="font-size:.78em;margin:.2em 0 .6em"><b>Ý tưởng:</b> dựng một server FastAPI/WebSocket, nạp checkpoint S³ đã huấn luyện trên bộ UTS2017_Bank (2.471 câu hỏi, 14 nhãn phòng ban thật); mỗi câu hỏi mới được chiếu qua công thức Ŝ = X̂·Cᵀ để gợi ý phòng ban phù hợp, không cần huấn luyện lại classifier.</p>
+  <div class="cols" style="gap:1em;align-items:flex-start">
+    <div style="flex:1.05">
+      <table style="font-size:.72em">
+        <thead><tr><th>Phòng ban</th><th class="num">AUC 1 trục</th><th class="num">AUC gộp</th></tr></thead>
+        <tbody>
+          <tr class="hl"><td>INTERNET_BANKING</td><td class="num win">0,848</td><td class="num win">0,917</td></tr>
+          <tr class="hl"><td>CARD</td><td class="num win">0,830</td><td class="num win">0,917</td></tr>
+          <tr class="hl"><td>LOAN</td><td class="num win">0,784</td><td class="num win">0,941</td></tr>
+          <tr><td>SAVING</td><td class="num win">0,711</td><td class="num">0,755</td></tr>
+          <tr><td>CUSTOMER_SUPPORT</td><td class="num lose">0,626</td><td class="num win">0,900</td></tr>
+          <tr><td colspan="3" style="color:var(--muted);font-style:italic;font-size:.85em">… đủ 12 phòng ban đủ mẫu, xem Bảng 3 trong báo cáo</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div style="flex:.95;font-size:.85em">
+      <div class="box green" style="margin-bottom:.4em">
+        <span class="lbl">1 TRỤC LÀ ĐÃ DÙNG ĐƯỢC</span>
+        6/12 phòng ban đủ mẫu đạt AUC ≥ 0,75 chỉ bằng quy tắc đơn giản nhất — lấy điểm của đúng 1 trục, không cần train thêm classifier nào.
+      </div>
+      <div class="box blue" style="margin-bottom:.4em">
+        <span class="lbl">GỘP TRỤC LÀ ĐỦ 12/12</span>
+        Gộp toàn bộ trục bằng hồi quy logistic, cả 12 phòng ban đều vượt ngưỡng — đánh đổi là chi phí tính toán tăng thêm.
+      </div>
+      <div class="box amber">
+        <span class="lbl">HẠN CHẾ THẬT, KHÔNG PHẢI LỖI CÀI ĐẶT</span>
+        Có vài phòng ban dùng chung một trục, ví dụ CUSTOMER_SUPPORT và INTEREST_RATE cùng rơi vào Topic 13 — đây là giới hạn độ phân giải của model.
+      </div>
+    </div>
   </div>
 </section>
 
-<!-- ────────────────────────── SLIDE 17 — Q&A ────────────────────────── -->
+<!-- ────────────────────────── SLIDE 17 — KẾT LUẬN ────────────────────────── -->
+<section>
+  <h2>Kết luận — 5 đóng góp</h2>
+  <div class="grid2" style="gap:.7em">
+    <div class="box green"><span class="lbl">① Tái lập cho tiếng Việt</span>Giải quyết bước tách từ bắt buộc (pyvi) — khác biệt kỹ thuật mà paper gốc không gặp vì chỉ chạy trên tiếng Anh.</div>
+    <div class="box green"><span class="lbl">② Benchmark định lượng 480 run</span>4 corpus VN × 6 model × 5k × 4 seed. S³ dẫn đầu coherence và diversity, nhưng chậm nhất trong sáu mô hình — kết quả được báo cáo trung thực, không điều chỉnh có lợi cho S³.</div>
+    <div class="box green"><span class="lbl">③ Truy ra nguyên nhân + đo lại tốc độ</span>Đổi sang refit_transform() → nhanh hơn 3,7–8,9 lần, đã kiểm chứng khớp bit-by-bit với cách làm cũ.</div>
+    <div class="box green"><span class="lbl">④ Đánh giá AUC với nhãn thật</span>Paper gốc chủ động không thực hiện phần này. Kết quả: 10/11 ViSFD, 25/25 VTSNLP đạt AUC ≥ 0,75 khi gộp trục.</div>
+    <div class="box cyan full"><span class="lbl">⑤ Hai ứng dụng chạy thật</span>Dashboard phát hiện bất thường và định tuyến câu hỏi ngân hàng — cả hai dựa trực tiếp vào công thức Ŝ = X̂·Cᵀ, không cần huấn luyện lại.</div>
+  </div>
+  <div class="box blue" style="margin-top:.7em;font-size:.8em">
+    Các kết quả bất lợi cho S³ — tốc độ chậm nhất, gán nhãn khía cạnh chưa chính xác — được giữ nguyên và giải thích rõ nguyên nhân, không lược bỏ.
+  </div>
+</section>
+
+<!-- ────────────────────────── SLIDE 18 — Q&A ────────────────────────── -->
 <section data-background-gradient="linear-gradient(135deg,#eff6ff 0%,#ecfeff 100%)" style="text-align:center">
   <h2 style="font-size:3.2em;margin-top:270px">Q &amp; A</h2>
 </section>
