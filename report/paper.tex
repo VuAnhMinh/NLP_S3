@@ -4,7 +4,9 @@
 \documentclass[11pt]{article}
 
 % Ban final -- hien ten tac gia that (khong con "review" an danh).
-\usepackage{acl}
+% Dung option "preprint" (thay vi mac dinh "final") de giu nguyen dang final
+% (khong an danh, khong danh so dong) nhung BAT so trang o giua, duoi trang.
+\usepackage[preprint]{acl}
 \usepackage{microtype}
 \usepackage{graphicx}
 \usepackage{booktabs}
@@ -21,7 +23,6 @@
 
 \author{
   Đinh Trọng Hậu, Vũ Ánh Minh, Trần Đình Thiện, Ngô Quang Huy \\
-  Nhóm 7 -- Lớp Ngôn ngữ học máy tính (CS2202.CH201) \\
   Giảng viên hướng dẫn: TS. Nguyễn Văn Kiệt
 }
 
@@ -176,7 +177,19 @@ mang cả định nghĩa dương (chủ đề \emph{là} gì) lẫn định ngh�
 liệt kê được từ khoá dương. Chọn hai trục làm hai chiều của một biểu đồ
 phân tán (\emph{Concept Compass}) cho phép quan sát trực tiếp cách các
 khái niệm sắp xếp trong không gian ngữ nghĩa hai chiều mà không cần bất kỳ
-nhãn giám sát nào \citep{kardos2025s3}.
+nhãn giám sát nào \citep{kardos2025s3}. Hình~\ref{fig:concept-compass}
+minh hoạ trên checkpoint thật của nhóm: hai cụm từ khoá "pháp lý" và
+"âm nhạc" tự tách về hai cực.
+
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=0.82\linewidth]{figures/concept_compass.png}
+    \caption{Concept Compass của nhóm: hình chiếu 20.000 từ vựng lên hai
+    trục ngữ nghĩa của một checkpoint S\textsuperscript{3}
+    (Vietnamese-news, $k=20$). Cực dương mỗi trục gom đúng cụm từ khoá của
+    chủ đề tương ứng; cực âm gom các từ ít mang tín hiệu chủ đề.}
+    \label{fig:concept-compass}
+\end{figure}
 
 \paragraph{Suy luận cho tài liệu mới.} Với embedding tài liệu mới
 $\hat{X}$, toạ độ trên $k$ trục ngữ nghĩa suy ra chỉ bằng một phép nhân
@@ -275,13 +288,11 @@ NMF chỉ 2,3s -- Hình~\ref{fig:vn-runtime}). Có ba nguyên do chính:
 Turftopic có sẵn hai hàm \texttt{refit\_transform()} và
 \texttt{estimate\_components()} giúp tránh hai nguyên do đầu (tái sử
 dụng vocabulary đã mã hoá; suy ba biến thể từ một lần fit). Nhóm viết lại
-pipeline benchmark theo hướng này, kiểm chứng kết quả không đổi trước khi
-báo cáo (so với fit độc lập hoàn toàn mới: ma trận
-\texttt{axial\_components\_} khớp bit-by-bit tuyệt đối, sai lệch $=0$;
-WEC-in đo được lệch $0{,}0004$ -- mức nhiễu số học bình thường giữa hai
-môi trường), rồi đo lại tốc độ: nhanh hơn \textbf{3,7--8,9 lần} trên ba
-corpus (Vietnamese-news, UIT-ViSFD, ViMedical; VNTC-CNTT bỏ qua vì máy
-chạy thiếu \texttt{unrar}).
+pipeline benchmark theo hướng này, kiểm chứng kết quả trùng khớp
+bit-by-bit với fit độc lập (ma trận \texttt{axial\_components\_} lệch
+$=0$; WEC-in lệch $0{,}0004$) trước khi đo lại tốc độ: nhanh hơn
+\textbf{3,7--8,9 lần} trên ba corpus (VNTC-CNTT bỏ qua vì máy chạy thiếu
+\texttt{unrar}).
 
 \begin{figure*}[t]
     \centering
@@ -292,11 +303,9 @@ chạy thiếu \texttt{unrar}).
     \label{fig:vn-runtime}
 \end{figure*}
 
-Ở cấp độ \emph{pipeline} đầy đủ (cộng chi phí mã hoá), cả
-S\textsuperscript{3} và BERTopic đều bị chi phí CafeBERT chi phối
-($\approx$2,2--2,3 nghìn giây, gần bằng nhau vì cùng encoder), trong khi
-LDA/NMF vẫn dưới 20s -- chênh lệch giữa \emph{lớp mô hình}, không phải
-giữa các encoder cùng loại.
+Ở cấp độ \emph{pipeline} đầy đủ, cả S\textsuperscript{3} và BERTopic bị
+chi phí mã hoá CafeBERT chi phối ($\approx$2,2 nghìn giây), còn LDA/NMF
+vẫn dưới 20s -- chênh lệch giữa \emph{lớp mô hình}.
 
 \section{Thực nghiệm trên tiếng Việt}
 \label{sec:vn-experiments}
@@ -443,12 +452,9 @@ mẫu kiểm định nhỏ, một số khía cạnh ViSFD rất ít tài liệu 
 132/11.122), và không đánh giá được độ ổn định của trục qua nhiều seed.
 Hai ứng dụng (Mục~\ref{sec:application}) dùng quy tắc 1-trục đơn giản
 (AUC thấp hơn rõ rệt so với gộp trục), một số phòng ban dùng chung trục,
-và mới kiểm thử trên kịch bản mô phỏng/dữ liệu có sẵn, chưa triển khai
-thực tế. Cuối cùng, toàn bộ thực nghiệm giới hạn ở tiếng Việt và các kho
-ngữ liệu đã chọn, không tinh chỉnh siêu tham số cho bất kỳ mô hình nào
-(tránh p-hacking theo đúng nguyên tắc paper gốc), nên kết quả phản ánh
-cấu hình mặc định, không phải hiệu năng tối ưu có thể đạt được của từng
-mô hình.
+và mới kiểm thử trên kịch bản mô phỏng/dữ liệu có sẵn. Cuối cùng, thực
+nghiệm giới hạn ở tiếng Việt và không tinh chỉnh siêu tham số (tránh
+p-hacking), nên kết quả phản ánh cấu hình mặc định.
 
 \bibliography{refs}
 

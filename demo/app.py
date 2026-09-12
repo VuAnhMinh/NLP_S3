@@ -251,7 +251,28 @@ with st.sidebar.expander("Tất cả trục của model này (2 cực, kèm đi�
         if negative:
             st.caption(f"　　－ {format_word_scores(negative[:10])}")
 
+# --- Các trục ngữ nghĩa của model đang chọn -- hiện ngay khi load, không cần bấm gì ---
+st.title("Các trục ngữ nghĩa của model đang chọn")
+st.write(
+    f"{len(topics)} trục đã được xác định bằng cách chấm điểm toàn bộ từ vựng qua "
+    "`ica.transform()` (Công thức 5--6 của paper) và lấy từ khoá cực trị nhất mỗi cực -- "
+    "đọc cột dưới để suy ra ý nghĩa từng trục, hoặc dùng mục 'Xác định trục theo khái niệm' "
+    "bên dưới để kiểm tra trực tiếp bằng từ khoá của riêng bạn."
+)
+axis_table = pd.DataFrame(
+    {
+        "Trục": [f"Topic {i}" for i in range(len(topics))],
+        "Cực dương (+)": [format_word_scores(words) for words in topics],
+        "Cực âm (-)": [
+            format_word_scores(topics_negative[i]) if has_negative and i < len(topics_negative) else ""
+            for i in range(len(topics))
+        ],
+    }
+)
+st.dataframe(axis_table, use_container_width=True, hide_index=True)
+
 # --- Main: nhập văn bản, chiếu lên trục ----------------------------------------
+st.markdown("---")
 st.title("Phân tích trục chủ đề (S³)")
 st.write(
     "Nhập một đoạn văn tiếng Việt. Hệ thống mã hoá bằng đúng encoder đã dùng để train model đang chọn, "
