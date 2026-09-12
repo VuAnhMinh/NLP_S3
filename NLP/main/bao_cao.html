@@ -104,7 +104,7 @@
     <div class="agi"><div class="nbadge">1</div><div><b>S³ là gì?</b><small>Pipeline tổng thể, 6 bước, 3 biến thể β</small></div></div>
     <div class="agi"><div class="nbadge">2</div><div><b>Tái lập cho tiếng Việt</b><small>pyvi tách từ, CafeBERT vs multilingual-E5</small></div></div>
     <div class="agi"><div class="nbadge">3</div><div><b>Thiết lập &amp; kết quả thực nghiệm</b><small>4 corpus VN, coherence &amp; diversity, tốc độ, refit_transform()</small></div></div>
-    <div class="agi"><div class="nbadge">4</div><div><b>Đánh giá bằng nhãn thật</b><small>AUC trục ICA, ViSFD, VTSNLP, ảnh hưởng n_topics</small></div></div>
+    <div class="agi"><div class="nbadge">4</div><div><b>Đánh giá thực tế</b><small>AUC trục ICA, ViSFD, VTSNLP, ảnh hưởng n_topics</small></div></div>
     <div class="agi full" style="border:2px solid var(--accent2)">
       <div class="nbadge" style="background:var(--accent2)">5</div>
       <div><b>Ứng dụng thực tế</b><small>Dashboard phát hiện bất thường + định tuyến câu hỏi ngân hàng — cả hai chạy thật</small></div>
@@ -273,7 +273,7 @@
 <!-- ────────────────────────── SLIDE 9 — COHERENCE ────────────────────────── -->
 <section>
   <span class="section-banner">Phần 3 — Thiết lập &amp; kết quả thực nghiệm</span>
-  <h2>Kết quả coherence &amp; diversity</h2>
+  <h2>Thiết lập &amp; So sánh Coherence</h2>
   <div class="cols" style="gap:1em;align-items:flex-start">
     <div style="flex:1.3">
       <div class="img-box">
@@ -301,7 +301,7 @@
 <!-- ────────────────────────── SLIDE 10 — RUNTIME ────────────────────────── -->
 <section>
   <span class="section-banner">Phần 3 — Thiết lập &amp; kết quả thực nghiệm</span>
-  <h2>Kết quả tốc độ</h2>
+  <h2>Thiết lập &amp; So sánh tốc độ</h2>
   <div class="cols" style="gap:1em;align-items:flex-start">
     <div style="flex:1.3">
       <div class="img-box">
@@ -360,15 +360,11 @@
 
 <!-- ────────────────────────── SLIDE 12 — PHƯƠNG PHÁP AUC ────────────────────────── -->
 <section>
-  <span class="section-banner">Phần 4 — Đánh giá bằng nhãn thật</span>
-  <h2>Phương pháp đánh giá bằng AUC</h2>
+  <span class="section-banner">Phần 4 - Đánh giá thực tế</span>
+  <h2>Phương pháp đánh giá ứng dụng</h2>
   <div class="box blue" style="margin-bottom:.6em">
-    <span class="lbl">CÂU HỎI NGHIÊN CỨU</span>
-    Paper gốc (Mục 8.6) không đánh giá tỷ lệ chủ đề trong tài liệu so với nhãn thật. Nhóm đặt câu hỏi: <em>một trục ICA do S³ tìm ra có thực sự tương ứng với một khái niệm ngữ nghĩa có thật trong dữ liệu hay không?</em>
-  </div>
-  <div class="box amber" style="margin-bottom:.7em">
-    <span class="lbl">AUC LÀ GÌ?</span>
-    <b>AUC (Area Under the Curve — diện tích dưới đường cong ROC)</b> là chỉ số đo khả năng phân loại đúng của một điểm số nhị phân: AUC = 0,5 tương ứng phân loại ngẫu nhiên, AUC = 1,0 tương ứng phân loại hoàn hảo. Phương pháp áp dụng: lấy điểm chiếu của tài liệu lên một trục làm điểm phân loại, đối chiếu với nhãn thật (ví dụ tài liệu có đề cập khía cạnh PIN hay không), rồi tính ROC-AUC — trục có AUC càng cao càng tương ứng chặt với khái niệm đó.
+    <span class="lbl">GIỚI THIỆU PHƯƠNG PHÁP</span>
+    <b>Tình trạng hiện tại:</b> các dataset đánh giá (ViSFD, VTSNLP) đã có sẵn các nhãn dữ liệu thật cho từng tài liệu. Nhóm muốn xác định lại xem S³ có khả năng phát hiện đúng các nhãn dữ liệu đó hay không.
   </div>
   <div class="cols" style="gap:.8em">
     <div class="box cyan" style="flex:1">
@@ -384,9 +380,26 @@
   </div>
 </section>
 
+<!-- ────────────────────────── SLIDE 12b — GIỚI THIỆU ĐỘ ĐO AUC ────────────────────────── -->
+<section>
+  <span class="section-banner">Phần 4 - Đánh giá thực tế</span>
+  <h2>Giới thiệu độ đo AUC</h2>
+  <div class="box amber" style="margin-bottom:.7em">
+    <span class="lbl">GIỚI THIỆU ĐỘ ĐO AUC</span>
+    <b>AUC</b> đo khả năng phân biệt (ranking) của một điểm số trên toàn bộ ngưỡng phân loại:
+    <ul style="margin:.3em 0 .3em 1.1em;padding:0">
+      <li><b>AUC gần 1</b>: phân biệt gần như hoàn hảo giữa mẫu dương và mẫu âm.</li>
+      <li><b>AUC = 0,5</b>: tương đương xếp hạng ngẫu nhiên (random ranking) — trục không mang thông tin phân biệt.</li>
+      <li><b>AUC dưới 0,5</b>: tệ hơn ngẫu nhiên — trục phân biệt ngược chiều so với nhãn.</li>
+    </ul>
+    Dấu của một trục ICA là <b>tuỳ ý</b> (đảo dấu vẫn là nghiệm tương đương), nên Nhóm đánh giá theo chiều tốt nhất:
+    <div class="formula" style="display:block;text-align:center;margin-top:.35em;font-size:1em">effective AUC = max(AUC, 1 − AUC)</div>
+  </div>
+</section>
+
 <!-- ────────────────────────── SLIDE 13 — KẾT QUẢ AUC ────────────────────────── -->
 <section>
-  <span class="section-banner">Phần 4 — Đánh giá bằng nhãn thật</span>
+  <span class="section-banner">Phần 4 - Đánh giá thực tế</span>
   <h2>Kết quả AUC — ViSFD &amp; VTSNLP</h2>
   <div class="cols" style="gap:1.2em;align-items:flex-start">
     <div style="flex:1">
@@ -424,34 +437,6 @@
       <div class="box amber" style="margin-top:.4em">
         <span class="lbl">LƯU Ý</span>
         VTSNLP đạt AUC cao hơn không phản ánh S³ hoạt động tốt hơn ở đó, mà do domain của VTSNLP là nhãn đơn — mỗi tài liệu chỉ thuộc đúng một domain, dễ tách bạch hơn ViSFD (một câu có thể đồng thời đề cập PIN và GIÁ).
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ────────────────────────── SLIDE 14 — N_TOPICS SWEEP ────────────────────────── -->
-<section>
-  <span class="section-banner">Phần 4 — Đánh giá bằng nhãn thật</span>
-  <h2>Ảnh hưởng của n_topics lên chất lượng chủ đề</h2>
-  <div class="cols" style="gap:1em;align-items:flex-start;margin-top:.9em">
-    <div style="flex:1.4">
-      <div class="img-box">
-        <img src="../../artifacts/visualizations/s3_topic_quality.png" alt="S³ topic quality sweep: coherence, diversity, aggregate vs n_topics" loading="lazy" style="max-height:400px">
-      </div>
-      <p class="cap">Coherence · Diversity · Aggregate theo k — 3 corpus (CafeBERT)</p>
-    </div>
-    <div style="flex:1;font-size:.85em">
-      <div class="box green" style="margin-bottom:.5em">
-        <span class="lbl">DIVERSITY — KHÔNG ĐỔI THEO K</span>
-        Diversity giữ ổn định trên 0,8 với mọi giá trị k — tăng số trục không làm S³ lặp lại từ khoá.
-      </div>
-      <div class="box blue" style="margin-bottom:.5em">
-        <span class="lbl">K TỐI ƯU</span>
-        <b>ViSFD</b>: k = 20 · <b>VTSNLP</b>: k = 30
-      </div>
-      <div class="box amber">
-        <span class="lbl">ĐÁNH ĐỔI KHI TĂNG K</span>
-        Tăng k giúp tách khía cạnh hiếm như STORAGE (132/11.122 tài liệu) thành trục riêng; vượt ngưỡng tối ưu sẽ sinh trục trùng lặp hoặc bám nhiễu thay vì tín hiệu ngữ nghĩa mới.
       </div>
     </div>
   </div>
