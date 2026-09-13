@@ -78,23 +78,26 @@
 .agi .nbadge{ min-width:2em; height:2em; border-radius:50%; background:var(--accent); color:#fff; font-weight:800; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
 .agi b{ display:block; color:var(--accent); }
 .agi small{ color:var(--muted); font-size:.78em; }
+.uit-logo{ position:fixed; top:14px; right:18px; height:73px; width:auto; z-index:40; pointer-events:none; }
 </style>
 </head>
 <body>
+<img class="uit-logo" src="../../logo-UIT-V.webp" alt="Logo UIT">
 <div class="reveal">
 <div class="slides">
 
 <!-- ────────────────────────── SLIDE 1 — TIÊU ĐỀ ────────────────────────── -->
-<section data-background-gradient="linear-gradient(135deg,#eff6ff 0%,#ecfeff 100%)" style="text-align:center">
+<section data-background-gradient="linear-gradient(135deg,#eff6ff 0%,#ecfeff 100%)" style="height:100%">
+ <div style="height:100%;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center">
   <div><span class="tag blue">ACL 2025 · Long Papers</span> <span class="tag cyan">Tái lập &amp; Mở rộng</span></div>
-  <h1 style="margin:.35em 0 .1em;font-size:1.9em">S³ cho Tiếng Việt</h1>
+  <h1 style="margin:.35em auto .1em;font-size:1.45em;max-width:82%">Phân tách chủ đề văn bản tiếng Việt bằng cách xử lý tín hiệu ngữ nghĩa</h1>
   <p style="color:var(--muted);font-size:.75em;margin-bottom:.8em">Tái lập, Đánh giá và Đề xuất Ứng dụng của Semantic Signal Separation</p>
   <table style="display:inline-table;border:none;font-size:.68em;line-height:1.9;width:auto;margin:0 auto;text-align:left">
     <tr><td style="border:none;background:transparent;font-weight:700;padding-right:1.2em">Lớp</td><td style="border:none;background:transparent">CS2308.CH203 - Chuyên đề nghiên cứu và ứng dụng về Xử lý ngôn ngữ tự nhiên</td></tr>
     <tr><td style="border:none;background:transparent;font-weight:700;padding-right:1.2em">GVHD</td><td style="border:none;background:transparent">TS. Nguyễn Văn Kiệt</td></tr>
     <tr><td style="border:none;background:transparent;font-weight:700;padding-right:1.2em;vertical-align:top">Nhóm 7</td><td style="border:none;background:transparent">Đinh Trọng Hậu · Vũ Ánh Minh · Trần Đình Thiện · Ngô Quang Huy</td></tr>
   </table>
-  <p style="margin-top:.7em;font-size:.42em;color:#94a3b8">← → chuyển slide · F toàn màn hình · ESC tổng quan</p>
+ </div>
 </section>
 
 <!-- ────────────────────────── SLIDE 2 — AGENDA ────────────────────────── -->
@@ -510,7 +513,7 @@
 <script>
 Reveal.initialize({
   hash: true, progress: true, slideNumber: 'c/t', transition: 'slide',
-  center: false,
+  center: false, controls: false,
   width: 1180, height: 740, margin: 0.06,
 });
 </script>
