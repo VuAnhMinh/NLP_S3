@@ -103,7 +103,7 @@
   <div class="agenda-grid">
     <div class="agi"><div class="nbadge">1</div><div><b>S³ là gì?</b><small>Pipeline tổng thể, 6 bước, 3 biến thể β</small></div></div>
     <div class="agi"><div class="nbadge">2</div><div><b>Tái lập cho tiếng Việt</b><small>pyvi tách từ, CafeBERT vs multilingual-E5</small></div></div>
-    <div class="agi"><div class="nbadge">3</div><div><b>Thiết lập &amp; kết quả thực nghiệm</b><small>4 corpus VN, coherence &amp; diversity, tốc độ, refit_transform()</small></div></div>
+    <div class="agi"><div class="nbadge">3</div><div><b>Thiết lập &amp; kết quả thực nghiệm</b><small>4 corpus VN, Concept Compass, coherence &amp; diversity, tốc độ</small></div></div>
     <div class="agi"><div class="nbadge">4</div><div><b>Đánh giá thực tế</b><small>AUC trục ICA, ViSFD, VTSNLP, ảnh hưởng n_topics</small></div></div>
     <div class="agi full" style="border:2px solid var(--accent2)">
       <div class="nbadge" style="background:var(--accent2)">5</div>
@@ -268,6 +268,16 @@
     <div><b style="color:var(--ink)">Cấu hình:</b> S³ axial / angular / combined (CafeBERT) · LDA · NMF · BERTopic+UMAP+KMeans</div>
     <div style="margin-top:.2em"><b style="color:var(--ink)">Protocol:</b> k ∈ {10, 20, 30, 40, 50} · 4 seed (11, 29, 42, 47) · <b style="color:var(--accent)">4 × 6 × 5 × 4 = 480 run</b> · không tinh chỉnh siêu tham số</div>
   </div>
+</section>
+
+<!-- ────────────────────────── SLIDE — CONCEPT COMPASS ────────────────────────── -->
+<section>
+  <span class="section-banner">Phần 3 — Thiết lập &amp; kết quả thực nghiệm</span>
+  <h2>Ví dụ: Visualize các từ vựng hỗ trợ cho trục topic</h2>
+  <div class="img-box">
+    <img src="../../report/figures/concept_compass.png" alt="Concept Compass: từ vựng nổi bật trên trục CAMERA và BATTERY (ViSFD)" loading="lazy" style="max-height:560px">
+  </div>
+  <p class="cap">Concept Compass — trục hoành = CAMERA (chụp, selfie, camera, cận cảnh…), trục tung = BATTERY (pin trâu, trâu bò…). Mỗi cực lấy 12 từ có điểm chiếu cực trị nhất trên trục đó.</p>
 </section>
 
 <!-- ────────────────────────── SLIDE 9 — COHERENCE ────────────────────────── -->

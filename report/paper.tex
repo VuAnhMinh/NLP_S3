@@ -178,16 +178,17 @@ liệt kê được từ khoá dương. Chọn hai trục làm hai chiều của
 phân tán (\emph{Concept Compass}) cho phép quan sát trực tiếp cách các
 khái niệm sắp xếp trong không gian ngữ nghĩa hai chiều mà không cần bất kỳ
 nhãn giám sát nào \citep{kardos2025s3}. Hình~\ref{fig:concept-compass}
-minh hoạ trên checkpoint thật của nhóm: hai cụm từ khoá "pháp lý" và
-"âm nhạc" tự tách về hai cực.
+minh hoạ trên checkpoint ViSFD thật của nhóm: trục tương ứng khía cạnh
+CAMERA (AUC$\approx0{,}80$ với nhãn thật) và trục tương ứng khía cạnh
+BATTERY (AUC$\approx0{,}68$) -- chọn bằng phương pháp AUC ở
+Mục~\ref{sec:vn-experiments}.
 
 \begin{figure}[t]
     \centering
     \includegraphics[width=0.82\linewidth]{figures/concept_compass.png}
-    \caption{Concept Compass của nhóm: hình chiếu 20.000 từ vựng lên hai
-    trục ngữ nghĩa của một checkpoint S\textsuperscript{3}
-    (Vietnamese-news, $k=20$). Cực dương mỗi trục gom đúng cụm từ khoá của
-    chủ đề tương ứng; cực âm gom các từ ít mang tín hiệu chủ đề.}
+    \caption{Concept Compass của nhóm trên checkpoint ViSFD ($k=50$): với
+    mỗi trục CAMERA/BATTERY, hiển thị các từ có điểm chiếu cực trị nhất ở
+    cả hai cực (hưởng ứng và bài xích chủ đề).}
     \label{fig:concept-compass}
 \end{figure}
 
